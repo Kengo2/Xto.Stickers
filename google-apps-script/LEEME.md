@@ -40,6 +40,21 @@ Si ya tenías la hoja funcionando con la versión anterior:
 
 Los correos salen desde tu cuenta de Gmail con el nombre **XTO.STICKER** (Google permite unos 100 por día en cuentas gratis).
 
+## Aviso de pedidos nuevos en Telegram
+
+Te llega un mensaje al celular apenas entra un pedido, con el cliente, el detalle, el total y el link para verlo.
+
+1. Instala **Telegram** y busca **@BotFather**. Escríbele `/newbot`.
+   - Nombre: por ejemplo `Pedidos XTO`.
+   - Usuario: tiene que terminar en `bot`, por ejemplo `xto_pedidos_bot`.
+   - BotFather te responde con una **clave** (token), algo como `7123456789:AAH...`. **No la compartas con nadie.**
+2. Toca el link de tu bot que te da BotFather (`t.me/xto_pedidos_bot`) y toca **Iniciar**.
+3. En la hoja: **Extensiones → Apps Script**. Pega la clave entre las comillas de `TELEGRAM_TOKEN` y toca **Guardar**.
+4. Elige la función **probarTelegram** y toca **Ejecutar** (acepta el permiso nuevo para conectarse a Telegram). Te debe llegar "✅ ¡Listo!" al bot.
+5. **Implementar → Gestionar implementaciones → lápiz → Versión: Nueva versión → Implementar.**
+
+No subas a GitHub el código con tu clave: pégala solo en Apps Script.
+
 ## Si cambias el código más adelante
 
 Después de editar `Pedidos.gs`, ve a **Implementar → Gestionar implementaciones → editar (lápiz) → Versión: Nueva versión → Implementar**. Así se mantiene la misma URL.
