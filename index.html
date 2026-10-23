@@ -708,21 +708,42 @@ function renderCart(){
  $$("[data-d]").forEach(b=>b.onclick=()=>{cart=cart.filter(c=>c.id!=b.dataset.d);saveCart();renderCart();renderNav()});
  $("#sent").hidden=true}
 function orderNo(){const d=new Date(),p=n=>String(n).padStart(2,"0");return "XTO-"+String(d.getFullYear()).slice(2)+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())}
-function msg(no){const L=cart.map(l=>l.x?`• ${l.name} (${l.ex}) x${l.q} — precio a cotizar${l.note?" · Idea: "+l.note:""}`:`• ${l.name}${l.k!=null&&ITEMS[l.k]?" "+code(l.k):""}${l.sheet?` (${l.n} stickers: ${l.sheet})`:""}${l.img?` [foto: ${l.img}${l.bg?", quitar fondo":""}]`:""} — ${l.m}, ${l.sheet?"medidas indicadas":l.s+" × "+(l.h||l.s)+" cm, x"+l.q} = ${money(lineTotal(l))}${l.note?" · Nota: "+l.note:""}`).join("\n");
+function msg(no,link){const L=cart.map(l=>l.x?`• ${l.name} (${l.ex}) x${l.q} — precio a cotizar${l.note?" · Idea: "+l.note:""}`:`• ${l.name}${l.k!=null&&ITEMS[l.k]?" "+code(l.k):""}${l.sheet?` (${l.n} stickers: ${l.sheet})`:""}${l.img?` [foto: ${l.img}${l.bg?", quitar fondo":""}]`:""} — ${l.m}, ${l.sheet?"medidas indicadas":l.s+" × "+(l.h||l.s)+" cm, x"+l.q} = ${money(lineTotal(l))}${l.note?" · Nota: "+l.note:""}`).join("\n");
  const on=$("#on").value.trim();
- return `Hola xto.sticker, quiero hacer este pedido (${no}):\n${L}\n\nTotal estimado: ${cart.every(l=>l.x)?"a cotizar":money(cartTotal())+(cart.some(l=>l.x)?" + productos a cotizar":"")}\nNombre: ${$("#nm").value.trim()}\nTeléfono: ${$("#ph").value.trim()}\nCorreo: ${$("#em").value.trim()}${on?"\nNotas: "+on:""}\n\n📎 Ver pedido con imágenes:\n${orderLink(no)}`}
+ return `Hola xto.sticker, quiero hacer este pedido (${no}):\n${L}\n\nTotal estimado: ${cart.every(l=>l.x)?"a cotizar":money(cartTotal())+(cart.some(l=>l.x)?" + productos a cotizar":"")}\nNombre: ${$("#nm").value.trim()}\nTeléfono: ${$("#ph").value.trim()}\nCorreo: ${$("#em").value.trim()}${on?"\nNotas: "+on:""}\n\n📎 Ver pedido con imágenes:\n${link}`}
 // el pedido viaja dentro del link (#p=...) para verlo con imágenes, medidas y el acomodo de cada hoja
 const b64u=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const unb64u=s=>decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4))));
-function orderLink(no){const L=cart.map(l=>{const r={...l};["e","id","icon"].forEach(k=>delete r[k]);if(r.lay)delete r.sheet;return r});
- return SITE+"#p="+b64u(JSON.stringify({no,n:$("#nm").value.trim(),t:$("#ph").value.trim(),e:$("#em").value.trim(),o:$("#on").value.trim(),L}))}
+// el pedido viaja comprimido dentro del link (#z=...): sin nombres repetidos ni datos que se puedan deducir
+const mIdx=m=>Math.max(0,MATS.findIndex(x=>x[0]==m));
+function packOrder(no){const L=cart.map(l=>l.x?["x",l.x,l.q,l.ex||"",l.note||""]:l.lay?["h",mIdx(l.m),...l.lay.flat()]:l.sheet?["s",l.name,mIdx(l.m),l.sheet,l.sizes||[]]
+ :l.img?["f",mIdx(l.m),l.s,l.h||l.s,l.q,l.img,l.bg?1:0,l.note||""]:l.k!=null?["c",l.k,mIdx(l.m),l.s,l.h||l.s,l.q]:["o",l.name,mIdx(l.m),l.s,l.h||l.s,l.q,l.note||""]);
+ return [no,$("#nm").value.trim(),$("#ph").value.trim(),$("#em").value.trim(),$("#on").value.trim(),L]}
+function unpackOrder([no,n,t,e,o,L]){let hs=0;const M=i=>(MATS[i]||MATS[0])[0];
+ L=L.map(a=>{const [ty,...r]=a;
+  if(ty=="c")return {name:(ITEMS[r[0]]||[,"Sticker"])[1],k:r[0],m:M(r[1]),s:r[2],h:r[3],q:r[4]};
+  if(ty=="h"){const lay=[];for(let i=1;i<r.length;i+=5)lay.push(r.slice(i,i+5));return {name:"Hoja personalizada",m:M(r[0]),lay,n:lay.length,sizes:lay.map(([,w,hg])=>Math.max(w,hg))}}
+  if(ty=="s")return {name:r[0],m:M(r[1]),sheet:r[2],sizes:r[3],n:r[3].length};
+  if(ty=="f")return {name:"Sticker personalizado",m:M(r[0]),s:r[1],h:r[2],q:r[3],img:r[4],bg:!!r[5],note:r[6]};
+  if(ty=="x")return {name:(EXTRAS.find(p=>p.id==r[0])||{name:"Proyecto"}).name,x:r[0],q:r[1],ex:r[2],note:r[3]};
+  return {name:r[0],m:M(r[1]),s:r[2],h:r[3],q:r[4],note:r[5]}});
+ const nh=L.filter(l=>l.lay).length;L.forEach(l=>{if(l.lay&&nh>1)l.name+=" "+(++hs)});return {no,n,t,e,o,L}}
+const bytesB64=b=>{let s="";for(const c of new Uint8Array(b))s+=String.fromCharCode(c);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")};
+const b64Bytes=s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4)),c=>c.charCodeAt(0));
+async function orderLink(no){const j=JSON.stringify(packOrder(no));
+ if(!window.CompressionStream)return SITE+"#j="+b64u(j);
+ return SITE+"#z="+bytesB64(await new Response(new Blob([j]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer())}
+async function readOrder(hs){const k=hs.slice(1,2),v=hs.slice(3);
+ if(k=="p")return JSON.parse(unb64u(v));   // links de antes de comprimir
+ if(k=="j")return unpackOrder(JSON.parse(unb64u(v)));
+ return unpackOrder(JSON.parse(await new Response(new Blob([b64Bytes(v)]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text()))}
 ["nm","ph","em","on"].forEach(i=>{const e=$("#"+i);e.value=store.get("xto_"+i,"");e.oninput=()=>store.set("xto_"+i,e.value)});
-$("#send").onclick=()=>{const er=$("#err");const fail=t=>{er.textContent=t;er.hidden=false};er.hidden=true;
+$("#send").onclick=async()=>{const er=$("#err");const fail=t=>{er.textContent=t;er.hidden=false};er.hidden=true;
  if(!cart.length)return fail("Tu pedido está vacío. Agrega stickers primero.");
  if($("#nm").value.trim().split(/\s+/).filter(w=>w.length>1).length<2)return fail("Escribe tu nombre y apellido para poder confirmar el pedido.");
  if($("#ph").value.replace(/\D/g,"").length<7)return fail("Escribe un teléfono válido para contactarte.");
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("#em").value.trim()))return fail("Escribe un correo válido, por ejemplo tu@correo.com.");
- const no=orderNo(),m=msg(no);
+ const no=orderNo(),m=msg(no,await orderLink(no));
  $("#sentTitle").textContent="Pedido "+no+" listo";$("#sentTxt").value=m;
  $("#wa").href=`https://wa.me/${WHATSAPP=="593000000000"?"":WHATSAPP}?text=${encodeURIComponent(m)}`;
  const mt=$("#mailtxt");mt.hidden=EMAIL=="tucorreo@ejemplo.com";mt.textContent="También puedes enviarlo por correo a "+EMAIL+" con el mismo texto.";
@@ -753,7 +774,7 @@ function renderExtras(){const logo=$(".head img").src;$("#xhero").style.backgrou
   c.querySelector("textarea").value="";toast("Agregado a tu pedido");go("car")})}
 // visor: abre el pedido que llega por WhatsApp
 const waNum=t=>{const d=String(t).replace(/\D/g,"");return d.length==10&&d[0]=="0"?"593"+d.slice(1):d};
-function renderOrder(){let d;try{d=JSON.parse(unb64u(location.hash.slice(3)))}catch(e){d=null}
+async function renderOrder(){let d;try{d=await readOrder(location.hash)}catch(e){d=null}
  const v=$("#ver");if(!d||!Array.isArray(d.L)){v.innerHTML='<div class="panel emptycart"><p>No pudimos leer este pedido. Pide al cliente que lo vuelva a enviar.</p></div>';return}
  const it=k=>ITEMS[k]||["","Sticker #"+(k+1),""],tot=d.L.reduce((a,l)=>a+lineTotal(l),0),cot=d.L.some(l=>l.x);
  const row=(l,i)=>{const head=(t,s)=>`<div class="vhead"><b>${i+1}. ${t}</b><span>${s}</span></div>`;
@@ -770,7 +791,7 @@ function renderOrder(){let d;try{d=JSON.parse(unb64u(location.hash.slice(3)))}ca
   <div class="vtot"><span>Total estimado</span><b>${d.L.every(l=>l.x)?"A cotizar":money(tot)}</b>${cot&&!d.L.every(l=>l.x)?`<small>+ productos a cotizar</small>`:""}</div>
   <div class="vbtns"><button class="btn" id="vprint">Imprimir o guardar PDF</button>${ph?`<a class="btn alt" href="https://wa.me/${ph}" target="_blank" rel="noopener">Escribir al cliente</a>`:""}</div></div>${d.L.map(row).join("")}`;
  $("#vprint").onclick=()=>print()}
-function showOrder(){if(!location.hash.startsWith("#p="))return;go("ver");renderOrder()}
+function showOrder(){if(!/^#[pjz]=/.test(location.hash))return;go("ver");renderOrder()}
 addEventListener("hashchange",showOrder);
 // opciones del inicio: [título, descripción, destino, miniatura]
 const OPTS=[["Stickers sueltos","Elige del catálogo, cualquier medida","cat","one"],["Hoja de stickers","Varios diseños en una hoja A4","hoja","sheet"],["Planchas","Muchos stickers de un mismo diseño","pk","pack"],["Con tu foto","Tu propio diseño hecho sticker","sub","photo"],["Patinetas y más","Skates, cuadros, pósters, vinilos, flyers y más","mas","skate"]];
