@@ -169,7 +169,7 @@ textarea{resize:vertical}
 /* hoja */
 .sheetwrap{display:grid;gap:18px}
 @media(min-width:860px){.sheetwrap{grid-template-columns:minmax(0,1fr) 300px}}
-.sheet{position:relative;aspect-ratio:21/29.7;width:100%;max-width:480px;margin:0 auto;background-color:#fff;border:1.5px solid var(--brand);border-radius:6px;overflow:hidden;touch-action:none;background-image:linear-gradient(rgba(122,63,160,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(122,63,160,.14) 1px,transparent 1px);background-size:10% 7.5%;box-shadow:0 8px 24px rgba(91,42,122,.12)}
+.sheet{position:relative;aspect-ratio:21/29.7;width:100%;max-width:480px;margin:0 auto;background-color:#fff;border:1.5px solid var(--brand);border-radius:6px;overflow:hidden;touch-action:pan-x pan-y;background-image:linear-gradient(rgba(122,63,160,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(122,63,160,.14) 1px,transparent 1px);background-size:10% 7.5%;box-shadow:0 8px 24px rgba(91,42,122,.12)}
 .sheetcol{min-width:0}
 .stabs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:0 auto 12px;max-width:520px}
 .stab{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--card);color:var(--mu);border-radius:99px;padding:7px 13px;font-size:13px;font-weight:700}
@@ -205,7 +205,7 @@ textarea{resize:vertical}
 .sheet.mock .piece:not(.on) .x,.sheet.mock .piece:not(.on) .rs,.sheet.mock .piece:not(.on) .sz{display:none}
 .sheet.mock .piece.on{outline:1.5px dashed rgba(255,255,255,.9);outline-offset:3px}
 .sheet .empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--sheet-ink);text-align:center;padding:30px}
-.piece{position:absolute;cursor:grab;user-select:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
+.piece{position:absolute;cursor:grab;user-select:none;touch-action:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
 .piece img{width:100%;display:block;pointer-events:none;-webkit-user-drag:none}
 .piece button.x{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--brand);background:#fff;color:#5b2a7a;font-size:11px;line-height:1;padding:0}
 .piece .rs{position:absolute;right:-10px;bottom:-10px;width:24px;height:24px;border-radius:50%;background:#fff;border:1.5px solid var(--brand);cursor:nwse-resize;touch-action:none}
@@ -596,7 +596,7 @@ function renderSurfs(){const S=SURF[surf];
  $("#surfs").innerHTML=Object.entries(SURF).map(([k,v])=>`<button class="surf ${k==surf?"on":""}" data-surf="${k}" aria-pressed="${k==surf}"><span class="st">${v.img?`<img src="${MOCK[v.img]}" alt="">`:k=="pared"?`<span class="wallbg"><span class="outlet"></span></span>`:svg(ICON.sheet,26)}</span>${v.name}</button>`).join("");
  $$("[data-surf]").forEach(b=>b.onclick=()=>{surf=b.dataset.surf;renderSheet()});
  $("#shint").textContent=surf=="hoja"?"Toca una superficie para ver cómo quedarían tus stickers.":`Vista previa en ${S.name.toLowerCase()} con la medida real aproximada. Arrástralos y toca uno para cambiar su tamaño o quitarlo. Tu pedido sigue siendo la hoja con estos stickers.`}
-function renderSheet(){renderTabs();const s=$("#sheet"),S=SURF[surf];s.className="sheet"+(surf=="hoja"?"":" mock");s.style.aspectRatio=S.ar;s.style.maxWidth=S.max+"px";
+function renderSheet(){renderTabs();const s=$("#sheet"),S=SURF[surf];s.className="sheet"+(surf=="hoja"?"":" mock");s.style.aspectRatio=S.ar;s.style.maxWidth=`min(${S.max}px, calc(68vh * ${S.ar}))`;
  s.innerHTML=(S.img?`<img class="mockbg" src="${MOCK[S.img]}" alt="${S.name}">`:surf=="pared"?`<div class="wallbg"><span class="outlet"></span></div>`:"")+(sheet.length?"":'<div class="empty">Tu hoja está en blanco.<br>Agrega stickers con el botón “A mi hoja” en el catálogo.</div>');
  renderSurfs();const g=geo(),a=document.createElement("div");a.className="area"+(S.shade?" shade":"");a.style.width=g.lw+"px";a.style.height=g.lh+"px";a.style.transform=g.m.toString();s.appendChild(a);
  s.onpointerdown=ev=>{if(!ev.target.closest(".piece")){selId=null;$$(".piece.on").forEach(e=>e.classList.remove("on"))}};
