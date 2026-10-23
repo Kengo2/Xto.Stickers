@@ -494,7 +494,8 @@ img{max-width:100%}
 const WHATSAPP="593987946718";            // número con código de país, sin +
 const EMAIL="tucorreo@ejemplo.com";
 const INSTAGRAM="xto.stickers";
-const SITE="https://kengo2.github.io/Xto.Stickers/";   // dirección pública: el link "Ver pedido con imágenes" abre aquí                       // ej: "xto.sticker" (déjalo vacío para ocultarlo)
+const SITE="https://kengo2.github.io/Xto.Stickers/";
+const ORDERS_URL="";   // URL de tu hoja de Google (Apps Script, termina en /exec). Vacía: el pedido viaja completo en el link   // dirección pública: el link "Ver pedido con imágenes" abre aquí                       // ej: "xto.sticker" (déjalo vacío para ocultarlo)
 // Precio por sticker de cada material. Cada fila: [hasta cuántos cm, [[desde cuántas unidades, precio c/u], ...]]
 // Una medida usa la fila de la tabla igual o inmediata superior (ej. 6 cm usa la de 7 cm).
 const MATS=[
@@ -707,10 +708,10 @@ function renderCart(){
  f("m","m",v=>v);f("s","s",cl);f("hh","h",cl);f("q","q",v=>Math.max(1,Math.floor(+v||1)));
  $$("[data-d]").forEach(b=>b.onclick=()=>{cart=cart.filter(c=>c.id!=b.dataset.d);saveCart();renderCart();renderNav()});
  $("#sent").hidden=true}
-function orderNo(){const d=new Date(),p=n=>String(n).padStart(2,"0");return "XTO-"+String(d.getFullYear()).slice(2)+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())}
+function orderNo(){const d=new Date(),p=n=>String(n).padStart(2,"0");return "XTO-"+String(d.getFullYear()).slice(2)+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())+"-"+Array.from(crypto.getRandomValues(new Uint8Array(4)),b=>"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b%32]).join("")}
 function msg(no,link){const L=cart.map(l=>l.x?`• ${l.name} (${l.ex}) x${l.q} — precio a cotizar${l.note?" · Idea: "+l.note:""}`:`• ${l.name}${l.k!=null&&ITEMS[l.k]?" "+code(l.k):""}${l.sheet?` (${l.n} stickers: ${l.sheet})`:""}${l.img?` [foto: ${l.img}${l.bg?", quitar fondo":""}]`:""} — ${l.m}, ${l.sheet?"medidas indicadas":l.s+" × "+(l.h||l.s)+" cm, x"+l.q} = ${money(lineTotal(l))}${l.note?" · Nota: "+l.note:""}`).join("\n");
  const on=$("#on").value.trim();
- return `Hola xto.sticker, quiero hacer este pedido (${no}):\n${L}\n\nTotal estimado: ${cart.every(l=>l.x)?"a cotizar":money(cartTotal())+(cart.some(l=>l.x)?" + productos a cotizar":"")}\nNombre: ${$("#nm").value.trim()}\nTeléfono: ${$("#ph").value.trim()}\nCorreo: ${$("#em").value.trim()}${on?"\nNotas: "+on:""}\n\n📎 Ver pedido con imágenes:\n${link}`}
+ return `Hola xto.sticker, quiero hacer este pedido (${no}):\n${L}\n\nTotal estimado: ${totText()}\nNombre: ${$("#nm").value.trim()}\nTeléfono: ${$("#ph").value.trim()}\nCorreo: ${$("#em").value.trim()}${on?"\nNotas: "+on:""}\n\n📎 Ver pedido con imágenes:\n${link}`}
 // el pedido viaja dentro del link (#p=...) para verlo con imágenes, medidas y el acomodo de cada hoja
 const b64u=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const unb64u=s=>decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4))));
@@ -730,10 +731,20 @@ function unpackOrder([no,n,t,e,o,L]){let hs=0;const M=i=>(MATS[i]||MATS[0])[0];
  const nh=L.filter(l=>l.lay).length;L.forEach(l=>{if(l.lay&&nh>1)l.name+=" "+(++hs)});return {no,n,t,e,o,L}}
 const bytesB64=b=>{let s="";for(const c of new Uint8Array(b))s+=String.fromCharCode(c);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")};
 const b64Bytes=s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4)),c=>c.charCodeAt(0));
-async function orderLink(no){const j=JSON.stringify(packOrder(no));
- if(!window.CompressionStream)return SITE+"#j="+b64u(j);
- return SITE+"#z="+bytesB64(await new Response(new Blob([j]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer())}
-async function readOrder(hs){const k=hs.slice(1,2),v=hs.slice(3);
+const totText=()=>cart.every(l=>l.x)?"a cotizar":money(cartTotal())+(cart.some(l=>l.x)?" + productos a cotizar":"");
+async function orderHash(no){const j=JSON.stringify(packOrder(no));
+ if(!window.CompressionStream)return "j="+b64u(j);
+ return "z="+bytesB64(await new Response(new Blob([j]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer())}
+// con hoja de Google: guarda el pedido y el link solo lleva el número; si falla, el link lleva el pedido completo
+async function orderLink(no){const hs=await orderHash(no);if(!ORDERS_URL)return SITE+"#"+hs;
+ const r=cart.map(l=>l.name+(l.k!=null&&ITEMS[l.k]?" "+code(l.k):"")+(l.lay?` (${l.lay.length} stickers)`:"")+(l.q>1?` x${l.q}`:"")).join(" · ");
+ try{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),10000);
+  const res=await fetch(ORDERS_URL,{method:"POST",body:JSON.stringify({id:no,p:hs,n:$("#nm").value.trim(),t:$("#ph").value.trim(),e:$("#em").value.trim(),total:totText(),r}),signal:ac.signal});clearTimeout(tm);
+  if((await res.json()).ok)return SITE+"#"+no}catch(e){console.warn("No se pudo guardar en la hoja",e)}
+ return SITE+"#"+hs}
+async function readOrder(hs){if(/^#XTO-/.test(hs)){if(!ORDERS_URL)throw new Error("sin hoja");
+  const j=await (await fetch(ORDERS_URL+"?id="+encodeURIComponent(decodeURIComponent(hs.slice(1))))).json();if(!j.ok)throw new Error(j.error);hs="#"+j.p}
+ const k=hs.slice(1,2),v=hs.slice(3);
  if(k=="p")return JSON.parse(unb64u(v));   // links de antes de comprimir
  if(k=="j")return unpackOrder(JSON.parse(unb64u(v)));
  return unpackOrder(JSON.parse(await new Response(new Blob([b64Bytes(v)]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text()))}
@@ -743,7 +754,8 @@ $("#send").onclick=async()=>{const er=$("#err");const fail=t=>{er.textContent=t;
  if($("#nm").value.trim().split(/\s+/).filter(w=>w.length>1).length<2)return fail("Escribe tu nombre y apellido para poder confirmar el pedido.");
  if($("#ph").value.replace(/\D/g,"").length<7)return fail("Escribe un teléfono válido para contactarte.");
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("#em").value.trim()))return fail("Escribe un correo válido, por ejemplo tu@correo.com.");
- const no=orderNo(),m=msg(no,await orderLink(no));
+ const bt=$("#send"),bl=bt.textContent;bt.disabled=true;bt.textContent="Preparando…";
+ const no=orderNo(),m=msg(no,await orderLink(no));bt.disabled=false;bt.textContent=bl;
  $("#sentTitle").textContent="Pedido "+no+" listo";$("#sentTxt").value=m;
  $("#wa").href=`https://wa.me/${WHATSAPP=="593000000000"?"":WHATSAPP}?text=${encodeURIComponent(m)}`;
  const mt=$("#mailtxt");mt.hidden=EMAIL=="tucorreo@ejemplo.com";mt.textContent="También puedes enviarlo por correo a "+EMAIL+" con el mismo texto.";
@@ -791,7 +803,7 @@ async function renderOrder(){let d;try{d=await readOrder(location.hash)}catch(e)
   <div class="vtot"><span>Total estimado</span><b>${d.L.every(l=>l.x)?"A cotizar":money(tot)}</b>${cot&&!d.L.every(l=>l.x)?`<small>+ productos a cotizar</small>`:""}</div>
   <div class="vbtns"><button class="btn" id="vprint">Imprimir o guardar PDF</button>${ph?`<a class="btn alt" href="https://wa.me/${ph}" target="_blank" rel="noopener">Escribir al cliente</a>`:""}</div></div>${d.L.map(row).join("")}`;
  $("#vprint").onclick=()=>print()}
-function showOrder(){if(!/^#[pjz]=/.test(location.hash))return;go("ver");renderOrder()}
+function showOrder(){if(!/^#([pjz]=|XTO-)/.test(location.hash))return;go("ver");$("#ver").innerHTML='<div class="panel emptycart"><p>Cargando el pedido…</p></div>';renderOrder()}
 addEventListener("hashchange",showOrder);
 // opciones del inicio: [título, descripción, destino, miniatura]
 const OPTS=[["Stickers sueltos","Elige del catálogo, cualquier medida","cat","one"],["Hoja de stickers","Varios diseños en una hoja A4","hoja","sheet"],["Planchas","Muchos stickers de un mismo diseño","pk","pack"],["Con tu foto","Tu propio diseño hecho sticker","sub","photo"],["Patinetas y más","Skates, cuadros, pósters, vinilos, flyers y más","mas","skate"]];
