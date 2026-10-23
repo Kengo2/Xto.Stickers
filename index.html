@@ -193,7 +193,7 @@ textarea{resize:vertical}
 .wallbg .outlet{position:absolute;right:12%;bottom:22%;width:11.7%;aspect-ratio:7/11.5;background:linear-gradient(#fff,#f1eee9);border-radius:6px;box-shadow:0 2px 5px rgba(0,0,0,.18)}
 .wallbg .outlet:before,.wallbg .outlet:after{content:"";position:absolute;left:38%;width:24%;height:13%;border-radius:40%;background:#cfc8bd}
 .wallbg .outlet:before{top:24%}.wallbg .outlet:after{bottom:24%}
-.surfs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px auto 0;max-width:520px}
+.surfs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 auto;max-width:520px}
 .surf{flex:1 1 0;min-width:72px;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 6px 9px;border:1.5px solid var(--line);border-radius:var(--r-s);background:var(--card);font-size:12.5px;font-weight:700;color:var(--mu)}
 .surf:hover{border-color:var(--brand);color:var(--brand-d)}
 .surf.on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-d);box-shadow:0 0 0 2px var(--brand) inset}
@@ -201,7 +201,7 @@ textarea{resize:vertical}
 .surf .st img{width:100%;height:100%;object-fit:cover}
 .surf .st svg{width:26px;height:26px;color:#7a3fa0}
 .surf .st .wallbg .outlet{width:22%}
-.shint{text-align:center;margin:10px auto 0;max-width:46ch}
+.shint{text-align:center;margin:8px auto 14px;max-width:46ch}
 .sheet.mock .piece:not(.on) .x,.sheet.mock .piece:not(.on) .rs,.sheet.mock .piece:not(.on) .sz{display:none}
 .sheet.mock .piece.on{outline:1.5px dashed rgba(255,255,255,.9);outline-offset:3px}
 .sheet .empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--sheet-ink);text-align:center;padding:30px}
@@ -381,11 +381,11 @@ img{max-width:100%}
 </section>
 
 <section class="sec" id="s-hoja">
-<h2 class="title">Mi hoja</h2><p class="lead">Arma tu plantilla A4: agrega stickers desde el catálogo, arrástralos para acomodarlos y cambia su tamaño con el círculo de la esquina. Abajo puedes ver cómo quedarían en un termo, una laptop o una pared.</p>
+<h2 class="title">Mi hoja</h2><p class="lead">Arma tu plantilla A4: agrega stickers desde el catálogo, arrástralos para acomodarlos y cambia su tamaño con el círculo de la esquina. Con los botones de arriba ves cómo quedarían en un termo, una laptop o una pared.</p>
 <div class="sheetwrap">
-<div class="sheetcol"><div class="stabs" id="stabs" role="group" aria-label="Mis hojas"></div><div class="sheet" id="sheet"></div>
-<div class="surfs" id="surfs" role="group" aria-label="Ver mis stickers en"></div>
-<p class="hint shint" id="shint"></p></div>
+<div class="sheetcol"><div class="surfs" id="surfs" role="group" aria-label="Ver mis stickers en"></div>
+<p class="hint shint" id="shint"></p>
+<div class="stabs" id="stabs" role="group" aria-label="Mis hojas"></div><div class="sheet" id="sheet"></div></div>
 <div class="panel side"><div class="hcount" id="hcount"></div>
 <p class="hint pad">La hoja mide 21 × 29,7 cm. Debajo de cada sticker ves su medida (ancho × largo en cm). El precio es con vinilo brillante y se calcula con el lado más largo de cada uno.</p>
 <p class="hint" id="htot" style="font-weight:700;color:var(--ink);margin-top:4px" hidden></p>
