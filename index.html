@@ -179,6 +179,25 @@ table{width:100%;border-collapse:collapse;min-width:520px}
 th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;font-variant-numeric:tabular-nums}
 th{color:var(--mu);font-weight:700;font-size:12px;background:var(--paper)}
 td:first-child{font-weight:700}
+.mats{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;margin:10px 0 22px;scroll-snap-type:x mandatory}
+@media(min-width:900px){.mats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));overflow:visible}}
+.mat{flex:0 0 148px;scroll-snap-align:start;border:1.5px solid var(--line);background:var(--card);border-radius:var(--r);padding:10px 10px 12px;text-align:center;transition:border-color .15s,background .15s}
+.mat:hover{border-color:var(--brand)}
+.mat.on{border-color:var(--brand);background:var(--brand-soft);box-shadow:0 0 0 2px var(--brand) inset}
+.mat b{display:block;font-size:14px;line-height:1.25}
+.mat span{display:block;font-size:12px;color:var(--mu);line-height:1.3;margin-top:3px}
+.msw{aspect-ratio:1;border-radius:8px;background:#e9e7ee;display:grid;place-items:center;margin-bottom:10px}
+.sw{position:relative;width:64%;aspect-ratio:1;border-radius:50%;overflow:hidden;box-shadow:0 3px 8px rgba(26,20,35,.25)}
+.sw:after{content:"";position:absolute;right:0;bottom:0;width:36%;height:36%;background:linear-gradient(315deg,#e9e7ee 0 48%,#fff 52%,#d6d1de 100%);border-top-left-radius:70% 70%;box-shadow:-2px -2px 5px rgba(26,20,35,.18)}
+.sw img{position:absolute;inset:8%;width:84%;height:84%;object-fit:contain}
+.sw.mate{background:#f3f2f5}
+.sw.gloss{background:linear-gradient(130deg,#fff 0%,#eeedf2 30%,#fff 42%,#fff 48%,#e4e1ea 62%,#fafafa 100%)}
+.sw.glit{background:radial-gradient(#fff 1px,transparent 1.7px) 0 0/7px 7px,radial-gradient(#ffe36b 1px,transparent 1.7px) 3px 4px/9px 9px,radial-gradient(#ffffffcc .8px,transparent 1.4px) 5px 1px/5px 5px,linear-gradient(135deg,#c49be6,#ff9ad5 35%,#8fd8ff 65%,#c49be6)}
+.sw.clear{background-color:rgba(255,255,255,.35);background-image:linear-gradient(45deg,#cfcad8 25%,transparent 25%,transparent 75%,#cfcad8 75%),linear-gradient(45deg,#cfcad8 25%,transparent 25%,transparent 75%,#cfcad8 75%);background-size:12px 12px;background-position:0 0,6px 6px;border:2px solid rgba(255,255,255,.95)}
+.sw.epx{box-shadow:0 7px 14px rgba(26,20,35,.4),inset 0 -6px 12px rgba(0,0,0,.35)}
+.sw.epx img{inset:0;width:100%;height:100%}
+.sw.epx:before{content:"";position:absolute;inset:0;z-index:1;border-radius:50%;background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.9),rgba(255,255,255,.15) 30%,rgba(255,255,255,0) 45%),radial-gradient(circle at 70% 85%,rgba(255,255,255,.35),rgba(255,255,255,0) 30%)}
+.sw.epx:after{z-index:2}
 .bigp{font-size:34px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
 .sub{font-size:18px;font-weight:800;margin:24px 0 4px}
 .faq{display:grid;gap:8px;margin-top:16px}
@@ -277,11 +296,13 @@ img{max-width:100%}
 
 <section class="sec" id="s-vin">
 <h2 class="title">Vinilos y precios</h2><p class="lead">Precio por sticker según material y tamaño. Los descuentos se aplican por cantidad.</p>
+<h3 class="sub" style="margin-top:0">Materiales</h3><p class="hint">Así se ve cada vinil. Toca uno para calcular su precio.</p>
+<div class="mats" id="mats"></div>
 <div class="panel scroll"><table id="ptab"></table></div>
 <p class="hint pad" id="pnote"></p>
 <h3 class="sub" id="planchas" style="scroll-margin-top:calc(var(--head) + 16px)">Planchas</h3><p class="hint">Precio de una plancha completa de stickers de una misma medida.</p>
 <div class="panel scroll" style="margin-top:10px"><table id="pktab"></table></div>
-<div class="panel" style="margin-top:16px"><h3>Calcula tu pedido</h3>
+<div class="panel" id="calc" style="margin-top:16px;scroll-margin-top:calc(var(--head) + 16px)"><h3>Calcula tu pedido</h3>
 <div class="row"><div><label for="cm">Material</label><select id="cm"></select></div><div><label for="cs">Ancho (cm)</label><input id="cs" type="number" min="2" max="14" step="0.5" value="5" inputmode="decimal"></div><div><label for="ch">Largo (cm)</label><input id="ch" type="number" min="2" max="14" step="0.5" value="5" inputmode="decimal"></div><div><label for="cq">Cantidad</label><input id="cq" type="number" min="1" value="50"></div></div>
 <div id="cp"></div></div>
 <div class="faq">
@@ -434,7 +455,13 @@ function renderPrices(){$("#ptab").innerHTML=`<tr><th>Material</th>${COLS.map(c=
  ["cm","um"].forEach(i=>$("#"+i).innerHTML=opts(MATS.map(m=>m[0])));
  const calc=()=>{const qy=Math.max(1,+$("#cq").value||1),w=cl($("#cs").value),h=cl($("#ch").value),m=$("#cm").value,s=Math.max(w,h),u=unit(m,s,qy);
   $("#cp").innerHTML=`<div class="bigp">${money(u*qy)}</div><p class="hint">Medida ${w} × ${h} cm · ${money(u)} c/u · ${qy} uds</p>`+tip(m,s,qy)+packTip(m,w,h,qy)};
- ["cm","cs","ch","cq"].forEach(i=>{$("#"+i).oninput=calc;$("#"+i).onchange=calc});calc()}
+ ["cm","cs","ch","cq"].forEach(i=>{$("#"+i).oninput=calc;$("#"+i).onchange=calc});calc();
+ // referencias visuales de cada material: [clase de la muestra, descripción]
+ const logo=`<img src="${$(".head img").src}" alt="">`,MAT_INFO={"Vinilo mate":["mate","Sin brillo, acabado suave"],"Vinilo brillante":["gloss","Colores vivos con brillo"],"Brillos (glitter)":["glit","Destellos de colores"],"Transparente":["clear","Sin fondo, se ve la superficie"],"Epoxi 3D":["epx","Relieve con gota de resina"]};
+ const mark=()=>$$("[data-mat]").forEach(b=>{const on=b.dataset.mat==$("#cm").value;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
+ $("#mats").innerHTML=MATS.map(([m])=>{const [k,d]=MAT_INFO[m]||["mate",""];return `<button class="mat" data-mat="${m}"><div class="msw"><div class="sw ${k}">${k=="clear"||k=="epx"?logo:""}</div></div><b>${m}</b><span>${d}</span></button>`}).join("");
+ $$("[data-mat]").forEach(b=>b.onclick=()=>{$("#cm").value=b.dataset.mat;calc();mark();$("#calc").scrollIntoView({behavior:"smooth",block:"start"})});
+ $("#cm").addEventListener("change",mark);mark()}
 // foto
 function ucalc(){const qy=Math.max(1,+$("#uq").value||1),w=cl($("#us").value),h=cl($("#uh").value),m=$("#um").value,s=Math.max(w,h),u=unit(m,s,qy);
  $("#ucalc").innerHTML=`<b style="font-size:18px">${money(u*qy)}</b> <span class="hint">· ${w} × ${h} cm · ${money(u)} c/u · ${qy} uds</span>`+tip(m,s,qy)+packTip(m,w,h,qy);
