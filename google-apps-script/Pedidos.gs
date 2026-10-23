@@ -13,6 +13,9 @@ const WHATSAPP = '593987946718';
 const CARPETA_FOTOS = 'Pedidos XTO - fotos de clientes';
 // Opcional: escribe tu correo para recibir un aviso por cada pedido nuevo (déjalo vacío para no recibir).
 const CORREO_AVISO = '';
+// Opcional: aviso en el celular por Telegram. Pega aquí la clave (token) que te da @BotFather.
+// No subas este archivo con la clave a GitHub: pégala solo en Apps Script.
+const TELEGRAM_TOKEN = '';
 
 const COLUMNAS = ['Fecha', 'Pedido', 'Cliente', 'Teléfono', 'Correo', 'Total', 'Resumen', 'Estado', 'Ver pedido', 'Datos', 'Fotos'];
 const ESTADOS = ['Nuevo', 'En proceso', 'Listo', 'Entregado', 'Cancelado'];
@@ -55,6 +58,7 @@ function doPost(e) {
     let correo = false;
     if (nuevo) {
       try { correoCliente(d); correo = true; } catch (err) { console.error('Correo al cliente', err); }
+      try { avisoTelegram(d); } catch (err) { console.error('Telegram', err); }
       if (CORREO_AVISO) {
         try {
           MailApp.sendEmail(CORREO_AVISO, 'Nuevo pedido ' + d.id + ' · ' + (d.n || ''),
@@ -112,6 +116,52 @@ function correoCliente(d) {
   const opciones = { htmlBody: cuerpo, name: 'XTO.STICKER' };
   if (CORREO_AVISO) opciones.replyTo = CORREO_AVISO;
   MailApp.sendEmail(d.e, 'Recibimos tu pedido ' + d.id + ' · XTO.STICKER', texto, opciones);
+}
+
+/** Aviso al celular: manda el pedido nuevo a tu chat con el bot de Telegram. */
+function avisoTelegram(d) {
+  if (!TELEGRAM_TOKEN) return;
+  const chat = chatTelegram();
+  if (!chat) return;
+  const t = '🛒 <b>Nuevo pedido ' + html(d.id) + '</b>\n' +
+    '👤 ' + html(d.n || '') + '\n📞 ' + html(d.t || '') + '\n✉️ ' + html(d.e || '') + '\n\n' +
+    (d.detalle || []).map(html).join('\n') + '\n\n💰 Total estimado: <b>' + html(d.total || '') + '</b>' +
+    ((d.fotos || []).length ? '\n📷 Trae foto del cliente (está en Drive)' : '') +
+    '\n\n<a href="' + SITIO + '#' + d.id + '">Ver pedido con imágenes</a>';
+  telegram('sendMessage', { chat_id: chat, text: t.slice(0, 4000), parse_mode: 'HTML', disable_web_page_preview: true });
+}
+
+// Tu chat con el bot: se guarda solo la primera vez que le escribes "/start" al bot.
+function chatTelegram() {
+  const props = PropertiesService.getScriptProperties();
+  let chat = props.getProperty('TELEGRAM_CHAT');
+  if (chat) return chat;
+  const r = telegram('getUpdates', {});
+  const ultimo = (r.result || []).filter(u => u.message && u.message.chat).pop();
+  if (!ultimo) return null;
+  chat = String(ultimo.message.chat.id);
+  props.setProperty('TELEGRAM_CHAT', chat);
+  return chat;
+}
+
+function telegram(metodo, datos) {
+  const res = UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/' + metodo,
+    { method: 'post', contentType: 'application/json', payload: JSON.stringify(datos), muteHttpExceptions: true });
+  return JSON.parse(res.getContentText());
+}
+
+/** Ejecuta esta función para probar: te debe llegar un mensaje del bot a Telegram. */
+function probarTelegram() {
+  if (!TELEGRAM_TOKEN) throw new Error('Primero pega la clave de @BotFather en TELEGRAM_TOKEN y guarda.');
+  const chat = chatTelegram();
+  if (!chat) throw new Error('Abre tu bot en Telegram, toca "Iniciar" (o escribe /start) y vuelve a ejecutar.');
+  const r = telegram('sendMessage', { chat_id: chat, text: '✅ ¡Listo! Aquí te llegarán los pedidos nuevos de XTO.STICKER.' });
+  if (!r.ok) throw new Error('Telegram respondió: ' + r.description);
+}
+
+/** Si cambias de celular o de cuenta de Telegram: ejecuta esto y luego escribe /start al bot otra vez. */
+function olvidarChatTelegram() {
+  PropertiesService.getScriptProperties().deleteProperty('TELEGRAM_CHAT');
 }
 
 function hoja() {
