@@ -1,7 +1,12 @@
 # Pedidos en Google Sheets
 
-Con esto, cada pedido de la tienda se guarda en una hoja de Google y el link de WhatsApp queda corto
-(por ejemplo `https://kengo2.github.io/Xto.Stickers/#XTO-261023-1715-K7QF`).
+Con esto, cada pedido de la tienda:
+
+- se guarda en una hoja de Google (con link corto, por ejemplo `https://kengo2.github.io/Xto.Stickers/#XTO-261023-1715-K7QF`),
+- guarda en tu Google Drive las fotos que suben los clientes (carpeta **Pedidos XTO - fotos de clientes**, solo tú las ves),
+- le envía al cliente un correo de confirmación: "nos comunicaremos lo más pronto posible para confirmar tu pedido y cualquier cambio".
+
+El cliente ya no tiene que mandar el pedido por WhatsApp; WhatsApp queda para cotizaciones y dudas.
 
 ## Pasos (unos 10 minutos)
 
@@ -24,6 +29,16 @@ Con esto, cada pedido de la tienda se guarda en una hoja de Google y el link de 
 - Cada pedido llega como una fila nueva con **Estado: Nuevo**. Cámbialo a *En proceso*, *Listo*, *Entregado* o *Cancelado* para llevar el control.
 - La columna **Ver pedido** abre el pedido con imágenes, medidas y el acomodo de cada hoja.
 - La columna **Datos** está oculta: es lo que usa la página para mostrar el pedido. No la borres.
+
+## Actualizar el código (correo al cliente y fotos)
+
+Si ya tenías la hoja funcionando con la versión anterior:
+
+1. En la hoja: **Extensiones → Apps Script**. Borra todo, pega el nuevo [`Pedidos.gs`](Pedidos.gs) y toca **Guardar**.
+2. Elige **setup** y toca **Ejecutar**. Google pide permisos nuevos (Drive y correo): acéptalos igual que la primera vez.
+3. **Implementar → Gestionar implementaciones → editar (lápiz) → Versión: Nueva versión → Implementar.** La URL sigue siendo la misma.
+
+Los correos salen desde tu cuenta de Gmail con el nombre **XTO.STICKER** (Google permite unos 100 por día en cuentas gratis).
 
 ## Si cambias el código más adelante
 
