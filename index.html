@@ -133,8 +133,11 @@ textarea{resize:vertical}
 .oth.one img{width:78%;height:78%}
 .oth .mini{width:60%;aspect-ratio:21/29.7;background:#fff;border:1.5px solid var(--brand);border-radius:3px;display:grid;grid-template:repeat(2,minmax(0,1fr))/repeat(2,minmax(0,1fr));gap:3px;padding:5px;transform:rotate(-6deg);box-shadow:3px 4px 0 var(--sun)}
 .oth .pk{width:80%;height:80%;display:grid;grid-template:repeat(3,minmax(0,1fr))/repeat(3,minmax(0,1fr));gap:2px}
-.oth.ph{background:var(--brand-soft);color:var(--brand-d)}
-.oth.ph svg{width:46px;height:46px}
+.oth.ph{position:relative}
+.oth .pol{width:64%;background:#fff;border:1px solid #e2dcea;border-radius:3px;padding:5px 5px 14px;transform:rotate(5deg);box-shadow:0 3px 8px rgba(26,20,35,.2)}
+.oth .pol img{display:block;aspect-ratio:1}
+.oth .cam{position:absolute;right:10px;bottom:10px;width:32px;height:32px;border-radius:50%;background:var(--hot);color:#1a1423;border:2px solid #1a1423;display:grid;place-items:center}
+.oth .cam svg{width:18px;height:18px}
 .search{position:relative;scroll-margin-top:calc(var(--head) + env(safe-area-inset-top,0px) + 16px)}
 .search input{padding-left:42px;font-size:15px;border-radius:99px}
 .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--mu)}
@@ -464,8 +467,8 @@ $("#foot").innerHTML=`<div><b>xto.sticker</b> · Arte Adhesivo</div><div>${WHATS
 ITEMS.forEach(it=>{const im=new Image();im.onload=()=>{it[3]=im.naturalHeight/im.naturalWidth;if(cur=="hoja")renderSheet()};im.src=it[0]});
 // opciones del inicio: [título, descripción, destino, miniatura]
 const OPTS=[["Stickers sueltos","Elige del catálogo, cualquier medida","cat","one"],["Hoja de stickers","Varios diseños en una hoja A4","hoja","sheet"],["Planchas","Muchos stickers de un mismo diseño","pk","pack"],["Con tu foto","Tu propio diseño hecho sticker","sub","photo"]];
-function renderOpts(){const im=n=>{const i=ITEMS.find(x=>x[1]==n);return i?`<img src="${i[0]}" alt="">`:""};
- const th={one:`<span class="oth one">${im("Rick")}</span>`,sheet:`<span class="oth"><span class="mini">${["Pikachu","Bad Bunny","Spider-Man máscara","Gengar"].map(im).join("")}</span></span>`,pack:`<span class="oth"><span class="pk">${im("Charmander").repeat(9)}</span></span>`,photo:`<span class="oth ph">${svg(ICON.photo,46)}</span>`};
+function renderOpts(){const logo=`<img src="${$(".head img").src}" alt="">`;
+ const th={one:`<span class="oth one">${logo}</span>`,sheet:`<span class="oth"><span class="mini">${logo.repeat(4)}</span></span>`,pack:`<span class="oth"><span class="pk">${logo.repeat(9)}</span></span>`,photo:`<span class="oth ph"><span class="pol">${logo}</span><span class="cam">${svg(ICON.photo,18)}</span></span>`};
  $("#opts").innerHTML=OPTS.map(([t,d,to,k])=>`<button class="opt" data-opt="${to}">${th[k]}<span><b>${t}</b><span class="d">${d}</span></span></button>`).join("");
  $$("[data-opt]").forEach(b=>b.onclick=()=>step(b.dataset.opt))}
 renderNav();renderOpts();renderChips();renderGrid();renderPrices();ucalc();
