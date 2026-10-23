@@ -335,7 +335,8 @@ img{max-width:100%}
 <div class="panel"><div class="stp"><i>1</i>Revisa tu pedido</div><div id="lines"></div></div>
 <div class="side"><div class="panel">
 <div class="stp"><i>2</i>Tus datos</div>
-<div class="row"><div><label for="nm">Nombre</label><input id="nm" autocomplete="name"></div><div><label for="ph">Teléfono</label><input id="ph" inputmode="tel" autocomplete="tel"></div></div>
+<div class="row"><div><label for="nm">Nombre y apellido</label><input id="nm" autocomplete="name" placeholder="Ej: Ana Pérez"></div></div>
+<div class="row"><div><label for="ph">Teléfono</label><input id="ph" inputmode="tel" autocomplete="tel"></div><div><label for="em">Correo</label><input id="em" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"></div></div>
 <label for="on">Notas del pedido (opcional)</label><textarea id="on" rows="2" placeholder="Ej: lo necesito para un evento"></textarea>
 <div class="sum" style="margin-top:16px"><span>Total estimado</span><b id="total">$0.00</b></div>
 <div class="stp"><i>3</i>Envía</div>
@@ -516,12 +517,13 @@ function renderCart(){
 function orderNo(){const d=new Date(),p=n=>String(n).padStart(2,"0");return "XTO-"+String(d.getFullYear()).slice(2)+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())}
 function msg(no){const L=cart.map(l=>`• ${l.name}${l.sheet?` (${l.n} stickers: ${l.sheet})`:""}${l.img?` [foto: ${l.img}${l.bg?", quitar fondo":""}]`:""} — ${l.m}, ${l.sheet?"medidas indicadas":l.s+" × "+(l.h||l.s)+" cm, x"+l.q} = ${money(lineTotal(l))}${l.note?" · Nota: "+l.note:""}`).join("\n");
  const on=$("#on").value.trim();
- return `Hola xto.sticker, quiero hacer este pedido (${no}):\n${L}\n\nTotal estimado: ${money(cartTotal())}\nNombre: ${$("#nm").value.trim()}\nTeléfono: ${$("#ph").value.trim()}${on?"\nNotas: "+on:""}`}
-["nm","ph","on"].forEach(i=>{const e=$("#"+i);e.value=store.get("xto_"+i,"");e.oninput=()=>store.set("xto_"+i,e.value)});
+ return `Hola xto.sticker, quiero hacer este pedido (${no}):\n${L}\n\nTotal estimado: ${money(cartTotal())}\nNombre: ${$("#nm").value.trim()}\nTeléfono: ${$("#ph").value.trim()}\nCorreo: ${$("#em").value.trim()}${on?"\nNotas: "+on:""}`}
+["nm","ph","em","on"].forEach(i=>{const e=$("#"+i);e.value=store.get("xto_"+i,"");e.oninput=()=>store.set("xto_"+i,e.value)});
 $("#send").onclick=()=>{const er=$("#err");const fail=t=>{er.textContent=t;er.hidden=false};er.hidden=true;
  if(!cart.length)return fail("Tu pedido está vacío. Agrega stickers primero.");
- if(!$("#nm").value.trim())return fail("Escribe tu nombre para poder confirmar el pedido.");
+ if($("#nm").value.trim().split(/\s+/).filter(w=>w.length>1).length<2)return fail("Escribe tu nombre y apellido para poder confirmar el pedido.");
  if($("#ph").value.replace(/\D/g,"").length<7)return fail("Escribe un teléfono válido para contactarte.");
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("#em").value.trim()))return fail("Escribe un correo válido, por ejemplo tu@correo.com.");
  const no=orderNo(),m=msg(no);
  $("#sentTitle").textContent="Pedido "+no+" listo";$("#sentTxt").value=m;
  $("#wa").href=`https://wa.me/${WHATSAPP=="593000000000"?"":WHATSAPP}?text=${encodeURIComponent(m)}`;
