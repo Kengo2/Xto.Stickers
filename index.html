@@ -181,7 +181,7 @@ th{color:var(--mu);font-weight:700;font-size:12px;background:var(--paper)}
 td:first-child{font-weight:700}
 .mats{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;margin:10px 0 22px;scroll-snap-type:x mandatory}
 @media(min-width:900px){.mats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));overflow:visible}}
-.mat{flex:0 0 148px;scroll-snap-align:start;border:1.5px solid var(--line);background:var(--card);border-radius:var(--r);padding:10px 10px 12px;text-align:center;transition:border-color .15s,background .15s}
+.mat{flex:0 0 148px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:flex-start;border:1.5px solid var(--line);background:var(--card);border-radius:var(--r);padding:10px 10px 12px;text-align:center;transition:border-color .15s,background .15s}
 .mat:hover{border-color:var(--brand)}
 .mat.on{border-color:var(--brand);background:var(--brand-soft);box-shadow:0 0 0 2px var(--brand) inset}
 .mat b{display:block;font-size:14px;line-height:1.25}
@@ -192,7 +192,9 @@ td:first-child{font-weight:700}
 .sw img{position:absolute;inset:8%;width:84%;height:84%;object-fit:contain}
 .sw.mate{background:#f3f2f5}
 .sw.gloss{background:linear-gradient(130deg,#fff 0%,#eeedf2 30%,#fff 42%,#fff 48%,#e4e1ea 62%,#fafafa 100%)}
-.sw.glit{background:radial-gradient(#fff 1px,transparent 1.7px) 0 0/7px 7px,radial-gradient(#ffe36b 1px,transparent 1.7px) 3px 4px/9px 9px,radial-gradient(#ffffffcc .8px,transparent 1.4px) 5px 1px/5px 5px,linear-gradient(135deg,#c49be6,#ff9ad5 35%,#8fd8ff 65%,#c49be6)}
+.sw.glit{background-color:rgba(255,255,255,.35);background-image:linear-gradient(45deg,#cfcad8 25%,transparent 25%,transparent 75%,#cfcad8 75%),linear-gradient(45deg,#cfcad8 25%,transparent 25%,transparent 75%,#cfcad8 75%);background-size:12px 12px;background-position:0 0,6px 6px;border:2px solid rgba(255,255,255,.95)}
+.sw.glit:before{content:"";position:absolute;inset:0;z-index:1;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 2.2 -1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),radial-gradient(#fff 0 .8px,transparent 1.4px) 2px 3px/11px 13px,radial-gradient(#fff 0 .7px,transparent 1.3px) 7px 1px/17px 9px,linear-gradient(135deg,rgba(255,255,255,.28),rgba(255,255,255,.05) 50%,rgba(255,255,255,.3))}
+.sw.glit:after{z-index:2}
 .sw.clear{background-color:rgba(255,255,255,.35);background-image:linear-gradient(45deg,#cfcad8 25%,transparent 25%,transparent 75%,#cfcad8 75%),linear-gradient(45deg,#cfcad8 25%,transparent 25%,transparent 75%,#cfcad8 75%);background-size:12px 12px;background-position:0 0,6px 6px;border:2px solid rgba(255,255,255,.95)}
 .sw.epx{box-shadow:0 7px 14px rgba(26,20,35,.4),inset 0 -6px 12px rgba(0,0,0,.35)}
 .sw.epx img{inset:0;width:100%;height:100%}
@@ -289,7 +291,7 @@ img{max-width:100%}
 <div class="sheetwrap">
 <div class="sheet" id="sheet"></div>
 <div class="panel side"><div class="hcount" id="hcount"></div>
-<p class="hint pad">La hoja mide 21 × 29,7 cm. Debajo de cada sticker ves su medida (ancho × largo en cm). El precio es con vinilo mate y se calcula con el lado más largo de cada uno.</p>
+<p class="hint pad">La hoja mide 21 × 29,7 cm. Debajo de cada sticker ves su medida (ancho × largo en cm). El precio es con vinilo brillante y se calcula con el lado más largo de cada uno.</p>
 <div class="row" style="margin:14px 0 10px"><button class="btn alt" id="hclear">Vaciar hoja</button></div>
 <button class="btn big" id="hadd">Pedir esta hoja</button></div>
 </div></section>
@@ -363,14 +365,14 @@ const INSTAGRAM="";                       // ej: "xto.sticker" (déjalo vacío p
 // Precio por sticker de cada material. Cada fila: [hasta cuántos cm, [[desde cuántas unidades, precio c/u], ...]]
 // Una medida usa la fila de la tabla igual o inmediata superior (ej. 6 cm usa la de 7 cm).
 const MATS=[
- ["Vinilo mate",[[5,[[1,.25],[5,.20]]],[7,[[1,.25]]],[10,[[1,.50]]],[14,[[1,1.00]]]]],
  ["Vinilo brillante",[[5,[[1,.25],[5,.20]]],[7,[[1,.25]]],[10,[[1,.50]]],[14,[[1,1.00]]]]],
- ["Brillos (glitter)",[[5,[[1,.40],[5,.32]]],[7,[[1,.40]]],[10,[[1,.82]]],[14,[[1,1.60]]]]],
+ ["Vinilo mate",[[5,[[1,.25],[5,.20]]],[7,[[1,.25]]],[10,[[1,.50]]],[14,[[1,1.00]]]]],
+ ["Escarchado transparente",[[5,[[1,.40],[5,.32]]],[7,[[1,.40]]],[10,[[1,.82]]],[14,[[1,1.60]]]]],
  ["Transparente",[[5,[[1,.25],[5,.20]]],[7,[[1,.25]]],[10,[[1,.50]]],[14,[[1,1.00]]]]],
  ["Epoxi 3D",[[5,[[1,.50],[5,.30]]],[7,[[1,.55]]],[10,[[1,1.10]]],[14,[[1,2.20]]]]]];
 // Planchas: [medida cuadrada en cm, stickers por plancha] y precio de la plancha por material
 const PACKS=[[3,490],[4,285],[5,185],[6,130],[7,95],[8,75],[9,60],[10,45]];
-const PACK_PRICE={"Vinilo mate":12,"Vinilo brillante":12,"Brillos (glitter)":12,"Transparente":12,"Epoxi 3D":20};
+const PACK_PRICE={"Vinilo brillante":12,"Vinilo mate":12,"Escarchado transparente":12,"Transparente":12,"Epoxi 3D":20};
 // Columnas de la tabla de precios: [cm, desde unidades, texto]
 const COLS=[[5,1,"5 cm · 1–4 uds"],[5,5,"5 cm · 5+ uds"],[7,1,"7 cm"],[10,1,"10 cm"],[14,1,"14 cm"]].map(([s,min,label])=>({s,min,label}));
 const CATS=["Todos","Caricaturas","Anime y Pokémon","Superhéroes","Videojuegos","Rock y Metal","Rap y Urbano","Música","Fútbol","Deporte","Marcas y Street","Humor","Frases","Autos","Otros"];
@@ -457,9 +459,9 @@ function renderPrices(){$("#ptab").innerHTML=`<tr><th>Material</th>${COLS.map(c=
   $("#cp").innerHTML=`<div class="bigp">${money(u*qy)}</div><p class="hint">Medida ${w} × ${h} cm · ${money(u)} c/u · ${qy} uds</p>`+tip(m,s,qy)+packTip(m,w,h,qy)};
  ["cm","cs","ch","cq"].forEach(i=>{$("#"+i).oninput=calc;$("#"+i).onchange=calc});calc();
  // referencias visuales de cada material: [clase de la muestra, descripción]
- const logo=`<img src="${$(".head img").src}" alt="">`,MAT_INFO={"Vinilo mate":["mate","Sin brillo, acabado suave"],"Vinilo brillante":["gloss","Colores vivos con brillo"],"Brillos (glitter)":["glit","Destellos de colores"],"Transparente":["clear","Sin fondo, se ve la superficie"],"Epoxi 3D":["epx","Relieve con gota de resina"]};
+ const logo=`<img src="${$(".head img").src}" alt="">`,MAT_INFO={"Vinilo brillante":["gloss","Colores vivos con brillo"],"Vinilo mate":["mate","Sin brillo, acabado suave"],"Escarchado transparente":["glit","Transparente con textura arenosa que brilla"],"Transparente":["clear","Sin fondo, se ve la superficie"],"Epoxi 3D":["epx","Relieve con gota de resina"]};
  const mark=()=>$$("[data-mat]").forEach(b=>{const on=b.dataset.mat==$("#cm").value;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
- $("#mats").innerHTML=MATS.map(([m])=>{const [k,d]=MAT_INFO[m]||["mate",""];return `<button class="mat" data-mat="${m}"><div class="msw"><div class="sw ${k}">${k=="clear"||k=="epx"?logo:""}</div></div><b>${m}</b><span>${d}</span></button>`}).join("");
+ $("#mats").innerHTML=MATS.map(([m])=>{const [k,d]=MAT_INFO[m]||["mate",""];return `<button class="mat" data-mat="${m}"><div class="msw"><div class="sw ${k}">${k=="clear"||k=="epx"||k=="glit"?logo:""}</div></div><b>${m}</b><span>${d}</span></button>`}).join("");
  $$("[data-mat]").forEach(b=>b.onclick=()=>{$("#cm").value=b.dataset.mat;calc();mark();$("#calc").scrollIntoView({behavior:"smooth",block:"start"})});
  $("#cm").addEventListener("change",mark);mark()}
 // foto
