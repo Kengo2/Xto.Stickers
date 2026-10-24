@@ -211,6 +211,9 @@ textarea{resize:vertical}
 .piece img{width:100%;display:block;pointer-events:none;-webkit-user-drag:none}
 .piece button.x{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--brand);background:#fff;color:#5b2a7a;font-size:11px;line-height:1;padding:0}
 .piece{transform-origin:50% 50%}
+.spin{display:flex;align-items:center;gap:10px;max-width:380px;margin:12px auto 0}
+.spin input{flex:1;min-height:0;padding:0;border:0;background:none;accent-color:var(--fill)}
+.spin .btn{width:44px;padding:8px 0}
 .piece .rt{position:absolute;left:-10px;top:-10px;width:24px;height:24px;border-radius:50%;background:#fff;border:1.5px solid var(--brand);color:#5b2a7a;display:grid;place-items:center;cursor:grab;touch-action:none;font-size:14px;font-weight:800;line-height:1;user-select:none}
 .piece .rs{position:absolute;right:-10px;bottom:-10px;width:24px;height:24px;border-radius:50%;background:#fff;border:1.5px solid var(--brand);cursor:nwse-resize;touch-action:none}
 .piece .sz{position:absolute;left:0;bottom:-22px;font-size:11px;font-weight:700;background:#fff;color:#1a1423;padding:0 5px;border:1px solid #e2dcea;border-radius:4px;white-space:nowrap}
@@ -415,7 +418,8 @@ img{max-width:100%}
 <div class="sheetwrap">
 <div class="sheetcol"><div class="surfs" id="surfs" role="group" aria-label="Ver mis stickers en"></div>
 <p class="hint shint" id="shint"></p>
-<div class="stabs" id="stabs" role="group" aria-label="Mis hojas"></div><div class="sheet" id="sheet"></div></div>
+<div class="stabs" id="stabs" role="group" aria-label="Mis hojas"></div><div class="sheet" id="sheet"></div>
+<div class="spin" id="spin" hidden><button class="btn alt sm" id="spinL" aria-label="Girar el termo a la izquierda">◀</button><input type="range" id="spinR" min="0" max="359" step="1" value="0" aria-label="Girar el termo"><button class="btn alt sm" id="spinD" aria-label="Girar el termo a la derecha">▶</button></div></div>
 <div class="panel side"><div class="hcount" id="hcount"></div>
 <p class="hint pad">La hoja mide 21 × 29,7 cm. Debajo de cada sticker ves su medida (ancho × largo en cm). El precio es con vinilo brillante y se calcula con el lado más largo de cada uno.</p>
 <p class="hint" id="htot" style="font-weight:700;color:var(--ink);margin-top:4px" hidden></p>
@@ -629,26 +633,45 @@ const toL=(e,g)=>{const r=$("#sheet").getBoundingClientRect(),q=g.m.inverse().tr
 // cada superficie guarda su propia posición; la medida en cm es la misma
 const posOf=(p,i)=>{if(surf=="hoja")return p;p.pos=p.pos||{};if(!p.pos[surf]){const w=p.cm/SURF[surf].cm*100,c=i%3-1,r=Math.floor(i/3)%4;p.pos[surf]={x:Math.max(0,Math.min(100-w,50-w/2+c*Math.max(w*1.15,12))),y:Math.min(85,(surf=="pared"?28:surf=="termo"?10:18)+r*Math.max(w*.9,14))}}return p.pos[surf]};
 let selId=null;
+let spin=0;   // cuánto está girado el termo, en grados
+const TERMO_C=Math.PI*9.5,cyl=()=>surf=="termo";
+const phase=P=>((P.u/TERMO_C*360-spin)%360+540)%360-180;
+const uFrom=xc=>((Math.asin(Math.max(-1,Math.min(1,(xc-50)/50)))*180/Math.PI+spin)/360*TERMO_C+TERMO_C)%TERMO_C;
+// ubica un sticker: en el termo se achica hacia los bordes y se esconde cuando pasa por detrás
+function place(d){const p=d._p,P=d._P,S=SURF[surf];
+ if(!cyl()){d.style.left=P.x+"%";d.style.top=P.y+"%";d.style.transform=`rotate(${P.r||0}deg)`;d.style.display="";d.style.filter="";return}
+ if(P.u==null)P.u=uFrom(P.x+p.cm/S.cm*50);
+ const a=phase(P)*Math.PI/180,c=Math.cos(a),w=p.cm/S.cm*100;
+ if(c<.08){d.style.display="none";return}
+ d.style.display="";d.style.left=(50+50*Math.sin(a)-w/2)+"%";d.style.top=P.y+"%";
+ d.style.transform=`scaleX(${c.toFixed(3)}) rotate(${P.r||0}deg)`;d.style.filter=`drop-shadow(0 2px 4px rgba(0,0,0,.35)) brightness(${(.55+.45*c).toFixed(2)})`}
+function layoutCyl(){$$("#sheet .piece").forEach(place);$("#spinR").value=Math.round(spin)}
+function spinTo(t){const a=spin,dlt=((t-a)%360+540)%360-180,t0=performance.now();
+ const f=n=>{const k=Math.min(1,(n-t0)/350),e=1-Math.pow(1-k,3);spin=((a+dlt*e)%360+360)%360;layoutCyl();if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+$("#spinR").oninput=e=>{spin=+e.target.value;layoutCyl()};
+$("#spinL").onclick=()=>spinTo(spin-45);$("#spinD").onclick=()=>spinTo(spin+45);
 function renderSurfs(){const S=SURF[surf];
  $("#surfs").innerHTML=Object.entries(SURF).map(([k,v])=>`<button class="surf ${k==surf?"on":""}" data-surf="${k}" aria-pressed="${k==surf}"><span class="st">${v.img?`<img src="${MOCK[v.img]}" alt="">`:k=="pared"?`<span class="wallbg"><span class="outlet"></span></span>`:svg(ICON.sheet,26)}</span>${v.name}</button>`).join("");
  $$("[data-surf]").forEach(b=>b.onclick=()=>{surf=b.dataset.surf;renderSheet()});
- $("#shint").textContent=surf=="hoja"?"Toca una superficie para ver cómo quedarían tus stickers.":`Vista previa en ${S.name.toLowerCase()} con la medida real aproximada. Arrástralos y toca uno para girarlo, cambiar su tamaño o quitarlo. Tu pedido sigue siendo la hoja con estos stickers.`}
-function renderSheet(){renderTabs();const s=$("#sheet"),S=SURF[surf];s.className="sheet"+(surf=="hoja"?"":" mock");s.style.aspectRatio=S.ar;s.style.maxWidth=`min(${S.max}px, calc(68vh * ${S.ar}))`;
+ $("#shint").textContent=surf=="hoja"?"Toca una superficie para ver cómo quedarían tus stickers.":surf=="termo"?"Gira el termo arrastrándolo hacia los lados o con las flechas, y acomoda tus stickers alrededor. Toca un sticker para girarlo, cambiar su tamaño o quitarlo.":`Vista previa en ${S.name.toLowerCase()} con la medida real aproximada. Arrástralos y toca uno para girarlo, cambiar su tamaño o quitarlo. Tu pedido sigue siendo la hoja con estos stickers.`}
+function renderSheet(){renderTabs();const s=$("#sheet"),S=SURF[surf];s.className="sheet"+(surf=="hoja"?"":" mock");s.style.touchAction=cyl()?"pan-y":"";$("#spin").hidden=!cyl();s.style.aspectRatio=S.ar;s.style.maxWidth=`min(${S.max}px, calc(68vh * ${S.ar}))`;
  s.innerHTML=(S.img?`<img class="mockbg" src="${MOCK[S.img]}" alt="${S.name}">`:surf=="pared"?`<div class="wallbg"><span class="outlet"></span></div>`:"")+(sheet.length?"":'<div class="empty">Tu hoja está en blanco.<br>Agrega stickers con el botón “A mi hoja” en el catálogo.</div>');
  renderSurfs();const g=geo(),a=document.createElement("div");a.className="area"+(S.shade?" shade":"");a.style.width=g.lw+"px";a.style.height=g.lh+"px";a.style.transform=g.m.toString();s.appendChild(a);
- s.onpointerdown=ev=>{if(!ev.target.closest(".piece")){selId=null;$$(".piece.on").forEach(e=>e.classList.remove("on"))}};
- sheet.forEach((p,i)=>{const P=posOf(p,i),d=document.createElement("div");d.className="piece"+(p.id==selId?" on":"");d.style.left=P.x+"%";d.style.top=P.y+"%";d.style.transform=`rotate(${P.r||0}deg)`;d.innerHTML=`<img src="${ITEMS[p.k][0]}" alt="${esc(ITEMS[p.k][1])}"><button class="x" aria-label="Quitar">✕</button><span class="rt" role="slider" aria-label="Girar" title="Girar">↻</span><span class="sz"></span><span class="rs" role="slider" aria-label="Cambiar tamaño"></span>`;
- const sz=d.querySelector(".sz"),upd=()=>{sz.textContent=p.cm+" × "+hh(p)+" cm";d.style.width=(p.cm/S.cm*100)+"%"};upd();
+ s.onpointerdown=ev=>{if(ev.target.closest(".piece"))return;selId=null;$$(".piece.on").forEach(e=>e.classList.remove("on"));
+  if(!cyl())return;s.setPointerCapture(ev.pointerId);const x0=ev.clientX,sp0=spin;   // arrastrar el termo lo hace girar
+  s.onpointermove=e=>{spin=((sp0-(e.clientX-x0)/s.clientWidth*240)%360+360)%360;layoutCyl()};s.onpointerup=s.onpointercancel=()=>{s.onpointermove=null}};
+ sheet.forEach((p,i)=>{const P=posOf(p,i),d=document.createElement("div");d.className="piece"+(p.id==selId?" on":"");d._p=p;d._P=P;d.innerHTML=`<img src="${ITEMS[p.k][0]}" alt="${esc(ITEMS[p.k][1])}"><button class="x" aria-label="Quitar">✕</button><span class="rt" role="slider" aria-label="Girar" title="Girar">↻</span><span class="sz"></span><span class="rs" role="slider" aria-label="Cambiar tamaño"></span>`;
+ const sz=d.querySelector(".sz"),upd=()=>{sz.textContent=p.cm+" × "+hh(p)+" cm";d.style.width=(p.cm/S.cm*100)+"%";place(d)};upd();
  d.querySelector(".x").onclick=ev=>{ev.stopPropagation();setSheet(sheet.filter(o=>o!=p));saveSheet();renderSheet()};
  const rs=d.querySelector(".rs"),rt=d.querySelector(".rt");
  // girar: arrastra el círculo ↻ alrededor del sticker; se acomoda solo en 0°, 90°, 180° y 270°
  rt.onpointerdown=ev=>{ev.stopPropagation();rt.setPointerCapture(ev.pointerId);const b=d.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2,ang=e=>Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI,a0=ang(ev),r0=P.r||0;
-  rt.onpointermove=e=>{let r=Math.round(r0+ang(e)-a0);r=((r%360)+360)%360;const s=Math.round(r/90)*90;if(Math.abs(r-s)<6)r=s%360;P.r=r;d.style.transform=`rotate(${r}deg)`;sz.textContent=p.cm+" × "+hh(p)+" cm · "+r+"°"};
+  rt.onpointermove=e=>{let r=Math.round(r0+ang(e)-a0);r=((r%360)+360)%360;const s=Math.round(r/90)*90;if(Math.abs(r-s)<6)r=s%360;P.r=r;place(d);sz.textContent=p.cm+" × "+hh(p)+" cm · "+r+"°"};
   rt.onpointerup=()=>{rt.onpointermove=null;upd();saveSheet()}};
  rs.onpointerdown=ev=>{ev.stopPropagation();rs.setPointerCapture(ev.pointerId);const g=geo(),[x0]=toL(ev,g),c0=p.cm,mx=Math.floor(14/Math.max(1,ar(p))*2)/2;
   rs.onpointermove=e=>{p.cm=Math.min(mx,Math.max(2,Math.round((c0+(toL(e,g)[0]-x0)/100*S.cm)*2)/2));upd();sheetInfo()};rs.onpointerup=()=>{rs.onpointermove=null;saveSheet()}};
- d.onpointerdown=ev=>{selId=p.id;$$(".piece.on").forEach(e=>e!=d&&e.classList.remove("on"));d.classList.add("on");if(ev.target.closest(".x")||ev.target==rs||ev.target==rt)return;d.setPointerCapture(ev.pointerId);const g=geo(),[lx,ly]=toL(ev,g),ox=lx-P.x,oy=ly-P.y;
-  d.onpointermove=e=>{const [x,y]=toL(e,g);P.x=Math.max(0,Math.min(100-p.cm/S.cm*100,x-ox));P.y=Math.max(0,Math.min(100-hh(p)/(S.cm*g.lh/g.lw)*100,y-oy));d.style.left=P.x+"%";d.style.top=P.y+"%"};d.onpointerup=()=>{d.onpointermove=null;saveSheet()}};
+ d.onpointerdown=ev=>{selId=p.id;$$(".piece.on").forEach(e=>e!=d&&e.classList.remove("on"));d.classList.add("on");if(ev.target.closest(".x")||ev.target==rs||ev.target==rt)return;d.setPointerCapture(ev.pointerId);const g=geo(),[lx,ly]=toL(ev,g),ox=lx-P.x,oy=ly-P.y,xc0=cyl()?50+50*Math.sin(phase(P)*Math.PI/180):0;
+  d.onpointermove=e=>{const [x,y]=toL(e,g);if(cyl())P.u=uFrom(Math.max(1,Math.min(99,xc0+x-lx)));else P.x=Math.max(0,Math.min(100-p.cm/S.cm*100,x-ox));P.y=Math.max(0,Math.min(100-hh(p)/(S.cm*g.lh/g.lw)*100,y-oy));place(d)};d.onpointerup=()=>{d.onpointermove=null;saveSheet()}};
  a.appendChild(d)});sheetInfo()}
 addEventListener("resize",()=>{if(cur=="hoja")renderSheet()});
 $("#hclear").onclick=()=>{setSheet([]);saveSheet();renderSheet()};
