@@ -204,12 +204,17 @@ textarea{resize:vertical}
 .surf .st svg{width:26px;height:26px;color:#7a3fa0}
 .surf .st .wallbg .outlet{width:22%}
 .shint{text-align:center;margin:8px auto 14px;max-width:46ch}
-.sheet.mock .piece:not(.on) .x,.sheet.mock .piece:not(.on) .rs,.sheet.mock .piece:not(.on) .sz{display:none}
+.sheet.mock .piece:not(.on) .x,.sheet.mock .piece:not(.on) .rs,.sheet.mock .piece:not(.on) .rt,.sheet.mock .piece:not(.on) .sz{display:none}
 .sheet.mock .piece.on{outline:1.5px dashed rgba(255,255,255,.9);outline-offset:3px}
 .sheet .empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--sheet-ink);text-align:center;padding:30px}
 .piece{position:absolute;cursor:grab;user-select:none;touch-action:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
 .piece img{width:100%;display:block;pointer-events:none;-webkit-user-drag:none}
 .piece button.x{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--brand);background:#fff;color:#5b2a7a;font-size:11px;line-height:1;padding:0}
+.piece{transform-origin:50% 50%}
+.spin{display:flex;align-items:center;gap:10px;max-width:380px;margin:12px auto 0}
+.spin input{flex:1;min-height:0;padding:0;border:0;background:none;accent-color:var(--fill)}
+.spin .btn{width:44px;padding:8px 0}
+.piece .rt{position:absolute;left:-10px;top:-10px;width:24px;height:24px;border-radius:50%;background:#fff;border:1.5px solid var(--brand);color:#5b2a7a;display:grid;place-items:center;cursor:grab;touch-action:none;font-size:14px;font-weight:800;line-height:1;user-select:none}
 .piece .rs{position:absolute;right:-10px;bottom:-10px;width:24px;height:24px;border-radius:50%;background:#fff;border:1.5px solid var(--brand);cursor:nwse-resize;touch-action:none}
 .piece .sz{position:absolute;left:0;bottom:-22px;font-size:11px;font-weight:700;background:#fff;color:#1a1423;padding:0 5px;border:1px solid #e2dcea;border-radius:4px;white-space:nowrap}
 .hcount{font-size:17px;font-weight:800}
@@ -409,11 +414,12 @@ img{max-width:100%}
 </section>
 
 <section class="sec" id="s-hoja">
-<h2 class="title">Mi hoja</h2><p class="lead">Arma tu plantilla A4: agrega stickers desde el catálogo, arrástralos para acomodarlos y cambia su tamaño con el círculo de la esquina. Con los botones de arriba ves cómo quedarían en un termo, una laptop o una pared.</p>
+<h2 class="title">Mi hoja</h2><p class="lead">Arma tu plantilla A4: agrega stickers desde el catálogo, arrástralos para acomodarlos, gíralos con el ↻ y cambia su tamaño con el círculo de la esquina. Con los botones de arriba ves cómo quedarían en un termo, una laptop o una pared.</p>
 <div class="sheetwrap">
 <div class="sheetcol"><div class="surfs" id="surfs" role="group" aria-label="Ver mis stickers en"></div>
 <p class="hint shint" id="shint"></p>
-<div class="stabs" id="stabs" role="group" aria-label="Mis hojas"></div><div class="sheet" id="sheet"></div></div>
+<div class="stabs" id="stabs" role="group" aria-label="Mis hojas"></div><div class="sheet" id="sheet"></div>
+<div class="spin" id="spin" hidden><button class="btn alt sm" id="spinL" aria-label="Girar el termo a la izquierda">◀</button><input type="range" id="spinR" min="0" max="359" step="1" value="0" aria-label="Girar el termo"><button class="btn alt sm" id="spinD" aria-label="Girar el termo a la derecha">▶</button></div></div>
 <div class="panel side"><div class="hcount" id="hcount"></div>
 <p class="hint pad">La hoja mide 21 × 29,7 cm. Debajo de cada sticker ves su medida (ancho × largo en cm). El precio es con vinilo brillante y se calcula con el lado más largo de cada uno.</p>
 <p class="hint" id="htot" style="font-weight:700;color:var(--ink);margin-top:4px" hidden></p>
@@ -538,7 +544,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const store={get(k,d){try{return JSON.parse(localStorage.getItem(k)||"null")??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 cart=store.get("xto_cart",[]);sheets=store.get("xto_sheets",null)||[store.get("xto_sheet",[])];uid=Math.max(uid,...cart.map(c=>c.id+1));
 const saveCart=()=>store.set("xto_cart",cart.filter(c=>!c.img));
-const saveSheet=()=>store.set("xto_sheets",sheets.map(s=>s.map(({k,cm,x,y,pos})=>({k,cm,x,y,pos}))));
+const saveSheet=()=>store.set("xto_sheets",sheets.map(s=>s.map(({k,cm,x,y,r,pos})=>({k,cm,x,y,r,pos}))));
 const setSheet=a=>{sheets[si]=a;sheet=a};
 sheets=(Array.isArray(sheets)?sheets:[[]]).map(s=>(Array.isArray(s)?s:[]).filter(p=>ITEMS[p.k]).map(p=>({...p,id:uid++})));if(!sheets.length)sheets=[[]];sheet=sheets[0];
 const cl=v=>Math.min(14,Math.max(2,+v||5));
@@ -627,28 +633,51 @@ const toL=(e,g)=>{const r=$("#sheet").getBoundingClientRect(),q=g.m.inverse().tr
 // cada superficie guarda su propia posición; la medida en cm es la misma
 const posOf=(p,i)=>{if(surf=="hoja")return p;p.pos=p.pos||{};if(!p.pos[surf]){const w=p.cm/SURF[surf].cm*100,c=i%3-1,r=Math.floor(i/3)%4;p.pos[surf]={x:Math.max(0,Math.min(100-w,50-w/2+c*Math.max(w*1.15,12))),y:Math.min(85,(surf=="pared"?28:surf=="termo"?10:18)+r*Math.max(w*.9,14))}}return p.pos[surf]};
 let selId=null;
+let spin=0;   // cuánto está girado el termo, en grados
+const TERMO_C=Math.PI*9.5,cyl=()=>surf=="termo";
+const phase=P=>((P.u/TERMO_C*360-spin)%360+540)%360-180;
+const uFrom=xc=>((Math.asin(Math.max(-1,Math.min(1,(xc-50)/50)))*180/Math.PI+spin)/360*TERMO_C+TERMO_C)%TERMO_C;
+// ubica un sticker: en el termo se achica hacia los bordes y se esconde cuando pasa por detrás
+function place(d){const p=d._p,P=d._P,S=SURF[surf];
+ if(!cyl()){d.style.left=P.x+"%";d.style.top=P.y+"%";d.style.transform=`rotate(${P.r||0}deg)`;d.style.display="";d.style.filter="";return}
+ if(P.u==null)P.u=uFrom(P.x+p.cm/S.cm*50);
+ const a=phase(P)*Math.PI/180,c=Math.cos(a),w=p.cm/S.cm*100;
+ if(c<.08){d.style.display="none";return}
+ d.style.display="";d.style.left=(50+50*Math.sin(a)-w/2)+"%";d.style.top=P.y+"%";
+ d.style.transform=`scaleX(${c.toFixed(3)}) rotate(${P.r||0}deg)`;d.style.filter=`drop-shadow(0 2px 4px rgba(0,0,0,.35)) brightness(${(.55+.45*c).toFixed(2)})`}
+function layoutCyl(){$$("#sheet .piece").forEach(place);$("#spinR").value=Math.round(spin)}
+function spinTo(t){const a=spin,dlt=((t-a)%360+540)%360-180,t0=performance.now();
+ const f=n=>{const k=Math.min(1,(n-t0)/350),e=1-Math.pow(1-k,3);spin=((a+dlt*e)%360+360)%360;layoutCyl();if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+$("#spinR").oninput=e=>{spin=+e.target.value;layoutCyl()};
+$("#spinL").onclick=()=>spinTo(spin-45);$("#spinD").onclick=()=>spinTo(spin+45);
 function renderSurfs(){const S=SURF[surf];
  $("#surfs").innerHTML=Object.entries(SURF).map(([k,v])=>`<button class="surf ${k==surf?"on":""}" data-surf="${k}" aria-pressed="${k==surf}"><span class="st">${v.img?`<img src="${MOCK[v.img]}" alt="">`:k=="pared"?`<span class="wallbg"><span class="outlet"></span></span>`:svg(ICON.sheet,26)}</span>${v.name}</button>`).join("");
  $$("[data-surf]").forEach(b=>b.onclick=()=>{surf=b.dataset.surf;renderSheet()});
- $("#shint").textContent=surf=="hoja"?"Toca una superficie para ver cómo quedarían tus stickers.":`Vista previa en ${S.name.toLowerCase()} con la medida real aproximada. Arrástralos y toca uno para cambiar su tamaño o quitarlo. Tu pedido sigue siendo la hoja con estos stickers.`}
-function renderSheet(){renderTabs();const s=$("#sheet"),S=SURF[surf];s.className="sheet"+(surf=="hoja"?"":" mock");s.style.aspectRatio=S.ar;s.style.maxWidth=`min(${S.max}px, calc(68vh * ${S.ar}))`;
+ $("#shint").textContent=surf=="hoja"?"Toca una superficie para ver cómo quedarían tus stickers.":surf=="termo"?"Gira el termo arrastrándolo hacia los lados o con las flechas, y acomoda tus stickers alrededor. Toca un sticker para girarlo, cambiar su tamaño o quitarlo.":`Vista previa en ${S.name.toLowerCase()} con la medida real aproximada. Arrástralos y toca uno para girarlo, cambiar su tamaño o quitarlo. Tu pedido sigue siendo la hoja con estos stickers.`}
+function renderSheet(){renderTabs();const s=$("#sheet"),S=SURF[surf];s.className="sheet"+(surf=="hoja"?"":" mock");s.style.touchAction=cyl()?"pan-y":"";$("#spin").hidden=!cyl();s.style.aspectRatio=S.ar;s.style.maxWidth=`min(${S.max}px, calc(68vh * ${S.ar}))`;
  s.innerHTML=(S.img?`<img class="mockbg" src="${MOCK[S.img]}" alt="${S.name}">`:surf=="pared"?`<div class="wallbg"><span class="outlet"></span></div>`:"")+(sheet.length?"":'<div class="empty">Tu hoja está en blanco.<br>Agrega stickers con el botón “A mi hoja” en el catálogo.</div>');
  renderSurfs();const g=geo(),a=document.createElement("div");a.className="area"+(S.shade?" shade":"");a.style.width=g.lw+"px";a.style.height=g.lh+"px";a.style.transform=g.m.toString();s.appendChild(a);
- s.onpointerdown=ev=>{if(!ev.target.closest(".piece")){selId=null;$$(".piece.on").forEach(e=>e.classList.remove("on"))}};
- sheet.forEach((p,i)=>{const P=posOf(p,i),d=document.createElement("div");d.className="piece"+(p.id==selId?" on":"");d.style.left=P.x+"%";d.style.top=P.y+"%";d.innerHTML=`<img src="${ITEMS[p.k][0]}" alt="${esc(ITEMS[p.k][1])}"><button class="x" aria-label="Quitar">✕</button><span class="sz"></span><span class="rs" role="slider" aria-label="Cambiar tamaño"></span>`;
- const sz=d.querySelector(".sz"),upd=()=>{sz.textContent=p.cm+" × "+hh(p)+" cm";d.style.width=(p.cm/S.cm*100)+"%"};upd();
+ s.onpointerdown=ev=>{if(ev.target.closest(".piece"))return;selId=null;$$(".piece.on").forEach(e=>e.classList.remove("on"));
+  if(!cyl())return;s.setPointerCapture(ev.pointerId);const x0=ev.clientX,sp0=spin;   // arrastrar el termo lo hace girar
+  s.onpointermove=e=>{spin=((sp0-(e.clientX-x0)/s.clientWidth*240)%360+360)%360;layoutCyl()};s.onpointerup=s.onpointercancel=()=>{s.onpointermove=null}};
+ sheet.forEach((p,i)=>{const P=posOf(p,i),d=document.createElement("div");d.className="piece"+(p.id==selId?" on":"");d._p=p;d._P=P;d.innerHTML=`<img src="${ITEMS[p.k][0]}" alt="${esc(ITEMS[p.k][1])}"><button class="x" aria-label="Quitar">✕</button><span class="rt" role="slider" aria-label="Girar" title="Girar">↻</span><span class="sz"></span><span class="rs" role="slider" aria-label="Cambiar tamaño"></span>`;
+ const sz=d.querySelector(".sz"),upd=()=>{sz.textContent=p.cm+" × "+hh(p)+" cm";d.style.width=(p.cm/S.cm*100)+"%";place(d)};upd();
  d.querySelector(".x").onclick=ev=>{ev.stopPropagation();setSheet(sheet.filter(o=>o!=p));saveSheet();renderSheet()};
- const rs=d.querySelector(".rs");
+ const rs=d.querySelector(".rs"),rt=d.querySelector(".rt");
+ // girar: arrastra el círculo ↻ alrededor del sticker; se acomoda solo en 0°, 90°, 180° y 270°
+ rt.onpointerdown=ev=>{ev.stopPropagation();rt.setPointerCapture(ev.pointerId);const b=d.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2,ang=e=>Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI,a0=ang(ev),r0=P.r||0;
+  rt.onpointermove=e=>{let r=Math.round(r0+ang(e)-a0);r=((r%360)+360)%360;const s=Math.round(r/90)*90;if(Math.abs(r-s)<6)r=s%360;P.r=r;place(d);sz.textContent=p.cm+" × "+hh(p)+" cm · "+r+"°"};
+  rt.onpointerup=()=>{rt.onpointermove=null;upd();saveSheet()}};
  rs.onpointerdown=ev=>{ev.stopPropagation();rs.setPointerCapture(ev.pointerId);const g=geo(),[x0]=toL(ev,g),c0=p.cm,mx=Math.floor(14/Math.max(1,ar(p))*2)/2;
   rs.onpointermove=e=>{p.cm=Math.min(mx,Math.max(2,Math.round((c0+(toL(e,g)[0]-x0)/100*S.cm)*2)/2));upd();sheetInfo()};rs.onpointerup=()=>{rs.onpointermove=null;saveSheet()}};
- d.onpointerdown=ev=>{selId=p.id;$$(".piece.on").forEach(e=>e!=d&&e.classList.remove("on"));d.classList.add("on");if(ev.target.closest(".x")||ev.target==rs)return;d.setPointerCapture(ev.pointerId);const g=geo(),[lx,ly]=toL(ev,g),ox=lx-P.x,oy=ly-P.y;
-  d.onpointermove=e=>{const [x,y]=toL(e,g);P.x=Math.max(0,Math.min(100-p.cm/S.cm*100,x-ox));P.y=Math.max(0,Math.min(100-hh(p)/(S.cm*g.lh/g.lw)*100,y-oy));d.style.left=P.x+"%";d.style.top=P.y+"%"};d.onpointerup=()=>{d.onpointermove=null;saveSheet()}};
+ d.onpointerdown=ev=>{selId=p.id;$$(".piece.on").forEach(e=>e!=d&&e.classList.remove("on"));d.classList.add("on");if(ev.target.closest(".x")||ev.target==rs||ev.target==rt)return;d.setPointerCapture(ev.pointerId);const g=geo(),[lx,ly]=toL(ev,g),ox=lx-P.x,oy=ly-P.y,xc0=cyl()?50+50*Math.sin(phase(P)*Math.PI/180):0;
+  d.onpointermove=e=>{const [x,y]=toL(e,g);if(cyl())P.u=uFrom(Math.max(1,Math.min(99,xc0+x-lx)));else P.x=Math.max(0,Math.min(100-p.cm/S.cm*100,x-ox));P.y=Math.max(0,Math.min(100-hh(p)/(S.cm*g.lh/g.lw)*100,y-oy));place(d)};d.onpointerup=()=>{d.onpointermove=null;saveSheet()}};
  a.appendChild(d)});sheetInfo()}
 addEventListener("resize",()=>{if(cur=="hoja")renderSheet()});
 $("#hclear").onclick=()=>{setSheet([]);saveSheet();renderSheet()};
 $("#hdel").onclick=()=>{if(sheets.length<2)return;sheets.splice(si,1);si=Math.min(si,sheets.length-1);sheet=sheets[si];saveSheet();renderSheet();toast("Hoja eliminada")};
 $("#hadd").onclick=()=>{const full=sheets.filter(s=>s.length);if(!full.length)return toast("Tu hoja está vacía");
- full.forEach((s,i)=>addLine({name:"Hoja personalizada"+(full.length>1?" "+(i+1):""),icon:"sheet",m:MATS[0][0],s:5,q:1,sheet:s.map(p=>ITEMS[p.k][1]+" "+code(p.k)+" "+p.cm+"×"+hh(p)+"cm").join(", "),sizes:s.map(big),n:s.length,lay:s.map(p=>[p.k,p.cm,hh(p),Math.round(p.x*10)/10,Math.round(p.y*10)/10])}));
+ full.forEach((s,i)=>addLine({name:"Hoja personalizada"+(full.length>1?" "+(i+1):""),icon:"sheet",m:MATS[0][0],s:5,q:1,sheet:s.map(p=>ITEMS[p.k][1]+" "+code(p.k)+" "+p.cm+"×"+hh(p)+"cm").join(", "),sizes:s.map(big),n:s.length,lay:s.map(p=>[p.k,p.cm,hh(p),Math.round(p.x*10)/10,Math.round(p.y*10)/10,p.r||0])}));
  sheets=[[]];si=0;sheet=sheets[0];saveSheet();renderSheet();go("car")};
 // precios
 const opts=a=>a.map(x=>`<option>${x}</option>`).join("");
@@ -724,13 +753,13 @@ const b64u=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/
 const unb64u=s=>decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4))));
 // el pedido viaja comprimido dentro del link (#z=...): sin nombres repetidos ni datos que se puedan deducir
 const mIdx=m=>Math.max(0,MATS.findIndex(x=>x[0]==m));
-function packOrder(no){const L=cart.map(l=>l.x?["x",l.x,l.q,l.ex||"",l.note||""]:l.lay?["h",mIdx(l.m),...l.lay.flat()]:l.sheet?["s",l.name,mIdx(l.m),l.sheet,l.sizes||[]]
+function packOrder(no){const L=cart.map(l=>l.x?["x",l.x,l.q,l.ex||"",l.note||""]:l.lay?["H",mIdx(l.m),...l.lay.map(a=>[...a.slice(0,5),a[5]||0]).flat()]:l.sheet?["s",l.name,mIdx(l.m),l.sheet,l.sizes||[]]
  :l.img?["f",mIdx(l.m),l.s,l.h||l.s,l.q,l.img,l.bg?1:0,l.note||""]:l.k!=null?["c",l.k,mIdx(l.m),l.s,l.h||l.s,l.q]:["o",l.name,mIdx(l.m),l.s,l.h||l.s,l.q,l.note||""]);
  return [no,$("#nm").value.trim(),$("#ph").value.trim(),$("#em").value.trim(),$("#on").value.trim(),L]}
 function unpackOrder([no,n,t,e,o,L]){let hs=0;const M=i=>(MATS[i]||MATS[0])[0];
  L=L.map(a=>{const [ty,...r]=a;
   if(ty=="c")return {name:(ITEMS[r[0]]||[,"Sticker"])[1],k:r[0],m:M(r[1]),s:r[2],h:r[3],q:r[4]};
-  if(ty=="h"){const lay=[];for(let i=1;i<r.length;i+=5)lay.push(r.slice(i,i+5));return {name:"Hoja personalizada",m:M(r[0]),lay,n:lay.length,sizes:lay.map(([,w,hg])=>Math.max(w,hg))}}
+  if(ty=="h"||ty=="H"){const n=ty=="H"?6:5,lay=[];for(let i=1;i<r.length;i+=n)lay.push(r.slice(i,i+n));return {name:"Hoja personalizada",m:M(r[0]),lay,n:lay.length,sizes:lay.map(([,w,hg])=>Math.max(w,hg))}}
   if(ty=="s")return {name:r[0],m:M(r[1]),sheet:r[2],sizes:r[3],n:r[3].length};
   if(ty=="f")return {name:"Sticker personalizado",m:M(r[0]),s:r[1],h:r[2],q:r[3],img:r[4],bg:!!r[5],note:r[6]};
   if(ty=="x")return {name:(EXTRAS.find(p=>p.id==r[0])||{name:"Proyecto"}).name,x:r[0],q:r[1],ex:r[2],note:r[3]};
@@ -816,7 +845,7 @@ async function renderOrder(){let d;try{d=await readOrder(location.hash)}catch(e)
  const v=$("#ver");if(!d||!Array.isArray(d.L)){v.innerHTML='<div class="panel emptycart"><p>No pudimos leer este pedido. Pide al cliente que lo vuelva a enviar.</p></div>';return}
  const it=k=>ITEMS[k]||["","Sticker #"+(k+1),""],tot=d.L.reduce((a,l)=>a+lineTotal(l),0),cot=d.L.some(l=>l.x);
  const row=(l,i)=>{const head=(t,s)=>`<div class="vhead"><b>${i+1}. ${t}</b><span>${s}</span></div>`;
-  if(l.lay)return `<div class="vline">${head(esc(l.name),`${esc(l.m)} · ${l.lay.length} stickers · ${money(lineTotal(l))}`)}<div class="vsheet"><div class="vpaper">${l.lay.map(([k,w,,x,y])=>`<img src="${it(k)[0]}" alt="" style="left:${x}%;top:${y}%;width:${w/SHEET_W*100}%">`).join("")}</div>
+  if(l.lay)return `<div class="vline">${head(esc(l.name),`${esc(l.m)} · ${l.lay.length} stickers · ${money(lineTotal(l))}`)}<div class="vsheet"><div class="vpaper">${l.lay.map(([k,w,,x,y,r])=>`<img src="${it(k)[0]}" alt="" style="left:${x}%;top:${y}%;width:${w/SHEET_W*100}%;transform:rotate(${r||0}deg)">`).join("")}</div>
    <ol class="vlist">${l.lay.map(([k,w,hgt])=>`<li><img src="${it(k)[0]}" alt=""><span><b>${esc(it(k)[1])}</b> <span class="code">${code(k)}</span><br><small>${w} × ${hgt} cm</small></span></li>`).join("")}</ol></div></div>`;
   if(l.sheet)return `<div class="vline">${head(esc(l.name),`${esc(l.m)} · ${money(lineTotal(l))}`)}<p class="hint">${esc(l.sheet)}</p></div>`;
   if(l.x){const p=EXTRAS.find(e=>e.id==l.x);return `<div class="vline"><div class="vone"><div class="vimg cov">${p&&p.imgs.length?`<img src="${XPH[p.imgs[0]]}" alt="">`:svg(ICON.star,40)}</div><div>${head(esc(l.name),`${l.q} ud${l.q>1?"s":""} · a cotizar`)}<p class="hint">${esc(l.ex||"")}</p>${l.note?`<p class="vnote">Idea: ${esc(l.note)}</p>`:""}</div></div></div>`}
