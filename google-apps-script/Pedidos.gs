@@ -58,11 +58,13 @@ function doPost(e) {
     let correo = false;
     if (nuevo) {
       try { correoCliente(d); correo = true; } catch (err) { console.error('Correo al cliente', err); }
-      try { avisoTelegram(d); } catch (err) { console.error('Telegram', err); }
+      try { avisoTelegram(d, fotos); } catch (err) { console.error('Telegram', err); }
       if (CORREO_AVISO) {
         try {
+          const disenos = fotos.filter(f => f.tipo === 'diseño').map(f => f.blob);
           MailApp.sendEmail(CORREO_AVISO, 'Nuevo pedido ' + d.id + ' · ' + (d.n || ''),
-            (d.n || '') + ' · ' + (d.t || '') + ' · ' + (d.e || '') + '\n\n' + (d.detalle || []).join('\n') + '\n\nTotal estimado: ' + (d.total || '') + '\n\n' + SITIO + '#' + d.id);
+            (d.n || '') + ' · ' + (d.t || '') + ' · ' + (d.e || '') + '\n\n' + (d.detalle || []).join('\n') + '\n\nTotal estimado: ' + (d.total || '') + '\n\n' + SITIO + '#' + d.id,
+            disenos.length ? { attachments: disenos } : {});
         } catch (err) { console.error('Aviso', err); }
       }
     }
@@ -80,6 +82,12 @@ function doGet(e) {
   if (!fila) return respuesta({ ok: false, error: 'no existe' });
   const fotos = String(fila[10] || '').split('\n').map(t => t.match(/^Línea (\d+) \((.+?)\): (\S+)$/)).filter(Boolean)
     .map(m => ({ li: +m[1], tipo: m[2], url: m[3] }));
+  fotos.filter(f => f.tipo === 'diseño').forEach(f => {
+    try {
+      const b = DriveApp.getFileById(f.url.match(/\/d\/([^/]+)/)[1]).getBlob();
+      f.data = 'data:' + b.getContentType() + ';base64,' + Utilities.base64Encode(b.getBytes());
+    } catch (err) { console.error('Diseño', err); }
+  });
   return respuesta({ ok: true, p: fila[9], fotos: fotos });
 }
 
@@ -88,11 +96,12 @@ function guardarFotos(id, lista) {
   if (!lista.length) return [];
   const dir = carpeta();
   return lista.slice(0, 10).map(f => {
-    const tipo = f.tipo === 'sin fondo' ? 'sin fondo' : 'original';
+    const tipo = ['sin fondo', 'diseño'].indexOf(f.tipo) >= 0 ? f.tipo : 'original';
     const mime = /^image\/(png|jpeg|webp)$/.test(f.mime) ? f.mime : 'image/jpeg';
     const nombre = id + ' - linea ' + f.li + ' - ' + tipo + ' - ' + String(f.n || 'foto').slice(0, 80);
-    const archivo = dir.createFile(Utilities.newBlob(Utilities.base64Decode(f.b64), mime, nombre));
-    return { li: f.li, tipo: tipo, url: archivo.getUrl() };
+    const blob = Utilities.newBlob(Utilities.base64Decode(f.b64), mime, nombre + (mime === 'image/png' ? '.png' : '.jpg'));
+    const archivo = dir.createFile(blob);
+    return { li: f.li, tipo: tipo, url: archivo.getUrl(), blob: blob };
   });
 }
 
@@ -119,16 +128,21 @@ function correoCliente(d) {
 }
 
 /** Aviso al celular: manda el pedido nuevo a tu chat con el bot de Telegram. */
-function avisoTelegram(d) {
+function avisoTelegram(d, fotos) {
   if (!TELEGRAM_TOKEN) return;
   const chat = chatTelegram();
   if (!chat) return;
   const t = '🛒 <b>Nuevo pedido ' + html(d.id) + '</b>\n' +
     '👤 ' + html(d.n || '') + '\n📞 ' + html(d.t || '') + '\n✉️ ' + html(d.e || '') + '\n\n' +
     (d.detalle || []).map(html).join('\n') + '\n\n💰 Total estimado: <b>' + html(d.total || '') + '</b>' +
-    ((d.fotos || []).length ? '\n📷 Trae foto del cliente (está en Drive)' : '') +
+    ((fotos || []).some(f => f.tipo !== 'diseño') ? '\n📷 Trae foto del cliente (está en Drive)' : '') +
     '\n\n<a href="' + SITIO + '#' + d.id + '">Ver pedido con imágenes</a>';
   telegram('sendMessage', { chat_id: chat, text: t.slice(0, 4000), parse_mode: 'HTML', disable_web_page_preview: true });
+  // imagen del diseño final (por ejemplo, cómo quedó la patineta)
+  (fotos || []).filter(f => f.tipo === 'diseño').forEach(f => {
+    UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendPhoto',
+      { method: 'post', payload: { chat_id: chat, caption: 'Diseño · pedido ' + d.id + ' · línea ' + f.li, photo: f.blob }, muteHttpExceptions: true });
+  });
 }
 
 // Tu chat con el bot: se guarda solo la primera vez que le escribes "/start" al bot.
