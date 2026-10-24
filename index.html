@@ -694,7 +694,7 @@ function openProduct(i,mode="suelto"){const it=ITEMS[i],r=it[3]||1,d=$("#pm");$(
  const w0=rd(r>=1?5/r:5),h0=rd(r>=1?5:5*r);
  $("#pmBody").innerHTML=`<div class="pmtop"><div class="pmimg"><img src="${it[0]}" alt=""></div><div><span class="code">${code(i)}</span> · <span class="hint" style="display:inline">${esc(it[2])}</span><p class="hint" style="margin-top:6px">¿Cómo lo quieres?</p></div></div>
   <div class="seg" role="tablist"><button role="tab" data-mode="suelto">Sticker suelto</button><button role="tab" data-mode="hoja">En mi hoja A4</button></div>
-  <div data-pane="suelto"><div class="row"><div><label for="pmM">Vinil</label><select id="pmM">${opts(MATS.map(m=>m[0]))}</select></div><div><label for="pmQ">Cantidad</label><input id="pmQ" type="number" min="1" value="5"></div></div>
+  <div data-pane="suelto"><div class="row"><div><label for="pmM">Vinil</label><select id="pmM">${opts(MATS.map(m=>m[0]))}</select></div><div><label for="pmQ">Cantidad</label><input id="pmQ" type="number" min="1" value="1"></div></div>
    <div class="row"><div><label for="pmW">Ancho (cm)</label><input id="pmW" type="number" min="2" max="14" step="0.5" value="${w0}" inputmode="decimal"></div><div><label for="pmH">Largo (cm)</label><input id="pmH" type="number" min="2" max="14" step="0.5" value="${h0}" inputmode="decimal"></div></div>
    <div class="pmprice"><span class="hint" id="pmU"></span><b id="pmT"></b></div><div id="pmTip"></div><button class="btn big" id="pmAdd">Agregar al pedido</button></div>
   <div data-pane="hoja" hidden><p>Junta este sticker con otros diseños en una <b>hoja A4</b>: lo acomodas, lo giras y eliges su tamaño. Pagas solo por los stickers de la hoja.</p><button class="btn big" id="pmSheet">Poner en mi hoja</button></div>`;
