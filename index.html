@@ -224,6 +224,7 @@ textarea{resize:vertical}
 .area .dkgloss{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:.35}
 .deckbox{max-width:520px;margin:14px auto 0}
 .deckbox h3{margin-bottom:4px}
+.dkprice{margin:10px 0 0;font-size:14px;background:var(--brand-soft);color:var(--ink);border-radius:var(--r-s);padding:8px 12px}.dkprice b{font-size:17px}
 .dkrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
 .dkrow input[type=search]{flex:1 1 200px}
 .dkgrid{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
@@ -446,6 +447,7 @@ img{max-width:100%}
 <div class="panel deckbox" id="deckbox" hidden><h3>Diseño de la tabla</h3><p class="hint">Elige un diseño del catálogo o sube tu imagen: se adapta a la forma de la patineta. Encima puedes poner stickers de tu hoja.</p>
 <div class="dkrow"><input id="dkq" type="search" placeholder="Busca un diseño: Rick, Messi, Pikachu…" aria-label="Buscar diseño"><label class="btn alt sm" for="dkfile">Subir mi imagen</label><input id="dkfile" type="file" accept="image/*" hidden></div>
 <div class="dkgrid" id="dkgrid"></div>
+<p class="dkprice" id="dkprice"></p>
 <p class="hint" id="dkhelp" hidden>Toca la imagen en la tabla para moverla, agrandarla o achicarla con el círculo de la esquina y girarla con el ↻.</p>
 <div class="dkrow"><button class="btn alt sm" id="dkcover">Llenar la tabla</button><button class="btn alt sm" id="dkcontain">Ver completa</button><button class="btn alt sm" id="dkminus" aria-label="Más pequeña">− Más pequeña</button><button class="btn alt sm" id="dkplus" aria-label="Más grande">+ Más grande</button><button class="btn alt sm" id="dkrot">Girar 90°</button><button class="btn alt sm" id="dknone">Quitar diseño</button></div>
 <button class="btn big" id="dkorder">Pedir esta patineta</button></div></div>
@@ -556,7 +558,7 @@ const ITEMS=[["data:image/webp;base64,UklGRnxnAABXRUJQVlA4WAoAAAAQAAAAIAEAZwEAQU
 // Productos personalizados (sección "Proyectos"). Cada uno: id, nombre, etiqueta, descripción, usos,
 // fotos (claves de XPH), opciones [[nombre, [valores]]] y ejemplo de idea. "price": precio fijo por unidad; sin price, se cotiza.
 const EXTRAS=[
- {id:"skate",name:"Patineta decorativa",price:18,tag:"Arte para tu pared",desc:"Tablas de skate de tamaño real con tu diseño, logo o foto. Son para decorar tu cuarto o negocio, o para regalar (no para patinar).",uses:["Decoración","Regalos","Negocios"],imgs:["wall","tony","utm","skate"],opts:[["Medida",["Estándar · 80 × 20 cm","Mini · 60 × 16 cm","Otra medida"]],["Acabado",["Brillante","Mate"]]],ph:"Ej: el logo de mi tienda con fondo verde, o una foto mía"},
+ {id:"skate",name:"Patineta decorativa",price:18,priceFull:20,tag:"Arte para tu pared",desc:"Tablas de skate de tamaño real con tu diseño, logo o foto. Son para decorar tu cuarto o negocio, o para regalar (no para patinar).",uses:["Decoración","Regalos","Negocios"],imgs:["wall","tony","utm","skate"],opts:[["Diseño",["Toda la tabla · $20","Solo una parte de la tabla · $18"]],["Medida",["Estándar · 80 × 20 cm","Mini · 60 × 16 cm","Otra medida"]],["Acabado",["Brillante","Mate"]]],ph:"Ej: el logo de mi tienda con fondo verde, o una foto mía"},
  {id:"resin",name:"Cuadro con resina epóxica",tag:"Brillo y relieve que dura",desc:"Cuadros con tu imagen favorita cubiertos con resina epóxica: acabado tipo vidrio, colores intensos y protección para siempre. Perfectos para tu cuarto, sala o negocio.",uses:["Decoración","Regalos","Fans"],imgs:["resin"],opts:[["Medida",["20 × 30 cm","30 × 45 cm","40 × 60 cm","Otra medida"]],["Diseño",["Mi propia imagen","Un sticker del catálogo","Diseño a pedido"]]],ph:"Ej: Spider-Man estilo cómic, para regalar a mi hijo"},
  {id:"poster",name:"Pósters decorativos",tag:"Arma tu pared",desc:"Pósters de tus artistas, bandas, películas o diseños favoritos para decorar tu cuarto. Pídelos sueltos o en pack para armar un collage en la pared.",uses:["Cuarto","Collage","Regalos","Música"],imgs:["posters"],opts:[["Tamaño",["A4 · 21 × 29,7 cm","A3 · 29,7 × 42 cm","Otra medida"]],["Papel",["Couché brillante","Couché mate","Fotográfico"]]],ph:"Ej: pack de 10 pósters A4 de Drake, Arctic Monkeys y Tyler, en blanco y negro"},
  {id:"vinyl",name:"Discos de vinil y cuadros de álbum",tag:"Regalo con tu foto o tu música",desc:"Disco de vinil decorativo con etiqueta personalizada (tu foto, tu nombre o tu canción favorita), o enmarcado junto a la portada de tu álbum favorito para colgar en la pared.",uses:["Cumpleaños","Aniversarios","Artistas","Decoración"],imgs:["albums","vinyl"],opts:[["Presentación",["Solo disco","Disco + stickers de regalo","Cuadro enmarcado: portada + disco"]],["Tamaño",["12\" · 30 cm","7\" · 18 cm"]]],ph:"Ej: cuadro con la portada de Blond de Frank Ocean, o un disco con la foto de Enzo"},
@@ -691,10 +693,17 @@ function renderSurfs(){const S=SURF[surf];
  $("#surfs").innerHTML=Object.entries(SURF).map(([k,v])=>`<button class="surf ${k==surf?"on":""}" data-surf="${k}" aria-pressed="${k==surf}"><span class="st">${v.img?`<img src="${MOCK[v.img]}" alt="">`:k=="pared"?`<span class="wallbg"><span class="outlet"></span></span>`:svg(ICON.sheet,26)}</span>${v.name}</button>`).join("");
  $$("[data-surf]").forEach(b=>b.onclick=()=>{surf=b.dataset.surf;renderSheet()});
  $("#shint").textContent=surf=="hoja"?"Toca una superficie para ver cómo quedarían tus stickers.":surf=="skate"?"Elige abajo el diseño de la tabla y acomoda stickers de tu hoja encima. Toca un sticker para girarlo, cambiar su tamaño o quitarlo. Cuando te guste, toca “Pedir esta patineta”.":surf=="termo"?"Gira el termo arrastrándolo hacia los lados o con las flechas, y acomoda tus stickers alrededor. Toca un sticker para girarlo, cambiar su tamaño o quitarlo.":`Vista previa en ${S.name.toLowerCase()} con la medida real aproximada. Arrástralos y toca uno para girarlo, cambiar su tamaño o quitarlo. Tu pedido sigue siendo la hoja con estos stickers.`}
+function deckCover(){const S=SURF.skate,A=(S.bl[1]-S.tl[1])/(S.tr[0]-S.tl[0])/S.ar;if(!deckSrc()||!deck.a)return 0;
+ const w=deck.w/100,hd=w*deck.a,cx=deck.cx/100,cy=deck.cy/100*A,t=-deck.r*Math.PI/180,co=Math.cos(t),si=Math.sin(t);let n=0,inn=0;
+ for(let i=0;i<24;i++)for(let j=0;j<96;j++){const x=(i+.5)/24,y=(j+.5)/96*A,yc=y<.5?.5:y>A-.5?A-.5:y;if(Math.hypot(x-.5,y-yc)>.5)continue;n++;
+  const dx=x-cx,dy=y-cy,u=dx*co-dy*si,v=dx*si+dy*co;if(Math.abs(u)<=w/2&&Math.abs(v)<=hd/2)inn++}return inn/n}
+const deckPrice=()=>{const p=EXTRAS.find(e=>e.id=="skate");return deckCover()>=.97?p.priceFull:p.price};
+function showDeckPrice(){const el=$("#dkprice");if(!el)return;const full=deckCover()>=.97,p=EXTRAS.find(e=>e.id=="skate");
+ el.innerHTML=`Precio: <b>${money(deckPrice())}</b> · ${deckSrc()?(full?"el diseño cubre toda la tabla":`el diseño cubre parte de la tabla. Si lo agrandas a toda la tabla: ${money(p.priceFull)}`):`con un diseño en toda la tabla: ${money(p.priceFull)}`}`}
 function renderDeckBox(){const q=norm($("#dkq").value.trim()),list=ITEMS.map((it,i)=>({it,i})).filter(o=>!q||norm(o.it[1]+" "+o.it[2]+" "+code(o.i)).includes(q)).slice(0,40);
  $("#dkgrid").innerHTML=list.map(({it,i})=>`<button class="${deck.k==i&&!deck.img?"on":""}" data-dk="${i}" title="${esc(it[1])} ${code(i)}"><img src="${it[0]}" alt="${esc(it[1])}" loading="lazy"></button>`).join("")||'<p class="hint">No hay diseños con ese nombre. Sube tu imagen.</p>';
  $$("[data-dk]").forEach(b=>b.onclick=()=>{deck={...deck,k:+b.dataset.dk,img:null,name:ITEMS[+b.dataset.dk][1]+" "+code(+b.dataset.dk),a:0,r:0};dsel=true;saveDeck();renderSheet()});
- const has=!!deckSrc();$("#dkhelp").hidden=!has;["dkcover","dkcontain","dkminus","dkplus","dkrot","dknone"].forEach(i=>$("#"+i).disabled=!has)}
+ showDeckPrice();const has=!!deckSrc();$("#dkhelp").hidden=!has;["dkcover","dkcontain","dkminus","dkplus","dkrot","dknone"].forEach(i=>$("#"+i).disabled=!has)}
 $("#dkq").oninput=()=>renderDeckBox();
 $("#dkcover").onclick=()=>{deckFit("cover");saveDeck();renderSheet()};
 $("#dkcontain").onclick=()=>{deckFit("contain");saveDeck();renderSheet()};
@@ -717,7 +726,7 @@ $("#dkorder").onclick=async()=>{if(!deckSrc()&&!sheet.length)return toast("Elige
  const bt=$("#dkorder"),bl=bt.textContent;bt.disabled=true;bt.textContent="Preparando…";let v=null;try{v=await deckPreview()}catch(e){console.warn("Vista de la patineta",e)}bt.disabled=false;bt.textContent=bl;
  const st=sheet.length?" · Stickers: "+sheet.map(p=>ITEMS[p.k][1]+" "+code(p.k)+" "+p.cm+"×"+hh(p)+"cm").join(", "):"";
  PHOTOS._next={o:deck.img||null,s:null,v,n:deck.name||"patineta"};
- addLine({name:"Patineta decorativa",x:"skate",q:1,e:v?await thumbOf(v):undefined,ex:`Diseño: ${deck.name||"sin diseño"}${deckSrc()?` (${(deck.w/100*SURF.skate.cm).toFixed(1)} cm de ancho${deck.r?", girado "+deck.r+"°":""}${Math.abs(deck.cx-50)>2||Math.abs(deck.cy-50)>2?`, centro en ${Math.round(deck.cx)}% / ${Math.round(deck.cy)}% de la tabla`:", centrado"})`:""}${st}`,note:"",img:deck.img?deck.name:undefined,dk:deck.img?undefined:deck.k});
+ addLine({name:"Patineta decorativa",x:"skate",q:1,price:deckPrice(),e:v?await thumbOf(v):undefined,ex:`Diseño: ${deck.name||"sin diseño"}${deckSrc()?` (${(deck.w/100*SURF.skate.cm).toFixed(1)} cm de ancho${deck.r?", girado "+deck.r+"°":""}${Math.abs(deck.cx-50)>2||Math.abs(deck.cy-50)>2?`, centro en ${Math.round(deck.cx)}% / ${Math.round(deck.cy)}% de la tabla`:", centrado"})`:""}${st}`,note:"",img:deck.img?deck.name:undefined,dk:deck.img?undefined:deck.k});
  toast("Patineta agregada a tu pedido");go("car")};
 function renderSheet(){renderTabs();const s=$("#sheet"),S=SURF[surf];s.className="sheet"+(surf=="hoja"?"":" mock");s.style.touchAction=cyl()?"pan-y":"";$("#spin").hidden=!cyl();$("#deckbox").hidden=!S.deck;if(S.deck)renderDeckBox();s.style.aspectRatio=S.ar;s.style.maxWidth=`min(${S.max}px, calc(68vh * ${S.ar}))`;
  s.innerHTML=(S.img?`<img class="mockbg" src="${MOCK[S.img]}" alt="${S.name}">`:surf=="pared"?`<div class="wallbg"><span class="outlet"></span></div>`:"")+(sheet.length?"":'<div class="empty">Tu hoja está en blanco.<br>Agrega stickers con el botón “A mi hoja” en el catálogo.</div>');
@@ -729,7 +738,7 @@ function renderSheet(){renderTabs();const s=$("#sheet"),S=SURF[surf];s.className
   const fl=document.createElement("div");fl.className="area dkfl";fl.style.cssText=a.style.cssText;fl.style.borderRadius="";s.appendChild(fl);
   if(src){fl.innerHTML=`<div class="dkframe${dsel?" on":""}"><button class="x" aria-label="Quitar diseño">✕</button><span class="rt" role="slider" aria-label="Girar diseño">↻</span><span class="sz"></span><span class="rs" role="slider" aria-label="Cambiar tamaño del diseño"></span></div>`;
    const dp=a.querySelector(".dkpiece"),fr=fl.querySelector(".dkframe"),sz=fr.querySelector(".sz");
-   const show=()=>{const wp=deck.w/100*g.lw,hp=wp*deck.a;[dp,fr].forEach(e=>{e.style.width=wp+"px";e.style.height=hp+"px";e.style.left=(deck.cx/100*g.lw-wp/2)+"px";e.style.top=(deck.cy/100*g.lh-hp/2)+"px";e.style.transform=`rotate(${deck.r}deg)`});
+   const show=()=>{const wp=deck.w/100*g.lw,hp=wp*deck.a;[dp,fr].forEach(e=>{e.style.width=wp+"px";e.style.height=hp+"px";e.style.left=(deck.cx/100*g.lw-wp/2)+"px";e.style.top=(deck.cy/100*g.lh-hp/2)+"px";e.style.transform=`rotate(${deck.r}deg)`});showDeckPrice();
     sz.textContent=`${(deck.w/100*S.cm).toFixed(1)} × ${(deck.w/100*S.cm*deck.a).toFixed(1)} cm${deck.r?" · "+deck.r+"°":""}`};show();
    const sel=()=>{dsel=true;fr.classList.add("on");selId=null;$$(".piece.on").forEach(e=>e.classList.remove("on"))};
    dp.onpointerdown=ev=>{ev.stopPropagation();sel();dp.setPointerCapture(ev.pointerId);const [x0,y0]=toL(ev,g),c0=[deck.cx,deck.cy];
@@ -815,7 +824,7 @@ $("#file").onchange=e=>{const f=e.target.files[0];if(!f)return;upload=f;stk=null
 const PHOTOS={};   // id de la línea → {o: foto original, s: sticker sin fondo, n: nombre}
 $("#uadd").onclick=()=>{if(!upload)return toast("Primero elige una foto");PHOTOS._next={o:orig,s:$("#bgon").checked?stk:null,n:upload.name};addLine({name:"Sticker personalizado",icon:"photo",m:$("#um").value,s:cl($("#us").value),h:cl($("#uh").value),q:Math.max(1,+$("#uq").value||1),note:$("#un").value,img:upload.name,bg:$("#bgon").checked,e:$("#bgon").checked&&stk||orig});upload=null;upDims=null;orig=stk=null;bgTok++;$("#bgdl").hidden=true;$("#drop").classList.remove("stk");bgSay("Al subir tu foto le quitamos el fondo y le ponemos borde blanco.");$("#file").value="";$("#drop").innerHTML=`${svg(ICON.photo,34)}<span>Toca para elegir una foto</span>`;$("#res").innerHTML="";$("#un").value="";go("car")};
 // pedido
-const xPrice=l=>(EXTRAS.find(p=>p.id==l.x)||{}).price||0,cotiza=l=>!!l.x&&!xPrice(l);
+const xPrice=l=>l.price||(EXTRAS.find(p=>p.id==l.x)||{}).price||0,cotiza=l=>!!l.x&&!xPrice(l);
 const lineTotal=l=>l.x?xPrice(l)*l.q:l.sheet||l.lay?(l.sizes||Array(l.n).fill(5)).reduce((a,z)=>a+unit(l.m,z,l.n),0):unit(l.m,Math.max(l.s,l.h||l.s),l.q)*l.q;
 const thumb=l=>l.x&&l.e&&String(l.e).startsWith("data:")?`<img src="${l.e}" alt="" style="object-fit:contain;width:100%;height:100%">`:l.x?(()=>{const p=EXTRAS.find(e=>e.id==l.x);return p&&p.imgs.length?`<img src="${XPH[p.imgs[0]]}" alt="" style="object-fit:cover;width:100%;height:100%;border-radius:6px">`:svg(ICON.star,26)})():l.k!=null&&ITEMS[l.k]?`<img src="${ITEMS[l.k][0]}" alt="">`:(l.e&&String(l.e).startsWith("data:")?`<img src="${l.e}" alt="">`:svg(ICON[l.icon]||ICON.bag,26));
 function renderCart(){
@@ -837,7 +846,7 @@ const b64u=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/
 const unb64u=s=>decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4))));
 // el pedido viaja comprimido dentro del link (#z=...): sin nombres repetidos ni datos que se puedan deducir
 const mIdx=m=>Math.max(0,MATS.findIndex(x=>x[0]==m));
-function packOrder(no){const L=cart.map(l=>l.x?["x",l.x,l.q,l.ex||"",l.note||"",l.dk??null,l.img||null]:l.lay?["H",mIdx(l.m),...l.lay.map(a=>[...a.slice(0,5),a[5]||0]).flat()]:l.sheet?["s",l.name,mIdx(l.m),l.sheet,l.sizes||[]]
+function packOrder(no){const L=cart.map(l=>l.x?["x",l.x,l.q,l.ex||"",l.note||"",l.dk??null,l.img||null,l.price||0]:l.lay?["H",mIdx(l.m),...l.lay.map(a=>[...a.slice(0,5),a[5]||0]).flat()]:l.sheet?["s",l.name,mIdx(l.m),l.sheet,l.sizes||[]]
  :l.img?["f",mIdx(l.m),l.s,l.h||l.s,l.q,l.img,l.bg?1:0,l.note||""]:l.k!=null?["c",l.k,mIdx(l.m),l.s,l.h||l.s,l.q]:["o",l.name,mIdx(l.m),l.s,l.h||l.s,l.q,l.note||""]);
  return [no,$("#nm").value.trim(),$("#ph").value.trim(),$("#em").value.trim(),$("#on").value.trim(),L]}
 function unpackOrder([no,n,t,e,o,L]){let hs=0;const M=i=>(MATS[i]||MATS[0])[0];
@@ -846,7 +855,7 @@ function unpackOrder([no,n,t,e,o,L]){let hs=0;const M=i=>(MATS[i]||MATS[0])[0];
   if(ty=="h"||ty=="H"){const n=ty=="H"?6:5,lay=[];for(let i=1;i<r.length;i+=n)lay.push(r.slice(i,i+n));return {name:"Hoja personalizada",m:M(r[0]),lay,n:lay.length,sizes:lay.map(([,w,hg])=>Math.max(w,hg))}}
   if(ty=="s")return {name:r[0],m:M(r[1]),sheet:r[2],sizes:r[3],n:r[3].length};
   if(ty=="f")return {name:"Sticker personalizado",m:M(r[0]),s:r[1],h:r[2],q:r[3],img:r[4],bg:!!r[5],note:r[6]};
-  if(ty=="x")return {name:(EXTRAS.find(p=>p.id==r[0])||{name:"Proyecto"}).name,x:r[0],q:r[1],ex:r[2],note:r[3],dk:r[4]??undefined,img:r[5]||undefined};
+  if(ty=="x")return {name:(EXTRAS.find(p=>p.id==r[0])||{name:"Proyecto"}).name,x:r[0],q:r[1],ex:r[2],note:r[3],dk:r[4]??undefined,img:r[5]||undefined,price:r[6]||undefined};
   return {name:r[0],m:M(r[1]),s:r[2],h:r[3],q:r[4],note:r[5]}});
  const nh=L.filter(l=>l.lay).length;L.forEach(l=>{if(l.lay&&nh>1)l.name+=" "+(++hs)});return {no,n,t,e,o,L}}
 const bytesB64=b=>{let s="";for(const c of new Uint8Array(b))s+=String.fromCharCode(c);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")};
@@ -914,7 +923,7 @@ function renderExtras(){const logo=$(".head img").src;$("#xhero").style.backgrou
  $("#xgrid").innerHTML=EXTRAS.map(p=>{const art=p.imgs.length?`<div class="xgw"><div class="xgal">${p.imgs.map((k,i)=>`<img src="${XPH[k]}" alt="${esc(p.name)}, ejemplo ${i+1}" loading="lazy">`).join("")}</div>${p.imgs.length>1?`<span class="xn">Desliza · ${p.imgs.length} fotos</span>`:""}</div>`
   :p.id=="flyer"?`<div class="xart fly" role="img" aria-label="Ejemplo de flyers"><div class="fl f1"></div><div class="fl f2"></div><div class="fl f3"><span class="st"><img src="${logo}" alt=""></span><small>Gran</small><b>Apertura</b><i></i><i></i><i></i><em>A5 · A4 · A3</em></div></div>`
   :`<div class="xart" role="img" aria-label="Ejemplo de invitación"><div class="inv"><span class="st"><img src="${logo}" alt=""></span><small>¡Estás invitado!</small><b>Mi fiesta</b><em>Sábado · 8 PM</em></div></div>`;
-  return `<article class="xcard" data-x="${p.id}">${art}<div class="xbody"><span class="xtag">${esc(p.tag)}</span><h3>${esc(p.name)}</h3>${p.price?`<p class="xprice">${money(p.price)} <small>c/u</small></p>`:""}<p>${esc(p.desc)}</p><div class="xuse">${p.uses.map(u=>`<span>${esc(u)}</span>`).join("")}</div>
+  return `<article class="xcard" data-x="${p.id}">${art}<div class="xbody"><span class="xtag">${esc(p.tag)}</span><h3>${esc(p.name)}</h3>${p.price?`<p class="xprice">${money(p.price)}${p.priceFull?` – ${money(p.priceFull)}`:""} <small>${p.priceFull?"según el tamaño del diseño":"c/u"}</small></p>`:""}<p>${esc(p.desc)}</p><div class="xuse">${p.uses.map(u=>`<span>${esc(u)}</span>`).join("")}</div>
   ${p.id=="skate"?`<button class="btn" data-xd style="margin-top:auto">Diseñar mi patineta</button>`:""}<button class="btn${p.id=="skate"?" alt":""}" data-xo aria-expanded="false"${p.id=="skate"?' style="margin-top:0"':""}>Personalizar</button>
   <div class="xform" hidden><div class="row">${p.opts.map(([n,v],i)=>`<div><label for="xo-${p.id}-${i}">${n}</label><select id="xo-${p.id}-${i}" data-n="${esc(n)}">${opts(v)}</select></div>`).join("")}<div><label for="xq-${p.id}">Cantidad</label><input id="xq-${p.id}" type="number" min="1" value="${p.q||1}"></div></div>
   <label for="xi-${p.id}">Cuéntanos tu idea</label><textarea id="xi-${p.id}" rows="3" placeholder="${esc(p.ph)}"></textarea>
@@ -923,7 +932,7 @@ function renderExtras(){const logo=$(".head img").src;$("#xhero").style.backgrou
   $$("[data-xd]").forEach(b=>b.onclick=()=>{surf="skate";go("hoja")});
  $$("[data-xo]").forEach(b=>b.onclick=()=>{const f=b.nextElementSibling,open=f.hidden;f.hidden=!open;b.setAttribute("aria-expanded",open);b.textContent=open?"Cerrar":"Personalizar";b.classList.toggle("alt",open);if(open)f.querySelector("select").focus()});
  $$("[data-xa]").forEach(b=>b.onclick=()=>{const c=b.closest("[data-x]"),p=EXTRAS.find(e=>e.id==c.dataset.x);
-  addLine({name:p.name,x:p.id,q:Math.max(1,Math.floor(+c.querySelector("input[type=number]").value||1)),ex:[...c.querySelectorAll("select")].map(s=>s.dataset.n+": "+s.value).join(" · "),note:c.querySelector("textarea").value.trim()});
+  addLine({name:p.name,x:p.id,q:Math.max(1,Math.floor(+c.querySelector("input[type=number]").value||1)),ex:[...c.querySelectorAll("select")].map(s=>s.dataset.n+": "+s.value).join(" · "),note:c.querySelector("textarea").value.trim(),price:+([...c.querySelectorAll("select")].map(s=>(s.value.match(/\$(\d+(?:\.\d+)?)/)||[])[1]).find(Boolean)||0)||undefined});
   c.querySelector("textarea").value="";toast("Agregado a tu pedido");go("car")})}
 // visor: abre el pedido por su link
 const waNum=t=>{const d=String(t).replace(/\D/g,"");return d.length==10&&d[0]=="0"?"593"+d.slice(1):d};
