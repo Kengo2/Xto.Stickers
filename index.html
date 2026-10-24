@@ -212,7 +212,14 @@ textarea{resize:vertical}
 .piece button.x{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--brand);background:#fff;color:#5b2a7a;font-size:11px;line-height:1;padding:0}
 .piece{transform-origin:50% 50%}
 .sheet.mock .area.deck{overflow:hidden}
-.area .dkimg{position:absolute;left:50%;top:50%;max-width:none;transform:translate(-50%,-50%);pointer-events:none;user-select:none}
+.area .dkpiece{position:absolute;transform-origin:50% 50%;cursor:grab;touch-action:none}
+.area .dkpiece img{display:block;width:100%;height:100%;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.dkfl{overflow:visible!important;pointer-events:none}
+.dkframe{position:absolute;transform-origin:50% 50%;outline:1.5px dashed rgba(255,255,255,.95);box-shadow:0 0 0 1px rgba(26,20,35,.5);display:none}
+.dkframe.on{display:block}
+.dkframe .x,.dkframe .rt,.dkframe .rs{pointer-events:auto;position:absolute;width:28px;height:28px;border-radius:50%;background:#fff;border:1.5px solid var(--brand);color:#5b2a7a;display:grid;place-items:center;font-size:13px;font-weight:800;line-height:1;touch-action:none;padding:0}
+.dkframe .x{top:-14px;right:-14px}.dkframe .rt{top:-14px;left:-14px;cursor:grab}.dkframe .rs{right:-14px;bottom:-14px;cursor:nwse-resize}
+.dkframe .sz{position:absolute;left:0;bottom:-24px;font-size:11px;font-weight:700;background:#fff;color:#1a1423;padding:0 6px;border:1px solid #e2dcea;border-radius:4px;white-space:nowrap}
 .area .dkshade{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.85}
 .area .dkgloss{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:.35}
 .deckbox{max-width:520px;margin:14px auto 0}
@@ -435,7 +442,8 @@ img{max-width:100%}
 <div class="panel deckbox" id="deckbox" hidden><h3>Diseño de la tabla</h3><p class="hint">Elige un diseño del catálogo o sube tu imagen: se adapta a la forma de la patineta. Encima puedes poner stickers de tu hoja.</p>
 <div class="dkrow"><input id="dkq" type="search" placeholder="Busca un diseño: Rick, Messi, Pikachu…" aria-label="Buscar diseño"><label class="btn alt sm" for="dkfile">Subir mi imagen</label><input id="dkfile" type="file" accept="image/*" hidden></div>
 <div class="dkgrid" id="dkgrid"></div>
-<div class="dkrow"><button class="btn alt sm" id="dkfit">Ver imagen completa</button><button class="btn alt sm" id="dkrot">Girar 90°</button><button class="btn alt sm" id="dknone">Quitar diseño</button></div>
+<p class="hint" id="dkhelp" hidden>Toca la imagen en la tabla para moverla, agrandarla o achicarla con el círculo de la esquina y girarla con el ↻.</p>
+<div class="dkrow"><button class="btn alt sm" id="dkcover">Llenar la tabla</button><button class="btn alt sm" id="dkcontain">Ver completa</button><button class="btn alt sm" id="dkminus" aria-label="Más pequeña">− Más pequeña</button><button class="btn alt sm" id="dkplus" aria-label="Más grande">+ Más grande</button><button class="btn alt sm" id="dkrot">Girar 90°</button><button class="btn alt sm" id="dknone">Quitar diseño</button></div>
 <button class="btn big" id="dkorder">Pedir esta patineta</button></div></div>
 <div class="panel side"><div class="hcount" id="hcount"></div>
 <p class="hint pad">La hoja mide 21 × 29,7 cm. Debajo de cada sticker ves su medida (ancho × largo en cm). El precio es con vinilo brillante y se calcula con el lado más largo de cada uno.</p>
@@ -652,8 +660,11 @@ const toL=(e,g)=>{const r=$("#sheet").getBoundingClientRect(),q=g.m.inverse().tr
 const posOf=(p,i)=>{if(surf=="hoja")return p;p.pos=p.pos||{};if(!p.pos[surf]){const w=p.cm/SURF[surf].cm*100,c=i%3-1,r=Math.floor(i/3)%4;p.pos[surf]={x:Math.max(0,Math.min(100-w,50-w/2+c*Math.max(w*1.15,12))),y:Math.min(85,(surf=="pared"?28:surf=="termo"?10:18)+r*Math.max(w*.9,14))}}return p.pos[surf]};
 let selId=null;
 // diseño de la patineta: del catálogo (k) o imagen propia (img), cubriendo la tabla o completa, y girado 90°
-let deck=Object.assign({k:null,img:null,name:"",fit:"cover",rot:0},store.get("xto_deck",{}));
+// cx, cy: centro en % de la tabla · w: ancho en % del ancho de la tabla · r: giro · a: alto/ancho de la imagen
+let deck=Object.assign({k:null,img:null,name:"",a:0,cx:50,cy:50,w:100,r:0},store.get("xto_deck",{})),dsel=false;
 const saveDeck=()=>{try{localStorage.setItem("xto_deck",JSON.stringify(deck))}catch(e){store.set("xto_deck",{...deck,img:null})}};
+function deckFit(mode){const g=geo(),A=g.lh/g.lw,a=deck.a||1,side=Math.round(deck.r/90)%2!=0;
+ const cov=side?Math.max(1/a,A):Math.max(1,A/a),con=side?Math.min(1/a,A):Math.min(1,A/a);deck.w=(mode=="contain"?con:cov)*100;deck.cx=deck.cy=50}
 const deckSrc=()=>deck.img||(deck.k!=null&&ITEMS[deck.k]?ITEMS[deck.k][0]:null);
 let spin=0;   // cuánto está girado el termo, en grados
 const TERMO_C=Math.PI*9.5,cyl=()=>surf=="termo";
@@ -678,25 +689,43 @@ function renderSurfs(){const S=SURF[surf];
  $("#shint").textContent=surf=="hoja"?"Toca una superficie para ver cómo quedarían tus stickers.":surf=="skate"?"Elige abajo el diseño de la tabla y acomoda stickers de tu hoja encima. Toca un sticker para girarlo, cambiar su tamaño o quitarlo. Cuando te guste, toca “Pedir esta patineta”.":surf=="termo"?"Gira el termo arrastrándolo hacia los lados o con las flechas, y acomoda tus stickers alrededor. Toca un sticker para girarlo, cambiar su tamaño o quitarlo.":`Vista previa en ${S.name.toLowerCase()} con la medida real aproximada. Arrástralos y toca uno para girarlo, cambiar su tamaño o quitarlo. Tu pedido sigue siendo la hoja con estos stickers.`}
 function renderDeckBox(){const q=norm($("#dkq").value.trim()),list=ITEMS.map((it,i)=>({it,i})).filter(o=>!q||norm(o.it[1]+" "+o.it[2]+" "+code(o.i)).includes(q)).slice(0,40);
  $("#dkgrid").innerHTML=list.map(({it,i})=>`<button class="${deck.k==i&&!deck.img?"on":""}" data-dk="${i}" title="${esc(it[1])} ${code(i)}"><img src="${it[0]}" alt="${esc(it[1])}" loading="lazy"></button>`).join("")||'<p class="hint">No hay diseños con ese nombre. Sube tu imagen.</p>';
- $$("[data-dk]").forEach(b=>b.onclick=()=>{deck={...deck,k:+b.dataset.dk,img:null,name:ITEMS[+b.dataset.dk][1]+" "+code(+b.dataset.dk)};saveDeck();renderSheet()});
- $("#dkfit").textContent=deck.fit=="cover"?"Ver imagen completa":"Llenar toda la tabla";const has=!!deckSrc();["dkfit","dkrot","dknone"].forEach(i=>$("#"+i).disabled=!has)}
+ $$("[data-dk]").forEach(b=>b.onclick=()=>{deck={...deck,k:+b.dataset.dk,img:null,name:ITEMS[+b.dataset.dk][1]+" "+code(+b.dataset.dk),a:0,r:0};dsel=true;saveDeck();renderSheet()});
+ const has=!!deckSrc();$("#dkhelp").hidden=!has;["dkcover","dkcontain","dkminus","dkplus","dkrot","dknone"].forEach(i=>$("#"+i).disabled=!has)}
 $("#dkq").oninput=()=>renderDeckBox();
-$("#dkfit").onclick=()=>{deck.fit=deck.fit=="cover"?"contain":"cover";saveDeck();renderSheet()};
-$("#dkrot").onclick=()=>{deck.rot=deck.rot?0:90;saveDeck();renderSheet()};
-$("#dknone").onclick=()=>{deck={...deck,k:null,img:null,name:""};saveDeck();renderSheet()};
-$("#dkfile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{deck={...deck,k:null,img:await shrink(r.result,1600),name:f.name};saveDeck();e.target.value="";renderSheet()};r.readAsDataURL(f)};
+$("#dkcover").onclick=()=>{deckFit("cover");saveDeck();renderSheet()};
+$("#dkcontain").onclick=()=>{deckFit("contain");saveDeck();renderSheet()};
+$("#dkplus").onclick=()=>{deck.w=Math.min(600,deck.w*1.1);dsel=true;saveDeck();renderSheet()};
+$("#dkminus").onclick=()=>{deck.w=Math.max(8,deck.w/1.1);dsel=true;saveDeck();renderSheet()};
+$("#dkrot").onclick=()=>{deck.r=(Math.round(deck.r/90)*90+90)%360;deckFit("cover");saveDeck();renderSheet()};
+$("#dknone").onclick=()=>{deck={...deck,k:null,img:null,name:"",a:0};dsel=false;saveDeck();renderSheet()};
+$("#dkfile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{deck={...deck,k:null,img:await shrink(r.result,1600),name:f.name,a:0,r:0};dsel=true;saveDeck();e.target.value="";renderSheet()};r.readAsDataURL(f)};
 $("#dkorder").onclick=()=>{if(!deckSrc()&&!sheet.length)return toast("Elige un diseño o agrega stickers");
  const st=sheet.length?" · Stickers: "+sheet.map(p=>ITEMS[p.k][1]+" "+code(p.k)+" "+p.cm+"×"+hh(p)+"cm").join(", "):"";
  if(deck.img)PHOTOS._next={o:deck.img,s:null,n:deck.name};
- addLine({name:"Patineta decorativa",x:"skate",q:1,ex:`Diseño: ${deck.name||"sin diseño"}${deckSrc()?` (${deck.fit=="cover"?"llena la tabla":"imagen completa"}${deck.rot?", girado 90°":""})`:""}${st}`,note:"",img:deck.img?deck.name:undefined,dk:deck.img?undefined:deck.k});
+ addLine({name:"Patineta decorativa",x:"skate",q:1,ex:`Diseño: ${deck.name||"sin diseño"}${deckSrc()?` (${(deck.w/100*SURF.skate.cm).toFixed(1)} cm de ancho${deck.r?", girado "+deck.r+"°":""}${Math.abs(deck.cx-50)>2||Math.abs(deck.cy-50)>2?`, centro en ${Math.round(deck.cx)}% / ${Math.round(deck.cy)}% de la tabla`:", centrado"})`:""}${st}`,note:"",img:deck.img?deck.name:undefined,dk:deck.img?undefined:deck.k});
  toast("Patineta agregada a tu pedido");go("car")};
 function renderSheet(){renderTabs();const s=$("#sheet"),S=SURF[surf];s.className="sheet"+(surf=="hoja"?"":" mock");s.style.touchAction=cyl()?"pan-y":"";$("#spin").hidden=!cyl();$("#deckbox").hidden=!S.deck;if(S.deck)renderDeckBox();s.style.aspectRatio=S.ar;s.style.maxWidth=`min(${S.max}px, calc(68vh * ${S.ar}))`;
  s.innerHTML=(S.img?`<img class="mockbg" src="${MOCK[S.img]}" alt="${S.name}">`:surf=="pared"?`<div class="wallbg"><span class="outlet"></span></div>`:"")+(sheet.length?"":'<div class="empty">Tu hoja está en blanco.<br>Agrega stickers con el botón “A mi hoja” en el catálogo.</div>');
  renderSurfs();const g=geo(),a=document.createElement("div");a.className="area"+(S.shade?" shade":"")+(S.deck?" deck":"");a.style.width=g.lw+"px";a.style.height=g.lh+"px";a.style.transform=g.m.toString();s.appendChild(a);
  if(S.deck){a.style.borderRadius=g.lw/2+"px";const src=deckSrc(),W=s.clientWidth,H=s.clientHeight,bg=`background:url("${MOCK.skate}") ${-S.tl[0]*W}px ${-S.tl[1]*H}px/${W}px ${H}px no-repeat`;
-  // el diseño cubre la tabla; encima va la misma foto para conservar agujeros, sombras y brillo
-  a.innerHTML=src?`<img class="dkimg" src="${src}" alt="" style="width:${deck.rot?g.lh:g.lw}px;height:${deck.rot?g.lw:g.lh}px;object-fit:${deck.fit};transform:translate(-50%,-50%) rotate(${deck.rot}deg)"><div class="dkshade" style='${bg}'></div><div class="dkgloss" style='${bg}'></div>`:""}
- s.onpointerdown=ev=>{if(ev.target.closest(".piece"))return;selId=null;$$(".piece.on").forEach(e=>e.classList.remove("on"));
+  if(src&&!deck.a){loadImg(src).then(im=>{deck.a=im.naturalHeight/im.naturalWidth;deckFit("cover");saveDeck();renderSheet()});return}
+  // el diseño va recortado con la forma de la tabla; encima la misma foto conserva agujeros, sombras y brillo
+  a.innerHTML=(src?`<div class="dkpiece"><img src="${src}" alt=""></div>`:"")+`<div class="dkshade" style='${bg}'></div><div class="dkgloss" style='${bg}'></div>`;
+  const fl=document.createElement("div");fl.className="area dkfl";fl.style.cssText=a.style.cssText;fl.style.borderRadius="";s.appendChild(fl);
+  if(src){fl.innerHTML=`<div class="dkframe${dsel?" on":""}"><button class="x" aria-label="Quitar diseño">✕</button><span class="rt" role="slider" aria-label="Girar diseño">↻</span><span class="sz"></span><span class="rs" role="slider" aria-label="Cambiar tamaño del diseño"></span></div>`;
+   const dp=a.querySelector(".dkpiece"),fr=fl.querySelector(".dkframe"),sz=fr.querySelector(".sz");
+   const show=()=>{const wp=deck.w/100*g.lw,hp=wp*deck.a;[dp,fr].forEach(e=>{e.style.width=wp+"px";e.style.height=hp+"px";e.style.left=(deck.cx/100*g.lw-wp/2)+"px";e.style.top=(deck.cy/100*g.lh-hp/2)+"px";e.style.transform=`rotate(${deck.r}deg)`});
+    sz.textContent=`${(deck.w/100*S.cm).toFixed(1)} × ${(deck.w/100*S.cm*deck.a).toFixed(1)} cm${deck.r?" · "+deck.r+"°":""}`};show();
+   const sel=()=>{dsel=true;fr.classList.add("on");selId=null;$$(".piece.on").forEach(e=>e.classList.remove("on"))};
+   dp.onpointerdown=ev=>{ev.stopPropagation();sel();dp.setPointerCapture(ev.pointerId);const [x0,y0]=toL(ev,g),c0=[deck.cx,deck.cy];
+    dp.onpointermove=e=>{const [x,y]=toL(e,g);deck.cx=Math.max(-50,Math.min(150,c0[0]+x-x0));deck.cy=Math.max(-50,Math.min(150,c0[1]+(y-y0)));show()};dp.onpointerup=()=>{dp.onpointermove=null;saveDeck()}};
+   const ctr=()=>{const b=fr.getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]},rs=fr.querySelector(".rs"),rt=fr.querySelector(".rt");
+   rs.onpointerdown=ev=>{ev.stopPropagation();rs.setPointerCapture(ev.pointerId);const [cx,cy]=ctr(),d0=Math.hypot(ev.clientX-cx,ev.clientY-cy)||1,w0=deck.w;
+    rs.onpointermove=e=>{deck.w=Math.max(8,Math.min(600,w0*Math.hypot(e.clientX-cx,e.clientY-cy)/d0));show()};rs.onpointerup=()=>{rs.onpointermove=null;saveDeck()}};
+   rt.onpointerdown=ev=>{ev.stopPropagation();rt.setPointerCapture(ev.pointerId);const [cx,cy]=ctr(),ang=e=>Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI,a0=ang(ev),r0=deck.r;
+    rt.onpointermove=e=>{let r=Math.round(r0+ang(e)-a0);r=((r%360)+360)%360;const q=Math.round(r/90)*90;if(Math.abs(r-q)<6)r=q%360;deck.r=r;show()};rt.onpointerup=()=>{rt.onpointermove=null;saveDeck()}};
+   fr.querySelector(".x").onclick=ev=>{ev.stopPropagation();deck={...deck,k:null,img:null,name:"",a:0};dsel=false;saveDeck();renderSheet()}}}
+ s.onpointerdown=ev=>{if(ev.target.closest(".piece"))return;selId=null;$$(".piece.on").forEach(e=>e.classList.remove("on"));dsel=false;$$(".dkframe.on").forEach(e=>e.classList.remove("on"));
   if(!cyl())return;s.setPointerCapture(ev.pointerId);const x0=ev.clientX,sp0=spin;   // arrastrar el termo lo hace girar
   s.onpointermove=e=>{spin=((sp0-(e.clientX-x0)/s.clientWidth*240)%360+360)%360;layoutCyl()};s.onpointerup=s.onpointercancel=()=>{s.onpointermove=null}};
  sheet.forEach((p,i)=>{const P=posOf(p,i),d=document.createElement("div");d.className="piece"+(p.id==selId?" on":"");d._p=p;d._P=P;d.innerHTML=`<img src="${ITEMS[p.k][0]}" alt="${esc(ITEMS[p.k][1])}"><button class="x" aria-label="Quitar">✕</button><span class="rt" role="slider" aria-label="Girar" title="Girar">↻</span><span class="sz"></span><span class="rs" role="slider" aria-label="Cambiar tamaño"></span>`;
@@ -709,7 +738,7 @@ function renderSheet(){renderTabs();const s=$("#sheet"),S=SURF[surf];s.className
   rt.onpointerup=()=>{rt.onpointermove=null;upd();saveSheet()}};
  rs.onpointerdown=ev=>{ev.stopPropagation();rs.setPointerCapture(ev.pointerId);const g=geo(),[x0]=toL(ev,g),c0=p.cm,mx=Math.floor(14/Math.max(1,ar(p))*2)/2;
   rs.onpointermove=e=>{p.cm=Math.min(mx,Math.max(2,Math.round((c0+(toL(e,g)[0]-x0)/100*S.cm)*2)/2));upd();sheetInfo()};rs.onpointerup=()=>{rs.onpointermove=null;saveSheet()}};
- d.onpointerdown=ev=>{selId=p.id;$$(".piece.on").forEach(e=>e!=d&&e.classList.remove("on"));d.classList.add("on");if(ev.target.closest(".x")||ev.target==rs||ev.target==rt)return;d.setPointerCapture(ev.pointerId);const g=geo(),[lx,ly]=toL(ev,g),ox=lx-P.x,oy=ly-P.y,xc0=cyl()?50+50*Math.sin(phase(P)*Math.PI/180):0;
+ d.onpointerdown=ev=>{selId=p.id;dsel=false;$$(".dkframe.on").forEach(e=>e.classList.remove("on"));$$(".piece.on").forEach(e=>e!=d&&e.classList.remove("on"));d.classList.add("on");if(ev.target.closest(".x")||ev.target==rs||ev.target==rt)return;d.setPointerCapture(ev.pointerId);const g=geo(),[lx,ly]=toL(ev,g),ox=lx-P.x,oy=ly-P.y,xc0=cyl()?50+50*Math.sin(phase(P)*Math.PI/180):0;
   d.onpointermove=e=>{const [x,y]=toL(e,g);if(cyl())P.u=uFrom(Math.max(1,Math.min(99,xc0+x-lx)));else P.x=Math.max(0,Math.min(100-p.cm/S.cm*100,x-ox));P.y=Math.max(0,Math.min(100-hh(p)/(S.cm*g.lh/g.lw)*100,y-oy));place(d)};d.onpointerup=()=>{d.onpointermove=null;saveSheet()}};
  a.appendChild(d)});sheetInfo()}
 addEventListener("resize",()=>{if(cur=="hoja")renderSheet()});
