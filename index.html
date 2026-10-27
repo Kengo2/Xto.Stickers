@@ -574,6 +574,10 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 .cm .cact{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;white-space:normal}
 .cm .cact button,.cm .cact a{font:700 13px Manrope,system-ui,sans-serif;padding:7px 12px;border-radius:99px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;text-decoration:none}
 .cm.typing{color:var(--mu);font-style:italic}
+.cits{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;white-space:normal}
+.cits button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;min-width:0}
+.cits img{width:100%;aspect-ratio:1;object-fit:contain}
+.cits span{font-size:10.5px;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cquick{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;scrollbar-width:none;border-top:1px solid var(--line)}
 .cquick::-webkit-scrollbar{display:none}
 .cquick button{flex:none;font:600 13px Manrope,system-ui,sans-serif;padding:7px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
@@ -1228,33 +1232,65 @@ const BOT={entrega:"2 días",ciudad:"Portoviejo",pagos:"transferencia, efectivo 
   {k:"precio precios cuesta cuestan cuanto~ vale valen costo valor barato tarifa",a:`Los stickers de vinilo brillante, mate o transparente cuestan:\n• 5 cm: ${money(p5[0][1])} c/u (desde ${p5[1][0]}: ${money(p5[1][1])} c/u)\n• 7 cm: ${money(p7)}\n• 10 cm: ${money(p10)}\n• 14 cm: ${money(p14)}\nEl escarchado y el epoxi 3D cuestan un poco más. Por cantidad conviene la plancha.`,b:[["Ver tabla de precios","vin"],["Planchas por mayor","pk"]]},
   {k:"plancha planchas mayor mayoreo cantidad muchos cientos negocio revender",a:`Por cantidad te conviene la plancha: $${PACK_PRICE["Vinilo brillante"]} en vinilo (epoxi 3D $${PACK_PRICE["Epoxi 3D"]}). Por ejemplo, ${PACKS.find(p=>p[0]==5)[1]} stickers de 5 × 5 cm o ${PACKS.find(p=>p[0]==7)[1]} de 7 × 7 cm en una sola plancha.`,b:[["Ver planchas","pk"]]},
   {k:"material materiales vinil vinilo mate brillante escarchado glitter brillo transparente epoxi 3d relieve calidad papel",a:"Trabajamos en:\n• Vinilo brillante\n• Vinilo mate\n• Escarchado transparente (con brillo arenoso)\n• Transparente\n• Epoxi 3D (con relieve)\nEn Precios puedes ver una muestra de cada uno.",b:[["Ver materiales","vin"]]},
-  {k:"pedir pedido comprar compra ordenar orden encargar encargo hago~ quiero~",a:"Así de fácil:\n1. Elige stickers en el Catálogo o arma tu hoja A4 en Mi hoja.\n2. Abre Pedido, escribe tus datos y toca Enviar pedido.\n3. Te llega un correo y te escribimos para confirmar el precio final y la entrega.",b:[["Ir al catálogo","cat"],["Armar mi hoja","hoja"]]},
+  {k:"pedir pido pide piden pedido pedidos comprar compro compra ordenar orden encargar encargo hago~ quiero~",a:"Así de fácil:\n1. Elige stickers en el Catálogo o arma tu hoja A4 en Mi hoja.\n2. Abre Pedido, escribe tus datos y toca Enviar pedido.\n3. Te llega un correo y te escribimos para confirmar el precio final y la entrega.",b:[["Ir al catálogo","cat"],["Armar mi hoja","hoja"]]},
   {k:"hoja a4 varios diseños armar acomodar",a:"En Mi hoja armas una hoja A4 con los stickers que quieras: tócalos para agregarlos, arrástralos, gíralos y cambia su tamaño. Luego tocas Pedir esta hoja.",b:[["Armar mi hoja","hoja"]]},
   {k:"foto fotos diseño propio personalizado personalizada logo imagen fondo mascota cara",a:"¡Claro! En Mi foto subes tu imagen o logo, le quitamos el fondo y la convertimos en sticker del tamaño que quieras.",b:[["Subir mi foto","sub"]]},
   {k:"tiempo demora demoran tarda tardan dias rapido listo cuando entregan urgente",a:`Un pedido normal está listo en ${BOT.entrega}. Si lo necesitas antes, escríbenos y vemos si se puede.`,b:[["Preguntar por WhatsApp","wa"]]},
   {k:"envio envios envian enviar servientrega ciudad ciudades quito guayaquil manta cuenca provincia domicilio entrega entregan portoviejo llevan",a:`Entregamos dentro de ${BOT.ciudad}. A otras ciudades enviamos por Servientrega; te confirmamos el costo del envío al confirmar tu pedido.`,b:[["Hacer mi pedido","cat"]]},
   {k:"pago pagos pagar transferencia efectivo deuna tarjeta banco deposito",a:`Puedes pagar por ${BOT.pagos}. Te pasamos los datos al confirmar tu pedido.`,b:[]},
   {k:"horario hora horas abren abierto atienden atencion lunes sabado domingo",a:`Atendemos de ${BOT.horario}. Igual puedes dejar tu pedido en la página a cualquier hora y te respondemos en cuanto abramos.`,b:[]},
-  {k:"patineta patinetas skate tabla tablas",a:`Las patinetas decorativas cuestan $${sk.price} con el diseño en una parte de la tabla y $${sk.priceFull} con la tabla completa. Son para decorar o regalar, no para patinar.`,b:[["Ver proyectos","mas"]]},
-  {k:"poster posters afiche afiches a3 cuadro collage pared",a:"Pósters: A4 a $2.50 y A3 a $5 (papel fotográfico +$1). En pack: 10 A4 por $20 o 5 A3 por $22. Puedes subir tu foto o describir lo que quieres.",b:[["Pedir pósters","mas"]]},
+  {k:"patineta patinetas skate tabla tablas",a:`Las patinetas decorativas cuestan $${sk.price} con el diseño en una parte de la tabla y $${sk.priceFull} con la tabla completa. Son para decorar o regalar, no para patinar.`,b:[["Ver patinetas","x:skate"]]},
+  {k:"poster posters afiche afiches a3 cuadro collage pared",a:"Pósters: A4 a $2.50 y A3 a $5 (papel fotográfico +$1). En pack: 10 A4 por $20 o 5 A3 por $22. Puedes subir tu foto o describir lo que quieres.",b:[["Pedir pósters","x:poster"]]},
   {k:"resina epoxica disco discos album albumes invitacion invitaciones señaletica letrero letreros flyer flyers volante volantes publicidad",a:"También hacemos cuadros con resina, discos y cuadros de álbum, invitaciones, señalética y flyers. En Proyectos ves cada uno y pides tu cotización.",b:[["Ver proyectos","mas"]]},
-  {k:"minimo uno solo uno unidad pocos",a:"Puedes pedir desde un solo sticker. Mientras más pides, más barato te sale cada uno.",b:[["Ir al catálogo","cat"]]},
+  {k:"minimo uno~ solo~ unidad pocos",a:"Puedes pedir desde un solo sticker. Mientras más pides, más barato te sale cada uno.",b:[["Ir al catálogo","cat"]]},
   {k:"whatsapp hablar persona humano asesor numero telefono contacto llamar instagram",a:"¡Claro! Escríbenos directo y te atendemos.",b:[["WhatsApp","wa"],["Instagram","ig"]]},
   {k:"gracias genial perfecto ok vale listo chevere bacan",a:"¡Con gusto! 🙌 Si tienes otra duda, aquí estoy.",b:[]},
   {k:"chao adios bye nos vemos",a:"¡Chao! Gracias por visitar XTO.STICKER. ✌️",b:[]}];
  const words=t=>norm(t).replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).filter(Boolean);
  T.forEach(x=>{x.w=words(x.k.replace(/~/g,""));x.weak=x.k.split(" ").filter(k=>k.endsWith("~")).map(k=>norm(k.slice(0,-1)))});
+ const STOP=new Set(words("de del la el los las lo le un una unos unas y o a al en con sin para por me mi mis tu tus te se su sus que cual cuales como cuanto algo alguno alguna algun hay tienes tiene tienen dame dar den quiero quisiera queria busco buscar buscando ver veo vea muestrame mostrar muestra ensename sticker stickers calcomania calcomanias pegatina pegatinas porfa favor hola necesito puedo pueden ustedes es son esta estan este esto ese eso sobre tipo tipos diseno disenos modelo modelos imagen imagenes foto fotos uno otro otra mas muy bien hacer hacen hagan"));
+ const stem=v=>v.length>4?v.replace(/(es|s)$/,""):v;
+ const itemsFor=w=>{const terms=w.filter(v=>v.length>=3&&!STOP.has(v)).map(stem);if(!terms.length)return null;
+  const toks=ITEMS.map(it=>norm(it[1]+" "+it[2]).split(/[^a-z0-9ñ]+/).filter(Boolean));
+  const hit=v=>ITEMS.map((it,i)=>i).filter(i=>toks[i].some(x=>x==v||stem(x)==v||(v.length>=4&&x.startsWith(v))));
+  const phrase=terms.join(" ");   // nombres de varias palabras: "bad bunny", "hello kitty"
+  if(terms.length>1){const h=ITEMS.map((it,i)=>i).filter(i=>norm(ITEMS[i][1]).includes(phrase));if(h.length)return{term:phrase,hits:h}}
+  let best=null;terms.forEach(v=>{const h=hit(v);if(h.length&&(!best||h.length<best.hits.length))best={term:v,hits:h}});return best};
+ // lugares de la página a los que Xto puede llevar a la persona
+ const PLACES=[["catalogo tienda todos","cat","el catálogo"],["precio precios tabla","vin","Precios"],["hoja a4","hoja","Mi hoja"],["foto fondo logo","sub","Mi foto"],["proyecto proyectos","mas","Proyectos"],
+  ["carrito bolsa pedido compra canasta","car","tu pedido"],["favorito favoritos corazon guardados","fav","tus favoritos"],["plancha planchas mayor","pk","las planchas"],
+  ["patineta patinetas skate tabla","x:skate","las patinetas"],["resina cuadro cuadros","x:resin","los cuadros con resina"],["poster posters afiche afiches","x:poster","los pósters"],
+  ["disco discos vinil album albumes","x:vinyl","los discos y álbumes"],["invitacion invitaciones","x:inv","las invitaciones"],["señaletica letrero letreros señal","x:sign","la señalética"],["flyer flyers volante volantes publicidad","x:flyer","los flyers"]].map(([k,to,n])=>({w:words(k),to,n}));
+ const NAVV=new Set(words("llevame lleva llevar ir ve vamos abre abrir abreme entrar entra donde mostrar muestrame ensename ver"));
+ const placeFor=w=>PLACES.find(p=>w.some(v=>p.w.includes(v)||p.w.includes(stem(v))));
+ const fits=(x,v)=>x.w.some(k=>k==v||stem(k)==stem(v)||(v.length>4&&k.length>4&&(k.startsWith(v.slice(0,5))||v.startsWith(k.slice(0,5)))));
  const answer=t=>{const w=words(t);let best=null,sc=0;
-  T.forEach(x=>{let n=0;w.forEach(v=>{if(x.w.some(k=>k==v||(v.length>4&&k.length>4&&(k.startsWith(v.slice(0,5))||v.startsWith(k.slice(0,5))))))n+=x.weak.includes(v)?.4:1});if(n>sc){sc=n;best=x}});
-  return best||{a:"Esa no me la sé 😅 pero te ayudamos por WhatsApp. También puedes preguntarme por precios, materiales, entregas o pagos.",b:[["Preguntar por WhatsApp","wa"]]}};
- const act={cat:()=>go("cat"),hoja:()=>startSheet(),vin:()=>go("vin"),sub:()=>go("sub"),mas:()=>go("mas"),pk:()=>{go("vin");$("#planchas").scrollIntoView({block:"start"})}};
- const add=(who,txt,btns)=>{const d=document.createElement("div");d.className="cm "+who;d.textContent=txt;
+  T.forEach(x=>{let n=0;w.forEach(v=>{if(fits(x,v))n+=x.weak.includes(v)?.4:1});if(n>sc){sc=n;best=x}});
+  const pl=placeFor(w),nav=w.some(v=>NAVV.has(v));
+  if(nav&&pl)return{a:`¡Vamos! Te llevo a ${pl.n} 👉`,b:[],go:pl.to};   // "llévame a Mi hoja", "abre el carrito"
+  const it=itemsFor(best&&sc>=1?w.filter(v=>!fits(best,v)):w);   // las palabras de la pregunta no cuentan como nombre de sticker
+  if(best&&sc>=1){const r={...best};if(it&&best!==T[0])r.extra=it;return r}
+  if(it)return{a:it.hits.length==1?`¡Lo tenemos! Tócalo para elegir medida y material:`:`Encontré ${it.hits.length} stickers de “${it.term}”. Toca uno para pedirlo:`,b:[[`Ver ${it.hits.length>1?"los "+it.hits.length:"en el catálogo"}`,"q:"+it.term]],items:it.hits};
+  if(pl)return{a:`Esto es lo que buscas 👇`,b:[[`Ir a ${pl.n}`,pl.to]]};
+  return{a:"No encontré eso exacto, pero te puedo llevar a cualquier parte de la tienda 👇\nSi buscas un sticker, escribe su nombre (por ejemplo: Messi, Rick, Pokémon).",b:[["Catálogo","cat"],["Precios","vin"],["Proyectos","mas"],["Mi foto","sub"],["Preguntar por WhatsApp","wa"]]}};
+ const search=term=>{go("cat");const i=$("#q");i.value=term;i.oninput({target:i});$(".search").scrollIntoView({block:"start"})};
+ const run=k=>{if(k.startsWith("q:"))return search(k.slice(2));
+  if(k.startsWith("x:")){go("mas");const c=$(`[data-x="${k.slice(2)}"]`);if(c){c.scrollIntoView({behavior:"smooth",block:"center"});c.animate([{boxShadow:"0 0 0 0 rgba(124,77,255,.0)"},{boxShadow:"0 0 0 6px rgba(124,77,255,.55)"},{boxShadow:"0 0 0 0 rgba(124,77,255,0)"}],{duration:1400})}return}
+  if(k=="fav"){go("cat");cat="Favoritos";renderChips();renderGrid();$(".search").scrollIntoView({block:"start"});return}
+  if(k=="car")return go("car");
+  ({cat:()=>{go("cat");$(".search").scrollIntoView({block:"start"})},hoja:()=>startSheet(),vin:()=>go("vin"),sub:()=>go("sub"),mas:()=>go("mas"),pk:()=>{go("vin");$("#planchas").scrollIntoView({block:"start"})}})[k]?.()};
+ const add=(who,txt,btns,items)=>{const d=document.createElement("div");d.className="cm "+who;d.textContent=txt;
+  if(items&&items.length){const g=document.createElement("div");g.className="cits";
+   items.slice(0,8).forEach(i=>{const e=document.createElement("button");e.type="button";e.title=ITEMS[i][1];e.innerHTML=`<img src="${ITEMS[i][0]}" alt="" loading="lazy"><span>${esc(ITEMS[i][1])}</span>`;e.onclick=()=>{dlg.close();openProduct(i)};g.appendChild(e)});d.appendChild(g)}
   if(btns&&btns.length){const r=document.createElement("div");r.className="cact";
    btns.forEach(([l,k])=>{let e;if(k=="wa"||k=="ig"){e=document.createElement("a");e.href=k=="wa"?wa():`https://instagram.com/${INSTAGRAM}`;e.target="_blank";e.rel="noopener"}
-    else{e=document.createElement("button");e.type="button";e.onclick=()=>{dlg.close();act[k]()}}e.textContent=l;r.appendChild(e)});d.appendChild(r)}
+    else{e=document.createElement("button");e.type="button";e.onclick=()=>{dlg.close();run(k)}}e.textContent=l;r.appendChild(e)});d.appendChild(r)}
   log.appendChild(d);log.scrollTop=log.scrollHeight;return d};
  const ask=t=>{t=t.trim();if(!t)return;add("me",t);const ty=add("bot typing","Xto está escribiendo…");
-  setTimeout(()=>{ty.remove();const r=answer(t);add("bot",r.a,r.b)},450+Math.random()*350)};
+  setTimeout(()=>{ty.remove();const r=answer(t);
+   add("bot",r.a,r.b,r.items);
+   if(r.extra)add("bot",`Y estos son los stickers de “${r.extra.term}” que tenemos:`,[["Ver en el catálogo","q:"+r.extra.term]],r.extra.hits);
+   if(r.go)setTimeout(()=>{dlg.close();run(r.go)},900)},450+Math.random()*350)};
  const Q=["¿Cuánto cuestan?","¿Cómo pido?","¿Cuánto demora?","¿Hacen envíos?","Formas de pago","Materiales","Mi propio diseño","Hablar con alguien"];
  $("#cquick").innerHTML=Q.map(q=>`<button type="button">${esc(q)}</button>`).join("");
  $$("#cquick button").forEach(b=>b.onclick=()=>ask(b.textContent));
