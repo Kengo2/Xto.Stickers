@@ -60,6 +60,7 @@ button{cursor:pointer}
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--card);border-bottom:1px solid var(--line);height:var(--head)}
 .head{max-width:1280px;margin:0 auto;height:100%;display:flex;align-items:center;gap:12px}
 .head img{width:40px;height:40px;display:block}
+.looker{will-change:transform,filter;transform-origin:50% 50%;backface-visibility:hidden}
 .brand{font-weight:800;font-size:15px;letter-spacing:.04em;line-height:1.1;text-transform:uppercase}
 .brand small{display:block;font-weight:500;font-size:11px;letter-spacing:.06em;color:var(--mu)}
 .themebtn{margin-left:auto;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;color:var(--ink)}
@@ -123,6 +124,15 @@ textarea{resize:vertical}
 .hero h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(34px,7vw,58px);line-height:1.05;color:var(--sun);text-shadow:-2px 0 #000,2px 0 #000,0 -2px #000,0 2px #000,-2px -2px #000,2px -2px #000,-2px 2px #000,2px 2px #000,4px 4px 0 var(--hot);transform:rotate(-1.5deg);margin:6px 0 10px}
 .hero p{margin:0 auto 20px;max-width:46ch;color:#e9e4f0}
 .hero .cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.hero-in{display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:4px}
+.mascot{width:min(190px,52%);margin:-12px auto -6px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mascot svg{display:block;width:100%;height:auto;overflow:visible}
+.mascot #mEyes{transform-box:fill-box;transform-origin:center;transition:transform .08s}
+.mascot.blink #mEyes{transform:scaleY(.12)}
+.mascot.jump{animation:mjump .55s cubic-bezier(.3,1.6,.5,1)}
+@keyframes mjump{30%{transform:translateY(-16px) rotate(-4deg)}60%{transform:translateY(0) rotate(3deg)}}
+@media(min-width:900px){.hero{text-align:left;padding:28px 40px}.hero-in{grid-template-columns:minmax(0,1fr) 280px;gap:24px}.hero-txt{grid-row:1}.mascot{grid-column:2;width:100%;margin:0}
+ .hero-logo{margin:0 0 14px}.hero p{margin-left:0}.hero .cta{justify-content:flex-start}}
 .hero .btn.alt{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.55)}
 .hero .btn.alt:hover{background:rgba(255,255,255,.22);color:#fff;border-color:#fff}
 .steps{display:grid;gap:10px;margin:14px 0 22px;padding:0;list-style:none;counter-reset:s}
@@ -563,8 +573,22 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 <main>
 
 <section class="sec on" id="s-cat">
-<div class="hero"><img class="hero-logo" src="img/logo-texto.webp" alt="XTO.STICKER"><h1>Tu creatividad no tiene límites</h1><p>Elige tus stickers, arma tu hoja o mándanos tu foto. Nosotros lo hacemos realidad.</p>
-<div class="cta"><button class="btn" data-step="hoja">Armar mi hoja</button><button class="btn alt" data-go="sub">Mandar mi foto</button></div></div>
+<div class="hero"><div class="hero-in"><div class="mascot" id="mascot" role="img" aria-label="La mascota de XTO.STICKER" title="¡Hola!"><svg viewBox="0 0 300 330" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs><filter id="mstk" x="-25%" y="-25%" width="150%" height="150%"><feMorphology in="SourceAlpha" operator="dilate" radius="7" result="d"/><feFlood flood-color="#fff"/><feComposite in2="d" operator="in" result="w"/><feGaussianBlur in="d" stdDeviation="5"/><feOffset dy="6" result="o"/><feFlood flood-color="#000" flood-opacity=".35"/><feComposite in2="o" operator="in" result="sh"/><feMerge><feMergeNode in="sh"/><feMergeNode in="w"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g filter="url(#mstk)" stroke="#1a1423" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+ <g id="mBody"><path d="M66 322V280c0-36 34-58 84-58s84 22 84 58v42z" fill="#7a3fa0"/><path d="M96 288v32M204 288v32" fill="none"/>
+  <path d="M120 226c8 14 52 14 60 0" fill="#fff"/><image href="img/logo.png" x="168" y="252" width="38" height="38" stroke="none"/></g>
+ <path d="M136 204v22M164 204v22" fill="none"/>
+ <g id="mEars"><circle cx="93" cy="150" r="13" fill="#fff"/><circle cx="207" cy="150" r="13" fill="#fff"/></g>
+ <g id="mHead"><ellipse cx="150" cy="142" rx="58" ry="64" fill="#fff"/>
+  <g id="mFace"><g id="mEyes"><ellipse cx="131" cy="150" rx="5.5" ry="7.5" fill="#1a1423" stroke="none"/><ellipse cx="169" cy="150" rx="5.5" ry="7.5" fill="#1a1423" stroke="none"/></g>
+   <circle cx="116" cy="168" r="8" fill="#ff9ad5" stroke="none" opacity=".55"/><circle cx="184" cy="168" r="8" fill="#ff9ad5" stroke="none" opacity=".55"/>
+   <path d="M137 172q13 12 26 0" fill="none"/></g>
+  <g id="mCap"><path d="M90 128c0-48 28-68 60-68s62 20 62 66c-22-14-100-14-122 2z" fill="#7a3fa0"/><circle cx="150" cy="61" r="5" fill="#1a1423"/>
+   <path id="mX" d="M142 84l16 16M158 84l-16 16" stroke="#ffd400" stroke-width="6"/></g>
+  <path id="mVisor" d="M94 128q56 26 112 0q-56 12-112 0z" fill="#1a1423"/><path id="mBrim" d="M150 122c26-6 68-4 92 10-18 10-60 10-92 4z" fill="#1a1423"/></g>
+</g></svg></div><div class="hero-txt"><img class="hero-logo" src="img/logo-texto.webp" alt="XTO.STICKER"><h1>Tu creatividad no tiene límites</h1><p>Elige tus stickers, arma tu hoja o mándanos tu foto. Nosotros lo hacemos realidad.</p>
+<div class="cta"><button class="btn" data-step="hoja">Armar mi hoja</button><button class="btn alt" data-go="sub">Mandar mi foto</button></div></div></div></div>
 <ol class="steps"><li data-step="cat" role="button" tabindex="0"><div><b>Elige</b><span>Escoge del catálogo o sube tu propia imagen.</span></div></li><li data-step="sub" role="button" tabindex="0"><div><b>Personaliza</b><span>Define material, medida y cantidad. El precio se calcula solo.</span></div></li><li data-step="car" role="button" tabindex="0"><div><b>Envía tu pedido</b><span>Te llega la confirmación a tu correo y te contactamos para confirmar el precio final.</span></div></li></ol>
 <h2 class="sub" style="margin-top:0">¿Qué quieres pedir?</h2>
 <div class="opts" id="opts"></div>
@@ -1178,6 +1202,38 @@ function renderOpts(){const logo=`<img src="${$(".head img").src}" alt="">`;
  const th={one:`<span class="oth one">${logo}</span>`,sheet:`<span class="oth"><span class="mini">${logo.repeat(4)}</span></span>`,pack:`<span class="oth"><span class="pk">${logo.repeat(9)}</span></span>`,skate:`<span class="oth cov"><img src="${XPH.tony}" alt=""></span>`,photo:`<span class="oth ph"><span class="pol">${logo}</span><span class="cam">${svg(ICON.photo,18)}</span></span>`};
  $("#opts").innerHTML=OPTS.map(([t,d,to,k])=>`<button class="opt" data-opt="${to}">${th[k]}<span><b>${t}</b><span class="d">${d}</span></span></button>`).join("");
  $$("[data-opt]").forEach(b=>b.onclick=()=>step(b.dataset.opt))}
+// mascota: gira la cabeza hacia el cursor o el dedo, parpadea y salta al tocarla
+(function(){const m=$("#mascot");if(!m)return;const q=id=>m.querySelector(id),L={visor:q("#mVisor"),head:q("#mHead"),face:q("#mFace"),cap:q("#mCap"),x:q("#mX"),brim:q("#mBrim"),ears:q("#mEars"),body:q("#mBody")};
+ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;let px=null,py=null,last=0,c={x:0,y:0};
+ addEventListener("pointermove",e=>{px=e.clientX;py=e.clientY;last=performance.now()},{passive:true});
+ addEventListener("pointerdown",e=>{px=e.clientX;py=e.clientY;last=performance.now()},{passive:true});
+ m.onclick=()=>{m.classList.remove("jump");void m.offsetWidth;m.classList.add("jump")};
+ const blink=()=>{m.classList.add("blink");setTimeout(()=>m.classList.remove("blink"),130);setTimeout(blink,2500+Math.random()*3500)};setTimeout(blink,1800);
+ if(reduce)return;
+ const tick=t=>{const b=m.getBoundingClientRect();if(b.bottom>0&&b.top<innerHeight&&b.width){const cx=b.left+b.width/2,cy=b.top+b.height*.42;let tx,ty;
+   if(t-last>2500||px==null){tx=Math.sin(t/1300)*.7;ty=Math.sin(t/2100)*.25}else{tx=Math.max(-1,Math.min(1,(px-cx)/320));ty=Math.max(-1,Math.min(1,(py-cy)/320))}
+   c.x+=(tx-c.x)*.12;c.y+=(ty-c.y)*.12;const X=c.x,Y=c.y,T=(e,dx,dy,extra="")=>e.setAttribute("transform",`translate(${(X*dx).toFixed(2)} ${(Y*dy).toFixed(2)})${extra}`);
+   T(L.head,7,5);T(L.face,15,10);T(L.cap,6,3);T(L.x,9,5);T(L.ears,-5,2);T(L.body,1.5,0);
+   // la visera apunta hacia donde mira
+   // de frente se ve la visera curva; al girar aparece la visera de lado, apuntando hacia donde mira
+   const a=Math.min(1,Math.abs(X)*2.2),s=Math.sign(X||1)*Math.min(1,.45+Math.abs(X));T(L.visor,10,4);L.visor.style.opacity=(1-a).toFixed(2);L.brim.style.opacity=a.toFixed(2);
+   L.brim.setAttribute("transform",`translate(${(X*10).toFixed(2)} ${(Y*4).toFixed(2)}) translate(150 128) scale(${s.toFixed(3)} 1) translate(-150 -128)`)}
+  requestAnimationFrame(tick)};requestAnimationFrame(tick)})();
+// logo que "mira" al cursor o al dedo, como una cabeza que gira; si nadie lo mueve, mira a su alrededor solo
+(function(){const els=[$(".head img"),$(".hero-logo")].filter(Boolean),reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(reduce)return;
+ els.forEach(e=>{e.classList.add("looker");e._c={x:0,y:0}});let px=null,py=null,last=0;
+ addEventListener("pointermove",e=>{px=e.clientX;py=e.clientY;last=performance.now()},{passive:true});
+ addEventListener("pointerdown",e=>{px=e.clientX;py=e.clientY;last=performance.now()},{passive:true});
+ const tick=t=>{const idle=t-last>2500||px==null;
+  els.forEach((e,n)=>{const b=e.getBoundingClientRect();if(b.bottom<0||b.top>innerHeight||!b.width)return;
+   const big=b.width>80,cx=b.left+b.width/2,cy=b.top+b.height/2;let tx,ty;
+   if(idle){tx=Math.sin(t/1400+n)*.55;ty=Math.sin(t/1900+n*2)*.3}   // mira a su alrededor
+   else{const R=big?380:260;tx=Math.max(-1,Math.min(1,(px-cx)/R));ty=Math.max(-1,Math.min(1,(py-cy)/R))}
+   const c=e._c;c.x+=(tx-c.x)*.1;c.y+=(ty-c.y)*.1;
+   const ry=c.x*(big?24:30),rx=-c.y*(big?18:26),mv=big?10:3;
+   e.style.transform=`perspective(${big?900:300}px) rotateY(${ry.toFixed(2)}deg) rotateX(${rx.toFixed(2)}deg) translate3d(${(c.x*mv).toFixed(1)}px,${(c.y*mv).toFixed(1)}px,0)`;
+   e.style.filter=`drop-shadow(${(-c.x*(big?14:3)).toFixed(1)}px ${(-c.y*(big?10:2)+(big?10:2)).toFixed(1)}px ${big?14:3}px rgba(0,0,0,${big?.45:.3}))`});
+  requestAnimationFrame(tick)};requestAnimationFrame(tick)})();
 renderNav();renderExtras();renderOpts();renderChips();renderGrid();renderPrices();ucalc();showOrder();
 $("#q").oninput=e=>{rawq=e.target.value.trim();q=norm(rawq);cat="Todos";renderChips();renderGrid()};
 $("#ask").onclick=()=>go("sub");
