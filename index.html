@@ -129,8 +129,7 @@ textarea{resize:vertical}
 .mstage{position:relative;will-change:transform,filter}
 .mascot img{display:block;width:100%;height:auto;-webkit-user-drag:none;user-select:none}
 .mascot{touch-action:pan-y}
-.mturn{position:relative}
-.mascot .mv1,.mascot .mv2{position:absolute;inset:0;opacity:0}
+.m360{width:100%;aspect-ratio:427/435;background:url(img/mascota-360.webp) 0 0/1200% 100% no-repeat}
 .mascot.jump{animation:mjump .55s cubic-bezier(.3,1.6,.5,1)}
 @keyframes mjump{30%{transform:translateY(-16px) rotate(-4deg)}60%{transform:translateY(0) rotate(3deg)}}
 @media(min-width:900px){.hero{text-align:left;padding:28px 40px}.hero-in{grid-template-columns:minmax(0,1fr) 280px;gap:24px}.hero-txt{grid-row:1}.mascot{grid-column:2;width:100%;margin:0}
@@ -575,7 +574,7 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 <main>
 
 <section class="sec on" id="s-cat">
-<div class="hero"><div class="hero-in"><div class="mascot" id="mascot" role="img" aria-label="Xto, la mascota de XTO.STICKER" title="¡Hola!"><div class="mstage"><div class="mturn"><img class="mv0" src="img/mascota-frente.webp" alt="" width="620" height="660" decoding="async"><img class="mv1" src="img/mascota-izq.webp" alt="" width="620" height="660" decoding="async"><img class="mv2" src="img/mascota-der.webp" alt="" width="620" height="660" decoding="async"></div></div></div><div class="hero-txt"><img class="hero-logo" src="img/logo-texto.webp" alt="XTO.STICKER"><h1>Tu creatividad no tiene límites</h1><p>Elige tus stickers, arma tu hoja o mándanos tu foto. Nosotros lo hacemos realidad.</p>
+<div class="hero"><div class="hero-in"><div class="mascot" id="mascot" role="img" aria-label="Xto, la mascota de XTO.STICKER" title="¡Hola!"><div class="mstage"><div class="m360"></div></div></div><div class="hero-txt"><img class="hero-logo" src="img/logo-texto.webp" alt="XTO.STICKER"><h1>Tu creatividad no tiene límites</h1><p>Elige tus stickers, arma tu hoja o mándanos tu foto. Nosotros lo hacemos realidad.</p>
 <div class="cta"><button class="btn" data-step="hoja">Armar mi hoja</button><button class="btn alt" data-go="sub">Mandar mi foto</button></div></div></div></div>
 <ol class="steps"><li data-step="cat" role="button" tabindex="0"><div><b>Elige</b><span>Escoge del catálogo o sube tu propia imagen.</span></div></li><li data-step="sub" role="button" tabindex="0"><div><b>Personaliza</b><span>Define material, medida y cantidad. El precio se calcula solo.</span></div></li><li data-step="car" role="button" tabindex="0"><div><b>Envía tu pedido</b><span>Te llega la confirmación a tu correo y te contactamos para confirmar el precio final.</span></div></li></ol>
 <h2 class="sub" style="margin-top:0">¿Qué quieres pedir?</h2>
@@ -1190,36 +1189,32 @@ function renderOpts(){const logo=`<img src="${$(".head img").src}" alt="">`;
  const th={one:`<span class="oth one">${logo}</span>`,sheet:`<span class="oth"><span class="mini">${logo.repeat(4)}</span></span>`,pack:`<span class="oth"><span class="pk">${logo.repeat(9)}</span></span>`,skate:`<span class="oth cov"><img src="${XPH.tony}" alt=""></span>`,photo:`<span class="oth ph"><span class="pol">${logo}</span><span class="cam">${svg(ICON.photo,18)}</span></span>`};
  $("#opts").innerHTML=OPTS.map(([t,d,to,k])=>`<button class="opt" data-opt="${to}">${th[k]}<span><b>${t}</b><span class="d">${d}</span></span></button>`).join("");
  $$("[data-opt]").forEach(b=>b.onclick=()=>step(b.dataset.opt))}
-// mascota: gira la cabeza hacia el cursor o el dedo. Cambia de vista (izquierda, frente, derecha) con un giro corto,
-// sin mezclar imágenes; si nadie la mueve, gira sola como en una vitrina. En el celular se gira deslizando el dedo sobre ella.
-(function(){const m=$("#mascot");if(!m)return;const st=m.querySelector(".mstage"),tu=m.querySelector(".mturn"),[v0,v1,v2]=m.querySelectorAll("img"),V={"-1":v1,"0":v0,"1":v2};
- m.onclick=()=>{m.classList.remove("jump");void m.offsetWidth;m.classList.add("jump")};
- const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
- let view=0,busy=false,want=0;
- const show=k=>{for(const n in V)V[n].style.opacity=n==k?1:0};
- const turn=async to=>{want=to;if(busy||to==view)return;busy=true;
-  while(want!=view){const step=want>view?1:-1,next=view+step;
-   if(reduce||!tu.animate){view=next;show(view);continue}
-   const e="cubic-bezier(.45,0,.55,1)";
-   await tu.animate([{transform:"perspective(700px) rotateY(0deg) scaleX(1)"},{transform:`perspective(700px) rotateY(${-step*38}deg) scaleX(.9)`}],{duration:150,easing:e}).finished;
-   view=next;show(view);
-   await tu.animate([{transform:`perspective(700px) rotateY(${step*38}deg) scaleX(.9)`},{transform:"perspective(700px) rotateY(0deg) scaleX(1)"}],{duration:200,easing:"cubic-bezier(.2,.8,.3,1)"}).finished}
-  busy=false};
- if(reduce)return;
- let px=null,py=null,last=0,c={x:0,y:0};
- const mark=e=>{px=e.clientX;py=e.clientY;last=performance.now()};
- addEventListener("pointermove",mark,{passive:true});addEventListener("pointerdown",mark,{passive:true});
- const SEQ=[0,-1,0,1];
- const tick=t=>{const b=m.getBoundingClientRect();if(b.bottom>0&&b.top<innerHeight&&b.width){let tx,ty,idle=t-last>2600||px==null;
-   if(idle){const k=SEQ[Math.floor(t/1900)%4];tx=k*.55+Math.sin(t/900)*.08;ty=Math.sin(t/2300)*.2}   // vitrina: frente, izquierda, frente, derecha
-   else{const R=innerWidth<700?Math.max(70,b.width*.45):300;tx=Math.max(-1,Math.min(1,(px-b.left-b.width/2)/R));ty=Math.max(-1,Math.min(1,(py-b.top-b.height/2)/(R*1.4)))}
-   c.x+=(tx-c.x)*.12;c.y+=(ty-c.y)*.12;
-   // vista según hacia dónde mira, con margen para que no tiemble entre dos vistas
-   const k=view==0?(c.x<-.42?-1:c.x>.42?1:0):(Math.abs(c.x)<.22?0:Math.sign(c.x));if(k!=want)turn(k);
-   const lean=c.x-view*.55;   // inclinación fina dentro de la vista actual
-   st.style.transform=`perspective(800px) rotateY(${(lean*10).toFixed(2)}deg) rotateX(${(-c.y*10).toFixed(2)}deg) translate3d(${(c.x*6).toFixed(1)}px,${(c.y*5).toFixed(1)}px,0)`;
-   st.style.filter=`drop-shadow(${(-c.x*10).toFixed(1)}px ${(10-c.y*6).toFixed(1)}px 14px rgba(0,0,0,.45))`}
-  requestAnimationFrame(tick)};requestAnimationFrame(tick)})();
+// mascota 360°: 12 vistas (cada 30°) en una sola imagen. Gira sola como en una vitrina, mira hacia el cursor
+// y en el celular se gira deslizando el dedo sobre ella, con inercia. Entre vista y vista se inclina un poco para que el giro sea continuo.
+(function(){const m=$("#mascot");if(!m)return;const st=m.querySelector(".mstage"),sp=m.querySelector(".m360");
+ const frame=a=>{const k=((Math.round(a/30)%12)+12)%12;sp.style.backgroundPosition=`${(k*100/11).toFixed(4)}% 0`;return a-Math.round(a/30)*30};
+ m.onclick=()=>{if(moved)return;m.classList.remove("jump");void m.offsetWidth;m.classList.add("jump")};
+ let moved=false;
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches){frame(0);return}
+ let a=0,vel=0,spin=0,drag=null,px=null,py=null,lastMouse=0,lastTouch=0,c={y:0},prev=performance.now();
+ addEventListener("pointermove",e=>{if(e.pointerType=="mouse"){px=e.clientX;py=e.clientY;lastMouse=performance.now()}
+  if(drag&&e.pointerId==drag.id){const dx=e.clientX-drag.x;drag.x=e.clientX;if(Math.abs(e.clientX-drag.x0)>6)moved=true;a+=-dx*1.3;vel=-dx*1.3*30;lastTouch=performance.now()}},{passive:true});
+ m.addEventListener("pointerdown",e=>{if(e.pointerType=="mouse")return;drag={id:e.pointerId,x:e.clientX,x0:e.clientX};moved=false;vel=0;lastTouch=performance.now()});
+ const end=e=>{if(drag&&e.pointerId==drag.id){drag=null;lastTouch=performance.now();setTimeout(()=>moved=false,50)}};
+ addEventListener("pointerup",end);addEventListener("pointercancel",end);
+ const tick=t=>{const dt=Math.min(.05,(t-prev)/1000);prev=t;const b=m.getBoundingClientRect();
+  if(b.bottom>0&&b.top<innerHeight&&b.width){let ty=0;
+   const looking=px!=null&&t-lastMouse<2600,touched=drag||t-lastTouch<1800;
+   if(drag){spin=0}
+   else if(Math.abs(vel)>5){a+=vel*dt;vel*=Math.pow(.04,dt);spin=0}   // inercia al soltar el dedo
+   else if(looking){const tx=Math.max(-1,Math.min(1,(px-b.left-b.width/2)/320));ty=Math.max(-1,Math.min(1,(py-b.top-b.height/2)/420));
+     const target=-tx*85;let d=((target-a)%360+540)%360-180;a+=d*.1;spin=0}   // mira hacia el cursor
+   else if(!touched){spin+=(65-spin)*Math.min(1,dt*1.5);a+=spin*dt}   // vitrina: gira sola
+   c.y+=(ty-c.y)*.1;
+   const r=frame(a);
+   st.style.transform=`perspective(800px) rotateY(${(-r*.55).toFixed(2)}deg) rotateX(${(-c.y*8).toFixed(2)}deg)`;
+   st.style.filter=`drop-shadow(0 ${(10-c.y*6).toFixed(1)}px 14px rgba(0,0,0,.45))`}
+  requestAnimationFrame(tick)};frame(0);requestAnimationFrame(tick)})();
 // logo que "mira" al cursor o al dedo, como una cabeza que gira; si nadie lo mueve, mira a su alrededor solo
 (function(){const els=[$(".head img"),$(".hero-logo")].filter(Boolean),reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(reduce)return;
  els.forEach(e=>{e.classList.add("looker");e._c={x:0,y:0}});let px=null,py=null,last=0;
