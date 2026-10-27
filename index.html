@@ -769,7 +769,7 @@ const EXTRAS=[
  {id:"inv",name:"Invitaciones para fiestas",tag:"Cumpleaños, baby showers, bodas",desc:"Invitaciones con estilo sticker, con los nombres, la fecha y el lugar de tu evento. También como sticker de recuerdo para los invitados.",uses:["Cumpleaños","Baby shower","Bodas","Graduaciones"],imgs:[],opts:[["Evento",["Cumpleaños","Baby shower","Boda","Graduación","Otro"]],["Formato",["Tarjeta impresa","Sticker","Tarjeta + sticker de recuerdo","Digital para WhatsApp"]]],ph:"Ej: cumple de Sofi, 5 años, sábado 12 de diciembre, tema Stitch"},
  {id:"sign",name:"Señalética divertida",tag:"Para restaurantes, bares y negocios",desc:"Letreros con humor y estilo: baños, Wi-Fi, horarios, avisos y más. En vinil resistente, listos para pegar.",uses:["Restaurantes","Bares","Oficinas"],imgs:["signs","sign"],opts:[["Tipo",["Baño","Wi-Fi","Abierto / Cerrado","Avisos y prohibiciones","Otro"]],["Medida",["15 × 30 cm","20 × 45 cm","Otra medida"]]],ph:"Ej: letrero de baño para mi bar, en negro y blanco"},
  {id:"flyer",name:"Flyers y publicidad impresa",tag:"Para promocionar tu negocio o evento",desc:"Flyers, volantes y afiches con diseño llamativo, impresos en A5, A4 o A3. Ideales para promociones, aperturas, eventos y menús.",uses:["Promociones","Eventos","Menús","Aperturas"],imgs:[],q:50,opts:[["Tipo",["Flyers / volantes","Afiches / pósters","Menús","Otro"]],["Tamaño",["A5 · 14,8 × 21 cm","A4 · 21 × 29,7 cm","A3 · 29,7 × 42 cm","Otra medida"]],["Papel",["Couché brillante","Couché mate","Adhesivo"]]],ph:"Ej: flyer para la apertura de mi cafetería, con logo, dirección y promo 2×1"}];
-const XPH={paquetes:"img/fotos/paquetes.webp",posters:"img/fotos/posters.webp",albums:"img/fotos/albums.webp",resin:"img/fotos/resin.webp",signs:"img/fotos/signs.webp",wall:"img/fotos/wall.webp",skate:"img/fotos/skate.webp",tony:"img/fotos/tony.webp",sign:"img/fotos/sign.webp",utm:"img/fotos/utm.webp",vinyl:"img/fotos/vinyl.webp"};   // fotos de proyectos reales
+const XPH={paquetes:"img/fotos/paquetes.webp",tablas:"img/fotos/tablas.webp",posters:"img/fotos/posters.webp",albums:"img/fotos/albums.webp",resin:"img/fotos/resin.webp",signs:"img/fotos/signs.webp",wall:"img/fotos/wall.webp",skate:"img/fotos/skate.webp",tony:"img/fotos/tony.webp",sign:"img/fotos/sign.webp",utm:"img/fotos/utm.webp",vinyl:"img/fotos/vinyl.webp"};   // fotos de proyectos reales
 // ============================================
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 let sheets=[[]],si=0,cat="Todos",cart=[],sheet=[],upload=null,upDims=null,uid=1,q="",rawq="";
@@ -1177,7 +1177,7 @@ const xLine=l=>`<div class="line"><div class="th">${thumb(l)}</div><div style="m
  <div class="ctl"><input type="number" min="1" value="${l.q}" data-q="${l.id}" aria-label="Cantidad"><span class="hint">uds</span><button class="btn alt sm" data-d="${l.id}">Quitar</button></div></div>
  <div class="lt">${lineTotal(l)?money(lineTotal(l)):"A cotizar"}<small>${lineTotal(l)?money(lineTotal(l)/l.q)+" c/u · ":""}${l.q} ud${l.q>1?"s":""}</small></div></div>`;
 // portada de Proyectos: fotos reales que se van pasando una por una
-const HERO=["skate","paquetes","posters","resin","albums","signs"];
+const HERO=["skate","paquetes","tablas","posters","resin","albums","signs"];
 function heroShow(){const h=$("#xhero");if(h._ok)return;h._ok=1;
  const box=document.createElement("div");box.className="xslides";box.setAttribute("aria-hidden","true");
  box.innerHTML=HERO.map((k,i)=>`<img src="${XPH[k]}" alt="" ${i?'loading="lazy"':""} decoding="async">`).join("");h.prepend(box);
