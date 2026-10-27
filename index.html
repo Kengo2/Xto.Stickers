@@ -288,8 +288,15 @@ td:first-child{font-weight:700}
 .sw.epx:after{z-index:2}
 /* más que stickers */
 .xhero{position:relative;border-radius:var(--r);overflow:hidden;min-height:240px;display:flex;align-items:flex-end;color:#fff;background:#1a1423 center 58%/cover no-repeat;margin-bottom:18px}
-.xhero:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,8,22,.05),rgba(14,8,22,.85))}
-.xhero div{position:relative;padding:22px}
+.xhero:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(14,8,22,.05),rgba(14,8,22,.85))}
+.xslides{position:absolute;inset:0}
+.xslides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 58%;opacity:0;transform:scale(1.04);transition:opacity 1s ease,transform 5s ease}
+.xslides img.on{opacity:1;transform:scale(1.12)}
+.xdots{position:absolute;right:14px;top:14px;display:flex;gap:6px;z-index:3}
+.xdots button{width:8px;height:8px;padding:0;border:0;border-radius:99px;background:rgba(255,255,255,.45);cursor:pointer;transition:width .3s,background .3s}
+.xdots button.on{width:22px;background:#fff}
+@media(prefers-reduced-motion:reduce){.xslides img{transition:opacity .3s;transform:none}.xslides img.on{transform:none}}
+.xhero .xtxt{position:relative;z-index:2;padding:22px}
 .xhero h2{font-family:var(--f-disp);font-weight:400;font-size:clamp(36px,6vw,54px);line-height:1;color:var(--sun);text-shadow:-2px 0 #000,2px 0 #000,0 -2px #000,0 2px #000,3px 3px 0 var(--hot);transform:rotate(-1.5deg)}
 .xhero p{margin:8px 0 0;color:#eee8f5;max-width:48ch}
 .xgrid{display:grid;gap:16px}
@@ -676,7 +683,7 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 </section>
 
 <section class="sec" id="s-mas">
-<div class="xhero" id="xhero"><div><h2>Más que stickers</h2><p>Con el mismo arte de nuestros stickers creamos patinetas decorativas, cuadros con resina, pósters, discos de vinil, invitaciones, letreros y publicidad impresa.</p></div></div>
+<div class="xhero" id="xhero"><div class="xtxt"><h2>Más que stickers</h2><p>Con el mismo arte de nuestros stickers creamos patinetas decorativas, cuadros con resina, pósters, discos de vinil, invitaciones, letreros y publicidad impresa.</p></div></div>
 <p class="lead" style="margin-top:0">Elige un producto, toca <b>Personalizar</b>, cuéntanos tu idea y agrégalo a tu pedido. Te contactamos para confirmar el precio.</p>
 <div class="xgrid" id="xgrid"></div>
 </section>
@@ -762,7 +769,7 @@ const EXTRAS=[
  {id:"inv",name:"Invitaciones para fiestas",tag:"Cumpleaños, baby showers, bodas",desc:"Invitaciones con estilo sticker, con los nombres, la fecha y el lugar de tu evento. También como sticker de recuerdo para los invitados.",uses:["Cumpleaños","Baby shower","Bodas","Graduaciones"],imgs:[],opts:[["Evento",["Cumpleaños","Baby shower","Boda","Graduación","Otro"]],["Formato",["Tarjeta impresa","Sticker","Tarjeta + sticker de recuerdo","Digital para WhatsApp"]]],ph:"Ej: cumple de Sofi, 5 años, sábado 12 de diciembre, tema Stitch"},
  {id:"sign",name:"Señalética divertida",tag:"Para restaurantes, bares y negocios",desc:"Letreros con humor y estilo: baños, Wi-Fi, horarios, avisos y más. En vinil resistente, listos para pegar.",uses:["Restaurantes","Bares","Oficinas"],imgs:["signs","sign"],opts:[["Tipo",["Baño","Wi-Fi","Abierto / Cerrado","Avisos y prohibiciones","Otro"]],["Medida",["15 × 30 cm","20 × 45 cm","Otra medida"]]],ph:"Ej: letrero de baño para mi bar, en negro y blanco"},
  {id:"flyer",name:"Flyers y publicidad impresa",tag:"Para promocionar tu negocio o evento",desc:"Flyers, volantes y afiches con diseño llamativo, impresos en A5, A4 o A3. Ideales para promociones, aperturas, eventos y menús.",uses:["Promociones","Eventos","Menús","Aperturas"],imgs:[],q:50,opts:[["Tipo",["Flyers / volantes","Afiches / pósters","Menús","Otro"]],["Tamaño",["A5 · 14,8 × 21 cm","A4 · 21 × 29,7 cm","A3 · 29,7 × 42 cm","Otra medida"]],["Papel",["Couché brillante","Couché mate","Adhesivo"]]],ph:"Ej: flyer para la apertura de mi cafetería, con logo, dirección y promo 2×1"}];
-const XPH={posters:"img/fotos/posters.webp",albums:"img/fotos/albums.webp",resin:"img/fotos/resin.webp",signs:"img/fotos/signs.webp",wall:"img/fotos/wall.webp",skate:"img/fotos/skate.webp",tony:"img/fotos/tony.webp",sign:"img/fotos/sign.webp",utm:"img/fotos/utm.webp",vinyl:"img/fotos/vinyl.webp"};   // fotos de proyectos reales
+const XPH={paquetes:"img/fotos/paquetes.webp",posters:"img/fotos/posters.webp",albums:"img/fotos/albums.webp",resin:"img/fotos/resin.webp",signs:"img/fotos/signs.webp",wall:"img/fotos/wall.webp",skate:"img/fotos/skate.webp",tony:"img/fotos/tony.webp",sign:"img/fotos/sign.webp",utm:"img/fotos/utm.webp",vinyl:"img/fotos/vinyl.webp"};   // fotos de proyectos reales
 // ============================================
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 let sheets=[[]],si=0,cat="Todos",cart=[],sheet=[],upload=null,upDims=null,uid=1,q="",rawq="";
@@ -1169,7 +1176,17 @@ $("#foot").innerHTML=`<div><b>xto.sticker</b> · Arte Adhesivo<div class="fl2">$
 const xLine=l=>`<div class="line"><div class="th">${thumb(l)}</div><div style="min-width:0"><b class="nm">${esc(l.name)}</b><div class="hint">${esc(l.ex)}</div>${l.img?`<div class="hint">Foto: ${esc(l.img)}${PHOTOS[l.id]?"":` · <b style="color:var(--bad)">vuelve a subirla</b>`}</div>`:""}${l.note?`<div class="hint">Idea: ${esc(l.note)}</div>`:""}
  <div class="ctl"><input type="number" min="1" value="${l.q}" data-q="${l.id}" aria-label="Cantidad"><span class="hint">uds</span><button class="btn alt sm" data-d="${l.id}">Quitar</button></div></div>
  <div class="lt">${lineTotal(l)?money(lineTotal(l)):"A cotizar"}<small>${lineTotal(l)?money(lineTotal(l)/l.q)+" c/u · ":""}${l.q} ud${l.q>1?"s":""}</small></div></div>`;
-function renderExtras(){const logo=$(".head img").src;$("#xhero").style.backgroundImage=`url("${XPH.skate}")`;
+// portada de Proyectos: fotos reales que se van pasando una por una
+const HERO=["skate","paquetes","posters","resin","albums","signs"];
+function heroShow(){const h=$("#xhero");if(h._ok)return;h._ok=1;
+ const box=document.createElement("div");box.className="xslides";box.setAttribute("aria-hidden","true");
+ box.innerHTML=HERO.map((k,i)=>`<img src="${XPH[k]}" alt="" ${i?'loading="lazy"':""} decoding="async">`).join("");h.prepend(box);
+ const dots=document.createElement("div");dots.className="xdots";dots.innerHTML=HERO.map((k,i)=>`<button type="button" aria-label="Foto ${i+1}"></button>`).join("");h.appendChild(dots);
+ const im=[...box.children],db=[...dots.children];let i=0,t;
+ const show=n=>{i=(n+HERO.length)%HERO.length;im.forEach((e,k)=>e.classList.toggle("on",k==i));db.forEach((e,k)=>e.classList.toggle("on",k==i))};
+ const next=()=>{clearTimeout(t);t=setTimeout(()=>{if($("#s-mas").classList.contains("on")&&!document.hidden)show(i+1);next()},4000)};
+ db.forEach((b,k)=>b.onclick=()=>{show(k);next()});show(0);next()}
+function renderExtras(){const logo=$(".head img").src;heroShow();
  $("#xgrid").innerHTML=EXTRAS.map(p=>{const art=p.imgs.length?`<div class="xgw"><div class="xgal">${p.imgs.map((k,i)=>`<img src="${XPH[k]}" alt="${esc(p.name)}, ejemplo ${i+1}" loading="lazy">`).join("")}</div>${p.imgs.length>1?`<span class="xn">Desliza · ${p.imgs.length} fotos</span>`:""}</div>`
   :p.id=="flyer"?`<div class="xart fly" role="img" aria-label="Ejemplo de flyers"><div class="fl f1"></div><div class="fl f2"></div><div class="fl f3"><span class="st"><img src="${logo}" alt=""></span><small>Gran</small><b>Apertura</b><i></i><i></i><i></i><em>A5 · A4 · A3</em></div></div>`
   :`<div class="xart" role="img" aria-label="Ejemplo de invitación"><div class="inv"><span class="st"><img src="${logo}" alt=""></span><small>¡Estás invitado!</small><b>Mi fiesta</b><em>Sábado · 8 PM</em></div></div>`;
