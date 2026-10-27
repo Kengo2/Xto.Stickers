@@ -1189,32 +1189,39 @@ function renderOpts(){const logo=`<img src="${$(".head img").src}" alt="">`;
  const th={one:`<span class="oth one">${logo}</span>`,sheet:`<span class="oth"><span class="mini">${logo.repeat(4)}</span></span>`,pack:`<span class="oth"><span class="pk">${logo.repeat(9)}</span></span>`,skate:`<span class="oth cov"><img src="${XPH.tony}" alt=""></span>`,photo:`<span class="oth ph"><span class="pol">${logo}</span><span class="cam">${svg(ICON.photo,18)}</span></span>`};
  $("#opts").innerHTML=OPTS.map(([t,d,to,k])=>`<button class="opt" data-opt="${to}">${th[k]}<span><b>${t}</b><span class="d">${d}</span></span></button>`).join("");
  $$("[data-opt]").forEach(b=>b.onclick=()=>step(b.dataset.opt))}
-// mascota 360°: 12 vistas (cada 30°) en una sola imagen. Gira sola como en una vitrina, mira hacia el cursor
-// y en el celular se gira deslizando el dedo sobre ella, con inercia. Entre vista y vista se inclina un poco para que el giro sea continuo.
+// mascota 360°: 12 vistas (cada 30°) en una sola imagen. Se queda quieta de frente hasta que alguien la mueve:
+// en la computadora mira hacia el cursor; en el celular gira como un relieve al inclinar el teléfono, y también se gira deslizando el dedo.
 (function(){const m=$("#mascot");if(!m)return;const st=m.querySelector(".mstage"),sp=m.querySelector(".m360");
  const frame=a=>{const k=((Math.round(a/30)%12)+12)%12;sp.style.backgroundPosition=`${(k*100/11).toFixed(4)}% 0`;return a-Math.round(a/30)*30};
- m.onclick=()=>{if(moved)return;m.classList.remove("jump");void m.offsetWidth;m.classList.add("jump")};
  let moved=false;
- if(matchMedia("(prefers-reduced-motion: reduce)").matches){frame(0);return}
- let a=0,vel=0,spin=0,drag=null,px=null,py=null,lastMouse=0,lastTouch=0,c={y:0},prev=performance.now();
- addEventListener("pointermove",e=>{if(e.pointerType=="mouse"){px=e.clientX;py=e.clientY;lastMouse=performance.now()}
-  if(drag&&e.pointerId==drag.id){const dx=e.clientX-drag.x;drag.x=e.clientX;if(Math.abs(e.clientX-drag.x0)>6)moved=true;a+=-dx*1.3;vel=-dx*1.3*30;lastTouch=performance.now()}},{passive:true});
- m.addEventListener("pointerdown",e=>{if(e.pointerType=="mouse")return;drag={id:e.pointerId,x:e.clientX,x0:e.clientX};moved=false;vel=0;lastTouch=performance.now()});
- const end=e=>{if(drag&&e.pointerId==drag.id){drag=null;lastTouch=performance.now();setTimeout(()=>moved=false,50)}};
+ m.onclick=()=>{if(moved)return;m.classList.remove("jump");void m.offsetWidth;m.classList.add("jump")};
+ frame(0);if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ let a=0,goal=0,vel=0,spin=0,drag=null,c={y:0},ty=0,prev=performance.now(),g0=null,b0=null,gyro=null;
+ addEventListener("pointermove",e=>{
+  if(e.pointerType=="mouse"){const b=m.getBoundingClientRect();goal=-Math.max(-1,Math.min(1,(e.clientX-b.left-b.width/2)/320))*85;ty=Math.max(-1,Math.min(1,(e.clientY-b.top-b.height/2)/420))}
+  if(drag&&e.pointerId==drag.id){const dx=e.clientX-drag.x;drag.x=e.clientX;if(Math.abs(e.clientX-drag.x0)>6)moved=true;spin+=-dx*1.3;vel=-dx*1.3*20}},{passive:true});
+ m.addEventListener("pointerdown",e=>{if(e.pointerType=="mouse")return;drag={id:e.pointerId,x:e.clientX,x0:e.clientX};moved=false;vel=0});
+ const end=e=>{if(drag&&e.pointerId==drag.id){drag=null;setTimeout(()=>moved=false,50)}};
  addEventListener("pointerup",end);addEventListener("pointercancel",end);
+ // inclinación del celular: izquierda/derecha gira la cabeza, adelante/atrás la inclina. La posición en que se sostiene el teléfono cuenta como "de frente".
+ const onTilt=e=>{if(e.gamma==null)return;if(g0==null){g0=e.gamma;b0=e.beta}
+  g0+=(e.gamma-g0)*.004;b0+=(e.beta-b0)*.004;   // se recalibra despacio si la persona cambia de postura
+  const dg=Math.max(-30,Math.min(30,e.gamma-g0)),db=Math.max(-25,Math.min(25,e.beta-b0));
+  gyro={a:-dg*2.6,y:-db/25}};
+ const listen=()=>addEventListener("deviceorientation",onTilt,{passive:true});
+ if(window.DeviceOrientationEvent){listen();
+  if(typeof DeviceOrientationEvent.requestPermission=="function"){   // iPhone: pide permiso con el primer toque
+   const ask=()=>{DeviceOrientationEvent.requestPermission().then(r=>{if(r=="granted")listen()}).catch(()=>{});removeEventListener("touchend",ask);removeEventListener("click",ask)};
+   addEventListener("touchend",ask,{passive:true});addEventListener("click",ask)}}
  const tick=t=>{const dt=Math.min(.05,(t-prev)/1000);prev=t;const b=m.getBoundingClientRect();
-  if(b.bottom>0&&b.top<innerHeight&&b.width){let ty=0;
-   const looking=px!=null&&t-lastMouse<2600,touched=drag||t-lastTouch<1800;
-   if(drag){spin=0}
-   else if(Math.abs(vel)>5){a+=vel*dt;vel*=Math.pow(.04,dt);spin=0}   // inercia al soltar el dedo
-   else if(looking){const tx=Math.max(-1,Math.min(1,(px-b.left-b.width/2)/320));ty=Math.max(-1,Math.min(1,(py-b.top-b.height/2)/420));
-     const target=-tx*85;let d=((target-a)%360+540)%360-180;a+=d*.1;spin=0}   // mira hacia el cursor
-   else if(!touched){spin+=(65-spin)*Math.min(1,dt*1.5);a+=spin*dt}   // vitrina: gira sola
-   c.y+=(ty-c.y)*.1;
+  if(b.bottom>0&&b.top<innerHeight&&b.width){
+   if(!drag&&Math.abs(vel)>5){spin+=vel*dt;vel*=Math.pow(.02,dt)}   // pequeña inercia al soltar el dedo
+   let target=goal+spin,yy=ty;if(gyro){target=gyro.a+spin;yy=gyro.y}
+   const d=((target-a)%360+540)%360-180;a+=d*.15;c.y+=(yy-c.y)*.12;
    const r=frame(a);
    st.style.transform=`perspective(800px) rotateY(${(-r*.55).toFixed(2)}deg) rotateX(${(-c.y*8).toFixed(2)}deg)`;
-   st.style.filter=`drop-shadow(0 ${(10-c.y*6).toFixed(1)}px 14px rgba(0,0,0,.45))`}
-  requestAnimationFrame(tick)};frame(0);requestAnimationFrame(tick)})();
+   st.style.filter=`drop-shadow(${(r*.3).toFixed(1)}px ${(10-c.y*6).toFixed(1)}px 14px rgba(0,0,0,.45))`}
+  requestAnimationFrame(tick)};requestAnimationFrame(tick)})();
 // logo que "mira" al cursor o al dedo, como una cabeza que gira; si nadie lo mueve, mira a su alrededor solo
 (function(){const els=[$(".head img"),$(".hero-logo")].filter(Boolean),reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(reduce)return;
  els.forEach(e=>{e.classList.add("looker");e._c={x:0,y:0}});let px=null,py=null,last=0;
