@@ -126,7 +126,9 @@ textarea{resize:vertical}
 .hero .cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .hero-in{display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:4px}
 .mascot{width:min(190px,52%);margin:-12px auto -6px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mstage{position:relative;will-change:transform,filter}
 .mascot img{display:block;width:100%;height:auto;-webkit-user-drag:none;user-select:none}
+.mascot .mv1,.mascot .mv2{position:absolute;inset:0;opacity:0}
 .mascot.jump{animation:mjump .55s cubic-bezier(.3,1.6,.5,1)}
 @keyframes mjump{30%{transform:translateY(-16px) rotate(-4deg)}60%{transform:translateY(0) rotate(3deg)}}
 @media(min-width:900px){.hero{text-align:left;padding:28px 40px}.hero-in{grid-template-columns:minmax(0,1fr) 280px;gap:24px}.hero-txt{grid-row:1}.mascot{grid-column:2;width:100%;margin:0}
@@ -571,7 +573,7 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 <main>
 
 <section class="sec on" id="s-cat">
-<div class="hero"><div class="hero-in"><div class="mascot" id="mascot" role="img" aria-label="Xto, la mascota de XTO.STICKER" title="¡Hola!"><img src="img/mascota.webp" alt="" width="560" height="643" decoding="async"></div><div class="hero-txt"><img class="hero-logo" src="img/logo-texto.webp" alt="XTO.STICKER"><h1>Tu creatividad no tiene límites</h1><p>Elige tus stickers, arma tu hoja o mándanos tu foto. Nosotros lo hacemos realidad.</p>
+<div class="hero"><div class="hero-in"><div class="mascot" id="mascot" role="img" aria-label="Xto, la mascota de XTO.STICKER" title="¡Hola!"><div class="mstage"><img class="mv0" src="img/mascota-frente.webp" alt="" width="620" height="660" decoding="async"><img class="mv1" src="img/mascota-izq.webp" alt="" width="620" height="660" decoding="async"><img class="mv2" src="img/mascota-der.webp" alt="" width="620" height="660" decoding="async"></div></div><div class="hero-txt"><img class="hero-logo" src="img/logo-texto.webp" alt="XTO.STICKER"><h1>Tu creatividad no tiene límites</h1><p>Elige tus stickers, arma tu hoja o mándanos tu foto. Nosotros lo hacemos realidad.</p>
 <div class="cta"><button class="btn" data-step="hoja">Armar mi hoja</button><button class="btn alt" data-go="sub">Mandar mi foto</button></div></div></div></div>
 <ol class="steps"><li data-step="cat" role="button" tabindex="0"><div><b>Elige</b><span>Escoge del catálogo o sube tu propia imagen.</span></div></li><li data-step="sub" role="button" tabindex="0"><div><b>Personaliza</b><span>Define material, medida y cantidad. El precio se calcula solo.</span></div></li><li data-step="car" role="button" tabindex="0"><div><b>Envía tu pedido</b><span>Te llega la confirmación a tu correo y te contactamos para confirmar el precio final.</span></div></li></ol>
 <h2 class="sub" style="margin-top:0">¿Qué quieres pedir?</h2>
@@ -1186,10 +1188,24 @@ function renderOpts(){const logo=`<img src="${$(".head img").src}" alt="">`;
  const th={one:`<span class="oth one">${logo}</span>`,sheet:`<span class="oth"><span class="mini">${logo.repeat(4)}</span></span>`,pack:`<span class="oth"><span class="pk">${logo.repeat(9)}</span></span>`,skate:`<span class="oth cov"><img src="${XPH.tony}" alt=""></span>`,photo:`<span class="oth ph"><span class="pol">${logo}</span><span class="cam">${svg(ICON.photo,18)}</span></span>`};
  $("#opts").innerHTML=OPTS.map(([t,d,to,k])=>`<button class="opt" data-opt="${to}">${th[k]}<span><b>${t}</b><span class="d">${d}</span></span></button>`).join("");
  $$("[data-opt]").forEach(b=>b.onclick=()=>step(b.dataset.opt))}
-// mascota: salta al tocarla (el giro hacia el cursor lo hace el bloque del logo)
-(function(){const m=$("#mascot");if(m)m.onclick=()=>{m.classList.remove("jump");void m.offsetWidth;m.classList.add("jump")}})();
+// mascota: gira la cabeza hacia el cursor o el dedo mezclando sus vistas (frente, izquierda, derecha); salta al tocarla
+(function(){const m=$("#mascot");if(!m)return;const st=m.querySelector(".mstage"),[v0,v1,v2]=m.querySelectorAll("img");
+ m.onclick=()=>{m.classList.remove("jump");void m.offsetWidth;m.classList.add("jump")};
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ let px=null,py=null,last=0,c={x:0,y:0};
+ addEventListener("pointermove",e=>{px=e.clientX;py=e.clientY;last=performance.now()},{passive:true});
+ addEventListener("pointerdown",e=>{px=e.clientX;py=e.clientY;last=performance.now()},{passive:true});
+ const tick=t=>{const b=m.getBoundingClientRect();if(b.bottom>0&&b.top<innerHeight&&b.width){let tx,ty;
+   if(t-last>2500||px==null){tx=Math.sin(t/1500)*.9;ty=Math.sin(t/2300)*.25}   // si nadie la mueve, mira a los lados sola
+   else{tx=Math.max(-1,Math.min(1,(px-b.left-b.width/2)/300));ty=Math.max(-1,Math.min(1,(py-b.top-b.height/2)/300))}
+   c.x+=(tx-c.x)*.1;c.y+=(ty-c.y)*.1;
+   const side=k=>Math.max(0,Math.min(1,(k-.4)/.22)),l=side(-c.x),r=side(c.x);
+   v1.style.opacity=l;v2.style.opacity=r;v0.style.opacity=1-Math.max(l,r);
+   st.style.transform=`perspective(800px) rotateY(${(c.x*14).toFixed(2)}deg) rotateX(${(-c.y*12).toFixed(2)}deg) translate3d(${(c.x*8).toFixed(1)}px,${(c.y*6).toFixed(1)}px,0)`;
+   st.style.filter=`drop-shadow(${(-c.x*12).toFixed(1)}px ${(10-c.y*8).toFixed(1)}px 14px rgba(0,0,0,.45))`}
+  requestAnimationFrame(tick)};requestAnimationFrame(tick)})();
 // logo que "mira" al cursor o al dedo, como una cabeza que gira; si nadie lo mueve, mira a su alrededor solo
-(function(){const els=[$(".head img"),$(".hero-logo"),$("#mascot img")].filter(Boolean),reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(reduce)return;
+(function(){const els=[$(".head img"),$(".hero-logo")].filter(Boolean),reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;if(reduce)return;
  els.forEach(e=>{e.classList.add("looker");e._c={x:0,y:0}});let px=null,py=null,last=0;
  addEventListener("pointermove",e=>{px=e.clientX;py=e.clientY;last=performance.now()},{passive:true});
  addEventListener("pointerdown",e=>{px=e.clientX;py=e.clientY;last=performance.now()},{passive:true});
