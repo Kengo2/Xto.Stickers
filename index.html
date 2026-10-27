@@ -578,6 +578,7 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 .cits button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;min-width:0}
 .cits img{width:100%;aspect-ratio:1;object-fit:contain}
 .cits span{font-size:10.5px;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.privacy{font-size:12.5px;margin-top:6px}
 .cquick{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;scrollbar-width:none;border-top:1px solid var(--line)}
 .cquick::-webkit-scrollbar{display:none}
 .cquick button{flex:none;font:600 13px Manrope,system-ui,sans-serif;padding:7px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
@@ -697,6 +698,7 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 <div class="err" id="err" hidden></div>
 <button class="btn big" id="send">Enviar pedido</button>
 <p class="hint pad" id="sendhint">Te llegará un correo de confirmación y te contactaremos para confirmar el precio final y cualquier cambio.</p>
+<p class="hint privacy">🔒 Usamos tus datos solo para preparar y entregar tu pedido. No los compartimos con nadie y puedes pedirnos que los borremos cuando quieras.</p>
 </div>
 <div class="sent" id="sent" hidden>
 <h3 id="sentTitle"></h3><p id="sentMsg" style="margin:0 0 12px"></p>
@@ -1084,7 +1086,8 @@ function renderCart(){
  f("m","m",v=>v);f("s","s",cl);f("hh","h",cl);f("q","q",v=>Math.max(1,Math.floor(+v||1)));
  $$("[data-d]").forEach(b=>b.onclick=()=>{cart=cart.filter(c=>c.id!=b.dataset.d);saveCart();renderCart();renderNav()});
  $("#sent").hidden=true}
-function orderNo(){const d=new Date(),p=n=>String(n).padStart(2,"0");return "XTO-"+String(d.getFullYear()).slice(2)+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())+"-"+Array.from(crypto.getRandomValues(new Uint8Array(4)),b=>"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b%32]).join("")}
+// número de pedido: fecha + 12 caracteres al azar, imposible de adivinar (protege los datos de cada cliente)
+function orderNo(){const d=new Date(),p=n=>String(n).padStart(2,"0"),rnd=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b%32]).join("");return "XTO-"+String(d.getFullYear()).slice(2)+p(d.getMonth()+1)+p(d.getDate())+"-"+[0,4,8].map(i=>rnd.slice(i,i+4)).join("-")}
 function msg(no,link){const L=cart.map(l=>l.x?`• ${l.name} (${l.ex}) x${l.q} — ${lineTotal(l)?money(lineTotal(l)):"precio a cotizar"}${l.note?" · Idea: "+l.note:""}`:`• ${l.name}${l.k!=null&&ITEMS[l.k]?" "+code(l.k):""}${l.sheet?` (${l.n} stickers: ${l.sheet})`:""}${l.img?` [foto: ${l.img}${l.bg?", quitar fondo":""}]`:""} — ${l.m}, ${l.sheet?"medidas indicadas":l.s+" × "+(l.h||l.s)+" cm, x"+l.q} = ${money(lineTotal(l))}${l.note?" · Nota: "+l.note:""}`).join("\n");
  const on=$("#on").value.trim();
  return `Hola xto.sticker, quiero hacer este pedido (${no}):\n${L}\n\nTotal estimado: ${totText()}\nNombre: ${$("#nm").value.trim()}\nTeléfono: ${$("#ph").value.trim()}\nCorreo: ${$("#em").value.trim()}${on?"\nNotas: "+on:""}\n\n📎 Ver pedido con imágenes:\n${link}`}
@@ -1244,6 +1247,7 @@ const BOT={entrega:"2 días",ciudad:"Portoviejo",pagos:"transferencia, efectivo 
   {k:"resina epoxica disco discos album albumes invitacion invitaciones señaletica letrero letreros flyer flyers volante volantes publicidad",a:"También hacemos cuadros con resina, discos y cuadros de álbum, invitaciones, señalética y flyers. En Proyectos ves cada uno y pides tu cotización.",b:[["Ver proyectos","mas"]]},
   {k:"minimo uno~ solo~ unidad pocos",a:"Puedes pedir desde un solo sticker. Mientras más pides, más barato te sale cada uno.",b:[["Ir al catálogo","cat"]]},
   {k:"whatsapp hablar persona humano asesor numero telefono contacto llamar instagram",a:"¡Claro! Escríbenos directo y te atendemos.",b:[["WhatsApp","wa"],["Instagram","ig"]]},
+  {k:"privacidad datos dato seguro segura seguridad confiable confianza estafa borrar",a:"Tus datos (nombre, teléfono y correo) los usamos solo para preparar y entregar tu pedido. No los compartimos con nadie y puedes pedirnos que los borremos cuando quieras. Y en la página no pagas nada: primero te contactamos para confirmar tu pedido y el precio.",b:[["Escribirnos por WhatsApp","wa"]]},
   {k:"gracias genial perfecto ok vale listo chevere bacan",a:"¡Con gusto! 🙌 Si tienes otra duda, aquí estoy.",b:[]},
   {k:"chao adios bye nos vemos",a:"¡Chao! Gracias por visitar XTO.STICKER. ✌️",b:[]}];
  const words=t=>norm(t).replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).filter(Boolean);
