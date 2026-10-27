@@ -557,6 +557,29 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 .qty button{width:36px;height:36px;border-radius:50%;border:0;background:var(--paper);color:var(--ink);font-size:18px;font-weight:700}
 .qty input{width:44px;min-height:0;padding:0;text-align:center;border:0;box-shadow:none;background:none;font-weight:800;font-size:16px}
 #pm .seg{background:var(--card)}
+
+/* ===== Chat con Xto ===== */
+.xbot{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(var(--bar) + 14px + env(safe-area-inset-bottom,0px));z-index:56;width:62px;height:62px;border-radius:50%;border:3px solid #fff;padding:0;cursor:pointer;background:#2b2140 url(img/mascota-360.webp) 0 0/1200% 100% no-repeat;box-shadow:0 8px 22px rgba(0,0,0,.3);transition:transform .2s}
+.xbot:hover{transform:scale(1.06)}
+.xbot::after{content:"?";position:absolute;top:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:#ff3b5c;color:#fff;font:800 13px/22px Manrope,system-ui,sans-serif;text-align:center;border:2px solid #fff}
+@media(min-width:900px){.xbot{bottom:24px;right:24px;width:70px;height:70px}}
+#chat .mbody{padding:0;display:flex;flex-direction:column;height:min(70vh,560px)}
+@media(max-width:640px){#chat .mbody{height:72vh}}
+.cav{width:42px;height:42px;border-radius:50%;flex:none;background:#2b2140 url(img/mascota-360.webp) 0 0/1200% 100% no-repeat}
+.chead{display:flex;align-items:center;gap:10px}.chead b{display:block;font-size:16px}.chead small{color:var(--mu);font-size:12px}
+.clog{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:8px;overscroll-behavior:contain}
+.cm{max-width:86%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;white-space:pre-line}
+.cm.bot{background:var(--paper);color:var(--ink);border-bottom-left-radius:4px;align-self:flex-start}
+.cm.me{background:var(--chip-bg);color:var(--chip-fg);border-bottom-right-radius:4px;align-self:flex-end}
+.cm .cact{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;white-space:normal}
+.cm .cact button,.cm .cact a{font:700 13px Manrope,system-ui,sans-serif;padding:7px 12px;border-radius:99px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;text-decoration:none}
+.cm.typing{color:var(--mu);font-style:italic}
+.cquick{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;scrollbar-width:none;border-top:1px solid var(--line)}
+.cquick::-webkit-scrollbar{display:none}
+.cquick button{flex:none;font:600 13px Manrope,system-ui,sans-serif;padding:7px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.cform{display:flex;gap:8px;padding:8px 12px 12px}
+.cform input{flex:1;min-width:0;font:16px system-ui,sans-serif;padding:11px 14px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.cform button{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:var(--chip-bg);color:var(--chip-fg);cursor:pointer;display:grid;place-items:center}
 </style>
 
 </head>
@@ -574,7 +597,7 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 <main>
 
 <section class="sec on" id="s-cat">
-<div class="hero"><div class="hero-in"><div class="mascot" id="mascot" role="img" aria-label="Xto, la mascota de XTO.STICKER" title="¡Hola!"><div class="mstage"><div class="m360"></div></div></div><div class="hero-txt"><img class="hero-logo" src="img/logo-texto.webp" alt="XTO.STICKER"><h1>Tu creatividad no tiene límites</h1><p>Elige tus stickers, arma tu hoja o mándanos tu foto. Nosotros lo hacemos realidad.</p>
+<div class="hero"><div class="hero-in"><div class="mascot" id="mascot" role="button" tabindex="0" aria-label="Xto, la mascota de XTO.STICKER: tócala para hacerle preguntas" title="Tócame y pregúntame lo que quieras"><div class="mstage"><div class="m360"></div></div></div><div class="hero-txt"><img class="hero-logo" src="img/logo-texto.webp" alt="XTO.STICKER"><h1>Tu creatividad no tiene límites</h1><p>Elige tus stickers, arma tu hoja o mándanos tu foto. Nosotros lo hacemos realidad.</p>
 <div class="cta"><button class="btn" data-step="hoja">Armar mi hoja</button><button class="btn alt" data-go="sub">Mandar mi foto</button></div></div></div></div>
 <ol class="steps"><li data-step="cat" role="button" tabindex="0"><div><b>Elige</b><span>Escoge del catálogo o sube tu propia imagen.</span></div></li><li data-step="sub" role="button" tabindex="0"><div><b>Personaliza</b><span>Define material, medida y cantidad. El precio se calcula solo.</span></div></li><li data-step="car" role="button" tabindex="0"><div><b>Envía tu pedido</b><span>Te llega la confirmación a tu correo y te contactamos para confirmar el precio final.</span></div></li></ol>
 <h2 class="sub" style="margin-top:0">¿Qué quieres pedir?</h2>
@@ -693,6 +716,10 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 <li><b>📷 Tu foto o un proyecto</b><p>En <b>Mi foto</b> conviertes tu imagen en sticker (le quitamos el fondo). En <b>Proyectos</b> pides patinetas, cuadros, pósters, vinilos y más.</p><button class="btn alt sm" data-hgo="sub">Mi foto</button> <button class="btn alt sm" data-hgo="mas">Proyectos</button></li>
 <li class="fin"><b>✅ Para terminar</b><p>Abre <b>Pedido</b>, revisa, escribe tus datos y toca <b>Enviar pedido</b>. Te llega un correo de confirmación y te contactamos para confirmar el precio final.</p></li>
 </ul></div></dialog>
+<button class="xbot" id="xbot" aria-label="Pregúntale a Xto" title="¿Tienes preguntas? Pregúntale a Xto"></button>
+<dialog class="modal" id="chat" aria-labelledby="chatT"><div class="mhead"><div class="chead"><span class="cav" aria-hidden="true"></span><div><b id="chatT">Xto</b><small>Asistente de XTO.STICKER</small></div></div><button class="mclose" data-close aria-label="Cerrar">✕</button></div>
+<div class="mbody"><div class="clog" id="clog" aria-live="polite"></div><div class="cquick" id="cquick"></div>
+<form class="cform" id="cform" autocomplete="off"><input id="cin" placeholder="Escribe tu pregunta…" aria-label="Tu pregunta" maxlength="200"><button aria-label="Enviar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form></div></dialog>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -1189,12 +1216,60 @@ function renderOpts(){const logo=`<img src="${$(".head img").src}" alt="">`;
  const th={one:`<span class="oth one">${logo}</span>`,sheet:`<span class="oth"><span class="mini">${logo.repeat(4)}</span></span>`,pack:`<span class="oth"><span class="pk">${logo.repeat(9)}</span></span>`,skate:`<span class="oth cov"><img src="${XPH.tony}" alt=""></span>`,photo:`<span class="oth ph"><span class="pol">${logo}</span><span class="cam">${svg(ICON.photo,18)}</span></span>`};
  $("#opts").innerHTML=OPTS.map(([t,d,to,k])=>`<button class="opt" data-opt="${to}">${th[k]}<span><b>${t}</b><span class="d">${d}</span></span></button>`).join("");
  $$("[data-opt]").forEach(b=>b.onclick=()=>step(b.dataset.opt))}
+// chat con Xto: responde preguntas frecuentes con los datos de la tienda; lo que no sabe lo pasa a WhatsApp
+const BOT={entrega:"2 días",ciudad:"Portoviejo",pagos:"transferencia, efectivo o Deuna",horario:"lunes a sábado"};
+(function(){const dlg=$("#chat"),log=$("#clog"),inp=$("#cin");if(!dlg)return;
+ const wa=t=>`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(t||"Hola xto.sticker, tengo una consulta.")}`;
+ const p5=MATS[0][1][0][1],p7=MATS[0][1][1][1][0][1],p10=MATS[0][1][2][1][0][1],p14=MATS[0][1][3][1][0][1];
+ const sk=EXTRAS.find(e=>e.id=="skate")||{price:18,priceFull:20};
+ // cada tema: palabras que lo reconocen, respuesta y botones [texto, acción]
+ const T=[
+  {k:"hola buenas buenos saludos hey holi",a:"¡Hola! 👋 Soy Xto. Pregúntame por precios, materiales, cómo pedir, entregas o pagos.",b:[]},
+  {k:"precio precios cuesta cuestan cuanto~ vale valen costo valor barato tarifa",a:`Los stickers de vinilo brillante, mate o transparente cuestan:\n• 5 cm: ${money(p5[0][1])} c/u (desde ${p5[1][0]}: ${money(p5[1][1])} c/u)\n• 7 cm: ${money(p7)}\n• 10 cm: ${money(p10)}\n• 14 cm: ${money(p14)}\nEl escarchado y el epoxi 3D cuestan un poco más. Por cantidad conviene la plancha.`,b:[["Ver tabla de precios","vin"],["Planchas por mayor","pk"]]},
+  {k:"plancha planchas mayor mayoreo cantidad muchos cientos negocio revender",a:`Por cantidad te conviene la plancha: $${PACK_PRICE["Vinilo brillante"]} en vinilo (epoxi 3D $${PACK_PRICE["Epoxi 3D"]}). Por ejemplo, ${PACKS.find(p=>p[0]==5)[1]} stickers de 5 × 5 cm o ${PACKS.find(p=>p[0]==7)[1]} de 7 × 7 cm en una sola plancha.`,b:[["Ver planchas","pk"]]},
+  {k:"material materiales vinil vinilo mate brillante escarchado glitter brillo transparente epoxi 3d relieve calidad papel",a:"Trabajamos en:\n• Vinilo brillante\n• Vinilo mate\n• Escarchado transparente (con brillo arenoso)\n• Transparente\n• Epoxi 3D (con relieve)\nEn Precios puedes ver una muestra de cada uno.",b:[["Ver materiales","vin"]]},
+  {k:"pedir pedido comprar compra ordenar orden encargar encargo hago~ quiero~",a:"Así de fácil:\n1. Elige stickers en el Catálogo o arma tu hoja A4 en Mi hoja.\n2. Abre Pedido, escribe tus datos y toca Enviar pedido.\n3. Te llega un correo y te escribimos para confirmar el precio final y la entrega.",b:[["Ir al catálogo","cat"],["Armar mi hoja","hoja"]]},
+  {k:"hoja a4 varios diseños armar acomodar",a:"En Mi hoja armas una hoja A4 con los stickers que quieras: tócalos para agregarlos, arrástralos, gíralos y cambia su tamaño. Luego tocas Pedir esta hoja.",b:[["Armar mi hoja","hoja"]]},
+  {k:"foto fotos diseño propio personalizado personalizada logo imagen fondo mascota cara",a:"¡Claro! En Mi foto subes tu imagen o logo, le quitamos el fondo y la convertimos en sticker del tamaño que quieras.",b:[["Subir mi foto","sub"]]},
+  {k:"tiempo demora demoran tarda tardan dias rapido listo cuando entregan urgente",a:`Un pedido normal está listo en ${BOT.entrega}. Si lo necesitas antes, escríbenos y vemos si se puede.`,b:[["Preguntar por WhatsApp","wa"]]},
+  {k:"envio envios envian enviar servientrega ciudad ciudades quito guayaquil manta cuenca provincia domicilio entrega entregan portoviejo llevan",a:`Entregamos dentro de ${BOT.ciudad}. A otras ciudades enviamos por Servientrega; te confirmamos el costo del envío al confirmar tu pedido.`,b:[["Hacer mi pedido","cat"]]},
+  {k:"pago pagos pagar transferencia efectivo deuna tarjeta banco deposito",a:`Puedes pagar por ${BOT.pagos}. Te pasamos los datos al confirmar tu pedido.`,b:[]},
+  {k:"horario hora horas abren abierto atienden atencion lunes sabado domingo",a:`Atendemos de ${BOT.horario}. Igual puedes dejar tu pedido en la página a cualquier hora y te respondemos en cuanto abramos.`,b:[]},
+  {k:"patineta patinetas skate tabla tablas",a:`Las patinetas decorativas cuestan $${sk.price} con el diseño en una parte de la tabla y $${sk.priceFull} con la tabla completa. Son para decorar o regalar, no para patinar.`,b:[["Ver proyectos","mas"]]},
+  {k:"poster posters afiche afiches a3 cuadro collage pared",a:"Pósters: A4 a $2.50 y A3 a $5 (papel fotográfico +$1). En pack: 10 A4 por $20 o 5 A3 por $22. Puedes subir tu foto o describir lo que quieres.",b:[["Pedir pósters","mas"]]},
+  {k:"resina epoxica disco discos album albumes invitacion invitaciones señaletica letrero letreros flyer flyers volante volantes publicidad",a:"También hacemos cuadros con resina, discos y cuadros de álbum, invitaciones, señalética y flyers. En Proyectos ves cada uno y pides tu cotización.",b:[["Ver proyectos","mas"]]},
+  {k:"minimo uno solo uno unidad pocos",a:"Puedes pedir desde un solo sticker. Mientras más pides, más barato te sale cada uno.",b:[["Ir al catálogo","cat"]]},
+  {k:"whatsapp hablar persona humano asesor numero telefono contacto llamar instagram",a:"¡Claro! Escríbenos directo y te atendemos.",b:[["WhatsApp","wa"],["Instagram","ig"]]},
+  {k:"gracias genial perfecto ok vale listo chevere bacan",a:"¡Con gusto! 🙌 Si tienes otra duda, aquí estoy.",b:[]},
+  {k:"chao adios bye nos vemos",a:"¡Chao! Gracias por visitar XTO.STICKER. ✌️",b:[]}];
+ const words=t=>norm(t).replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).filter(Boolean);
+ T.forEach(x=>{x.w=words(x.k.replace(/~/g,""));x.weak=x.k.split(" ").filter(k=>k.endsWith("~")).map(k=>norm(k.slice(0,-1)))});
+ const answer=t=>{const w=words(t);let best=null,sc=0;
+  T.forEach(x=>{let n=0;w.forEach(v=>{if(x.w.some(k=>k==v||(v.length>4&&k.length>4&&(k.startsWith(v.slice(0,5))||v.startsWith(k.slice(0,5))))))n+=x.weak.includes(v)?.4:1});if(n>sc){sc=n;best=x}});
+  return best||{a:"Esa no me la sé 😅 pero te ayudamos por WhatsApp. También puedes preguntarme por precios, materiales, entregas o pagos.",b:[["Preguntar por WhatsApp","wa"]]}};
+ const act={cat:()=>go("cat"),hoja:()=>startSheet(),vin:()=>go("vin"),sub:()=>go("sub"),mas:()=>go("mas"),pk:()=>{go("vin");$("#planchas").scrollIntoView({block:"start"})}};
+ const add=(who,txt,btns)=>{const d=document.createElement("div");d.className="cm "+who;d.textContent=txt;
+  if(btns&&btns.length){const r=document.createElement("div");r.className="cact";
+   btns.forEach(([l,k])=>{let e;if(k=="wa"||k=="ig"){e=document.createElement("a");e.href=k=="wa"?wa():`https://instagram.com/${INSTAGRAM}`;e.target="_blank";e.rel="noopener"}
+    else{e=document.createElement("button");e.type="button";e.onclick=()=>{dlg.close();act[k]()}}e.textContent=l;r.appendChild(e)});d.appendChild(r)}
+  log.appendChild(d);log.scrollTop=log.scrollHeight;return d};
+ const ask=t=>{t=t.trim();if(!t)return;add("me",t);const ty=add("bot typing","Xto está escribiendo…");
+  setTimeout(()=>{ty.remove();const r=answer(t);add("bot",r.a,r.b)},450+Math.random()*350)};
+ const Q=["¿Cuánto cuestan?","¿Cómo pido?","¿Cuánto demora?","¿Hacen envíos?","Formas de pago","Materiales","Mi propio diseño","Hablar con alguien"];
+ $("#cquick").innerHTML=Q.map(q=>`<button type="button">${esc(q)}</button>`).join("");
+ $$("#cquick button").forEach(b=>b.onclick=()=>ask(b.textContent));
+ $("#cform").onsubmit=e=>{e.preventDefault();ask(inp.value);inp.value=""};
+ let started=false;
+ window.openChat=()=>{if(!started){started=true;add("bot","¡Hola! 👋 Soy Xto, la mascota de XTO.STICKER. ¿En qué te ayudo? Toca una pregunta de abajo o escríbeme.")}
+  dlg.showModal();if(matchMedia("(hover:hover)").matches)inp.focus()};
+ $("#xbot").onclick=openChat})();
 // mascota 360°: 12 vistas (cada 30°) en una sola imagen. Se queda quieta de frente hasta que alguien la mueve:
 // en la computadora mira hacia el cursor; en el celular gira como un relieve al inclinar el teléfono, y también se gira deslizando el dedo.
 (function(){const m=$("#mascot");if(!m)return;const st=m.querySelector(".mstage"),sp=m.querySelector(".m360");
  const frame=a=>{const k=((Math.round(a/30)%12)+12)%12;sp.style.backgroundPosition=`${(k*100/11).toFixed(4)}% 0`;return a-Math.round(a/30)*30};
  let moved=false;
- m.onclick=()=>{if(moved)return;m.classList.remove("jump");void m.offsetWidth;m.classList.add("jump")};
+ m.onclick=()=>{if(moved)return;m.classList.remove("jump");void m.offsetWidth;m.classList.add("jump");setTimeout(()=>window.openChat&&openChat(),380)};
+ m.onkeydown=e=>{if(e.key=="Enter"||e.key==" "){e.preventDefault();window.openChat&&openChat()}};
  frame(0);if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
  let a=0,goal=0,vel=0,spin=0,drag=null,c={y:0},ty=0,prev=performance.now(),g0=null,b0=null,gyro=null;
  addEventListener("pointermove",e=>{
