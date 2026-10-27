@@ -461,6 +461,91 @@ dialog.modal::backdrop{background:rgba(14,8,22,.55)}
 @media(min-width:900px){.toast{bottom:24px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 img{max-width:100%}
+
+/* ===== Estilo tienda: tarjetas blancas, pastillas oscuras y títulos grandes ===== */
+:root{--paper:#efeef3;--line:#e6e2ec;--r:22px;--r-s:14px;--shadow:0 1px 2px rgba(26,20,35,.04),0 10px 28px rgba(26,20,35,.07)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#120d19;--line:#2f2540;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--paper:#120d19;--line:#2f2540;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35)}
+header{background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:0}
+.themebtn,.cartbtn{border:0;background:var(--card);box-shadow:var(--shadow)}
+.title{font-family:var(--f-body);font-weight:800;font-size:clamp(32px,5.5vw,46px);letter-spacing:-.035em;line-height:1;background:none;padding:0;margin:0}
+.lead{font-size:15.5px}
+.btn{border:0;background:var(--chip-bg);color:var(--chip-fg);box-shadow:none;font-weight:700;padding:13px 22px;letter-spacing:.01em}
+.btn:hover{background:var(--chip-bg);filter:brightness(1.25)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.btn.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.btn.alt:hover{background:var(--card);color:var(--ink);border-color:var(--ink);filter:none}
+.btn.big{padding:16px 22px;font-size:15.5px}
+.btn.sm{padding:9px 16px}
+.panel,.opt,.xcard,.steps li,.mat,.vline,.surf,.stab,.hsteps li,.dkgrid button,.pkgrid button{border-color:transparent}
+.panel,.opt,.xcard,.steps li,.mat,.vline,.surf,.hsteps li{box-shadow:var(--shadow);border-radius:var(--r)}
+.opt:hover,.mat:hover,.surf:hover{border-color:transparent;box-shadow:0 0 0 2px var(--ink),var(--shadow)}
+.surf.on,.mat.on,.hsteps li.now{box-shadow:0 0 0 2px var(--fill) inset,var(--shadow)}
+.hero{border-radius:28px}
+.hero .btn{background:#fff;color:#1a1423}
+.hero .btn.alt{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.5)}
+input,select,textarea{border-color:transparent;background:var(--card);box-shadow:inset 0 0 0 1.5px var(--line)}
+select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inset 0 0 0 2px var(--fill)}
+.search input{height:54px;border-radius:99px;box-shadow:var(--shadow);font-size:15px}
+.chip{border:0;background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(26,20,35,.06);padding:9px 16px}
+.chip:hover{color:var(--ink);box-shadow:0 0 0 1.5px var(--ink)}
+.chip.fv svg{width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#ff3b5c}
+.chip.fv.on svg{color:#ff6b84}
+/* encabezado del catálogo: número grande */
+.cathead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:30px 0 16px}
+.bignum{display:flex;align-items:center;gap:12px;margin:0;font-weight:800;letter-spacing:-.04em}
+.bignum #catN{font-size:clamp(56px,10vw,76px);line-height:.85}
+.bignum small{display:block;font-size:clamp(20px,3.6vw,26px);line-height:1.02;font-weight:800;letter-spacing:-.02em}
+.iconbtn{flex:none;width:48px;height:48px;border-radius:50%;border:0;background:var(--card);color:var(--ink);box-shadow:var(--shadow);display:grid;place-items:center}
+.iconbtn svg{width:22px;height:22px}
+/* tarjetas del catálogo */
+.grid{gap:14px}
+.card{position:relative;border:0;border-radius:24px;box-shadow:var(--shadow);padding:14px 14px 12px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.card:hover{border:0;transform:translateY(-3px);box-shadow:0 2px 4px rgba(26,20,35,.06),0 16px 34px rgba(26,20,35,.12)}
+.ctop{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;min-height:40px}
+.ctop b{display:block;font-size:14.5px;font-weight:800;line-height:1.2;letter-spacing:-.01em}
+.ctop .code{font-size:11px}
+.fav{flex:none;width:34px;height:34px;margin:-4px -4px 0 0;border:0;border-radius:50%;background:none;color:var(--ink);display:grid;place-items:center;transition:transform .15s}
+.fav svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9}
+.fav.on{color:#ff3b5c}.fav.on svg{fill:currentColor}
+.fav:active{transform:scale(.85)}
+.fav.pop{animation:pop .35s ease}
+@keyframes pop{50%{transform:scale(1.3)}}
+.card .art{background:none;aspect-ratio:1.05;margin:4px 0 8px}
+.card .art img{filter:drop-shadow(0 6px 10px rgba(26,20,35,.22))}
+.cbot{display:flex;justify-content:space-between;align-items:flex-end}
+.cprice small{display:block;font-size:11px;font-weight:600;color:var(--mu)}
+.cprice b{font-size:18px;font-weight:800;letter-spacing:-.02em}
+.addbtn{width:38px;height:38px;border-radius:50%;border:0;background:var(--chip-bg);color:var(--chip-fg);font-size:22px;font-weight:600;line-height:1;display:grid;place-items:center}
+.favempty{grid-column:1/-1;text-align:center;padding:30px 16px;color:var(--mu)}
+.favempty svg{width:40px;height:40px;color:#ff3b5c}
+/* ficha de producto */
+#pm .mhead{border:0;justify-content:space-between}
+#pm .mhead h3{font-size:13px;font-weight:600;color:var(--mu)}
+#pm .mclose{background:none;color:var(--ink);font-size:22px}
+#pm .fav{margin:0;width:36px;height:36px}
+.pmhero{position:relative;display:grid;place-items:center;height:230px;margin:-8px 0 10px}
+.pmhero img{max-width:72%;max-height:200px;object-fit:contain;filter:drop-shadow(0 14px 18px rgba(26,20,35,.25));position:relative;z-index:1}
+.pmhero:after{content:"";position:absolute;left:14%;right:14%;bottom:4px;height:34px;border-radius:50%;border-bottom:2px dotted var(--mu);opacity:.45}
+.pmsheet{background:var(--paper);border-radius:28px 28px 0 0;margin:0 -16px -16px;padding:20px 16px 18px}
+.pmname{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.pmname h2{margin:0;font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.05}
+.pmname .pmbig{display:block;font-size:30px;font-weight:800;letter-spacing:-.03em;margin-top:4px;font-variant-numeric:tabular-nums}
+.pmname .pmbig small{font-size:13px;font-weight:600;color:var(--mu);letter-spacing:0;margin-left:6px}
+.pmcode{flex:none;background:var(--card);border-radius:99px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--mu)}
+.specs{display:grid;grid-template-columns:.8fr .8fr 1.6fr;margin:4px 0 14px}
+.spec{padding:2px 12px;border-left:1.5px solid var(--line)}.spec:first-child{border-left:0;padding-left:0}
+.spec label{font-size:13px;font-weight:600;color:var(--mu);margin:0}
+.spec input,.spec select{border:0;box-shadow:none;background:none;padding:0;min-height:30px;font-size:17px;font-weight:800;width:100%;-moz-appearance:textfield}
+.spec select{font-size:15px}
+.spec input::-webkit-inner-spin-button,.spec input::-webkit-outer-spin-button,.qty input::-webkit-inner-spin-button,.qty input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.qty input{-moz-appearance:textfield}
+.spec input:focus,.spec select:focus{box-shadow:none;color:var(--brand-d)}
+.qtyrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.qty{display:flex;align-items:center;gap:6px;background:var(--card);border-radius:99px;padding:4px}
+.qty button{width:36px;height:36px;border-radius:50%;border:0;background:var(--paper);color:var(--ink);font-size:18px;font-weight:700}
+.qty input{width:44px;min-height:0;padding:0;text-align:center;border:0;box-shadow:none;background:none;font-weight:800;font-size:16px}
+#pm .seg{background:var(--card)}
 </style>
 
 </head>
@@ -483,6 +568,7 @@ img{max-width:100%}
 <ol class="steps"><li data-step="cat" role="button" tabindex="0"><div><b>Elige</b><span>Escoge del catálogo o sube tu propia imagen.</span></div></li><li data-step="sub" role="button" tabindex="0"><div><b>Personaliza</b><span>Define material, medida y cantidad. El precio se calcula solo.</span></div></li><li data-step="car" role="button" tabindex="0"><div><b>Envía tu pedido</b><span>Te llega la confirmación a tu correo y te contactamos para confirmar el precio final.</span></div></li></ol>
 <h2 class="sub" style="margin-top:0">¿Qué quieres pedir?</h2>
 <div class="opts" id="opts"></div>
+<div class="cathead"><h2 class="bignum"><span id="catN">148</span><small id="catL">Stickers<br>para ti</small></h2><button class="iconbtn" id="filterBtn" aria-label="Ver categorías" title="Categorías"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></button></div>
 <div class="welcome" id="welcome" hidden><span><b>¿Primera vez aquí?</b> Mira cómo pedir en 1 minuto.</span><button class="btn sm" id="welHelp">Cómo pedir</button><button class="x" id="welX" aria-label="Cerrar aviso">✕</button></div>
 <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" type="search" placeholder="Busca un sticker: Messi, Rick, Bad Bunny…" aria-label="Buscar sticker" autocomplete="off"></div>
 <div class="chips" id="chips"></div>
@@ -588,7 +674,7 @@ img{max-width:100%}
 <footer id="foot"></footer>
 </main>
 </div>
-<dialog class="modal" id="pm" aria-labelledby="pmTitle"><div class="mhead"><h3 id="pmTitle">Sticker</h3><button class="mclose" data-close aria-label="Cerrar">✕</button></div><div class="mbody" id="pmBody"></div></dialog>
+<dialog class="modal" id="pm" aria-labelledby="pmName"><div class="mhead"><button class="mclose" data-close aria-label="Volver">←</button><h3 id="pmTitle">Elige cómo lo quieres</h3><button class="fav" id="pmFav" aria-label="Guardar en favoritos"></button></div><div class="mbody" id="pmBody"></div></dialog>
 <dialog class="modal" id="hm" aria-labelledby="hmTitle"><div class="mhead"><h3 id="hmTitle">¿Cómo pedir?</h3><button class="mclose" data-close aria-label="Cerrar">✕</button></div><div class="mbody">
 <ul class="howto">
 <li><b>🏷️ Stickers sueltos</b><ol><li>Entra al <b>Catálogo</b> y toca un sticker.</li><li>Elige <b>Sticker suelto</b>, la medida, el vinil y la cantidad.</li><li>Toca <b>Agregar al pedido</b>.</li></ol><button class="btn alt sm" data-hgo="cat">Ir al catálogo</button></li>
@@ -683,27 +769,39 @@ $$("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
 const step=id=>{if(id=="cat")$(".search").scrollIntoView({behavior:"smooth",block:"start"});else if(id=="hoja")startSheet();else if(id=="sub"||id=="mas"||id=="car")go(id);else if(id=="pk"){go("vin");$("#planchas").scrollIntoView({block:"start"})}else open(`https://wa.me/${WHATSAPP=="593000000000"?"":WHATSAPP}?text=${encodeURIComponent("Hola xto.sticker, quiero cotizar.")}`,"_blank","noopener")};
 $$("[data-step]").forEach(li=>{li.onclick=()=>step(li.dataset.step);li.onkeydown=e=>{if(e.key=="Enter"||e.key==" "){e.preventDefault();step(li.dataset.step)}}});
 // catálogo
-function renderChips(){const cnt=c=>c=="Todos"?ITEMS.length:ITEMS.filter(i=>i[2]==c).length;$("#chips").innerHTML=CATS.filter(c=>cnt(c)>0).map(c=>`<button class="chip ${c==cat?"on":""}" data-cat="${c}">${c}<b>${cnt(c)}</b></button>`).join("");$$(".chip").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;renderChips();renderGrid();$("#chips .on")?.scrollIntoView({block:"nearest",inline:"center"})})}
-function renderGrid(){const list=ITEMS.map((it,i)=>({it,i})).filter(o=>(cat=="Todos"||o.it[2]==cat)&&norm(o.it[1]+" "+o.it[2]+" "+code(o.i)).includes(q));const n=list.length;
- $("#rtxt").textContent=q?(n?n+" resultado"+(n>1?"s":"")+" para “"+rawq+"”":"No encontramos “"+rawq+"”. ¿Lo quieres hecho a tu medida?"):(n+" sticker"+(n>1?"s":"")+(cat=="Todos"?"":" en "+cat));$("#ask").hidden=!(q&&!n);
+// favoritos: el corazón guarda stickers en este navegador
+let favs=new Set(store.get("xto_favs",[]).filter(i=>ITEMS[i]));
+const HEART='<path d="M12 20.5s-7.5-4.6-9.3-9.3C1.4 7.9 3.6 4.5 7 4.5c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.4 0 5.6 3.4 4.3 6.7-1.8 4.7-9.3 9.3-9.3 9.3z"/>',heartSvg=()=>`<svg viewBox="0 0 24 24" aria-hidden="true">${HEART}</svg>`;
+function toggleFav(i,btn){favs.has(i)?favs.delete(i):favs.add(i);store.set("xto_favs",[...favs]);const on=favs.has(i);
+ $$(`[data-fav="${i}"]`).forEach(b=>{b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop")});
+ toast(on?"Guardado en favoritos":"Quitado de favoritos");renderChips();if(cat=="Favoritos")renderGrid()}
+function renderChips(){const cnt=c=>c=="Todos"?ITEMS.length:c=="Favoritos"?favs.size:ITEMS.filter(i=>i[2]==c).length;$("#chips").innerHTML=["Todos","Favoritos",...CATS.slice(1)].filter(c=>c=="Favoritos"||cnt(c)>0).map(c=>`<button class="chip ${c==cat?"on":""} ${c=="Favoritos"?"fv":""}" data-cat="${c}">${c=="Favoritos"?`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${HEART}</svg>`:""}${c}<b>${cnt(c)}</b></button>`).join("");$$("#chips .chip").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;renderChips();renderGrid();$("#chips .on")?.scrollIntoView({block:"nearest",inline:"center"})})}
+function renderGrid(){const list=ITEMS.map((it,i)=>({it,i})).filter(o=>(cat=="Todos"||(cat=="Favoritos"?favs.has(o.i):o.it[2]==cat))&&norm(o.it[1]+" "+o.it[2]+" "+code(o.i)).includes(q));const n=list.length;
+ $("#rtxt").textContent=q?(n?n+" resultado"+(n>1?"s":"")+" para “"+rawq+"”":"No encontramos “"+rawq+"”. ¿Lo quieres hecho a tu medida?"):"";$("#ask").hidden=!(q&&!n);
  const from=money(unit(MATS[0][0],5,5));
- $("#grid").innerHTML=list.map(({it,i})=>`<article class="card"><div class="art" data-p="${i}"><img src="${it[0]}" alt="${esc(it[1])}" loading="lazy"></div><div class="info"><span class="cat"><span class="code">${code(i)}</span> · ${esc(it[2])}</span><b data-p="${i}">${esc(it[1])}</b><span class="from">Desde <strong>${from}</strong> c/u</span></div><div class="acts"><button class="btn sm" data-p="${i}" aria-label="Elegir cómo pedir ${esc(it[1])}">Agregar</button></div></article>`).join("");
- $$("#grid [data-p]").forEach(b=>b.onclick=()=>openProduct(+b.dataset.p))}
+ $("#catN").textContent=n;$("#catL").innerHTML=cat=="Favoritos"?"Tus<br>favoritos":q?"Resultados<br>encontrados":cat=="Todos"?"Stickers<br>para ti":`Stickers<br>de ${esc(cat)}`;
+ $("#grid").innerHTML=list.map(({it,i})=>`<article class="card" data-p="${i}"><div class="ctop"><div><b>${esc(it[1])}</b><span class="code">${code(i)}</span></div><button class="fav ${favs.has(i)?"on":""}" data-fav="${i}" aria-pressed="${favs.has(i)}" aria-label="Guardar ${esc(it[1])} en favoritos">${heartSvg()}</button></div>
+  <div class="art"><img src="${it[0]}" alt="${esc(it[1])}" loading="lazy"></div><div class="cbot"><span class="cprice"><small>Desde</small><b>${from}</b></span><button class="addbtn" data-p="${i}" aria-label="Agregar ${esc(it[1])}">+</button></div></article>`).join("")
+  ||(cat=="Favoritos"?`<div class="favempty">${heartSvg().replace("<svg ",'<svg fill="currentColor" ')}<p>Aún no tienes favoritos.<br>Toca el corazón de los stickers que te gusten para guardarlos aquí.</p></div>`:"")}
+$("#grid").onclick=e=>{const f=e.target.closest("[data-fav]");if(f){e.stopPropagation();toggleFav(+f.dataset.fav);return}const c=e.target.closest("[data-p]");if(c)openProduct(+c.dataset.p)};
+$("#filterBtn").onclick=()=>{const c=$("#chips");c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.remove("pulse");void c.offsetWidth;c.classList.add("pulse")};
 // ficha de producto: sticker suelto (medida, vinil y cantidad) o ponerlo en la hoja A4
-function openProduct(i,mode="suelto"){const it=ITEMS[i],r=it[3]||1,d=$("#pm");$("#pmTitle").textContent=it[1];
- const w0=rd(r>=1?5/r:5),h0=rd(r>=1?5:5*r);
- $("#pmBody").innerHTML=`<div class="pmtop"><div class="pmimg"><img src="${it[0]}" alt=""></div><div><span class="code">${code(i)}</span> · <span class="hint" style="display:inline">${esc(it[2])}</span><p class="hint" style="margin-top:6px">¿Cómo lo quieres?</p></div></div>
+function openProduct(i,mode="suelto"){const it=ITEMS[i],r=it[3]||1,d=$("#pm");
+ const w0=rd(r>=1?5/r:5),h0=rd(r>=1?5:5*r),fb=$("#pmFav");fb.dataset.fav=i;fb.className="fav"+(favs.has(i)?" on":"");fb.innerHTML=heartSvg();fb.onclick=()=>toggleFav(i);
+ $("#pmBody").innerHTML=`<div class="pmhero"><img src="${it[0]}" alt=""></div>
+  <div class="pmsheet"><div class="pmname"><div><h2 id="pmName">${esc(it[1])}</h2><span class="pmbig"><span id="pmT"></span><small id="pmU"></small></span></div><span class="pmcode">${code(i)} · ${esc(it[2])}</span></div>
   <div class="seg" role="tablist"><button role="tab" data-mode="suelto">Sticker suelto</button><button role="tab" data-mode="hoja">En mi hoja A4</button></div>
-  <div data-pane="suelto"><div class="row"><div><label for="pmM">Vinil</label><select id="pmM">${opts(MATS.map(m=>m[0]))}</select></div><div><label for="pmQ">Cantidad</label><input id="pmQ" type="number" min="1" value="1"></div></div>
-   <div class="row"><div><label for="pmW">Ancho (cm)</label><input id="pmW" type="number" min="2" max="14" step="0.5" value="${w0}" inputmode="decimal"></div><div><label for="pmH">Largo (cm)</label><input id="pmH" type="number" min="2" max="14" step="0.5" value="${h0}" inputmode="decimal"></div></div>
-   <div class="pmprice"><span class="hint" id="pmU"></span><b id="pmT"></b></div><div id="pmTip"></div><button class="btn big" id="pmAdd">Agregar al pedido</button></div>
-  <div data-pane="hoja" hidden><p>Junta este sticker con otros diseños en una <b>hoja A4</b>: lo acomodas, lo giras y eliges su tamaño. Pagas solo por los stickers de la hoja.</p><button class="btn big" id="pmSheet">Poner en mi hoja</button></div>`;
+  <div data-pane="suelto"><div class="specs"><div class="spec"><label for="pmW">Ancho</label><input id="pmW" type="number" min="2" max="14" step="0.5" value="${w0}" inputmode="decimal"></div><div class="spec"><label for="pmH">Largo</label><input id="pmH" type="number" min="2" max="14" step="0.5" value="${h0}" inputmode="decimal"></div><div class="spec"><label for="pmM">Vinil</label><select id="pmM">${opts(MATS.map(m=>m[0]))}</select></div></div>
+   <div class="qtyrow"><span class="hint">Cantidad · medidas en cm</span><div class="qty"><button type="button" id="pmMinus" aria-label="Menos">−</button><input id="pmQ" type="number" min="1" value="1" aria-label="Cantidad"><button type="button" id="pmPlus" aria-label="Más">+</button></div></div>
+   <div id="pmTip"></div><button class="btn big" id="pmAdd" style="width:100%">Agregar al pedido</button></div>
+  <div data-pane="hoja" hidden><p style="margin-top:0">Junta este sticker con otros diseños en una <b>hoja A4</b>: lo acomodas, lo giras y eliges su tamaño. Pagas solo por los stickers de la hoja.</p><button class="btn big" id="pmSheet" style="width:100%">Poner en mi hoja</button></div></div>`;
  const set=m=>{$$("#pmBody [data-mode]").forEach(b=>{b.classList.toggle("on",b.dataset.mode==m);b.setAttribute("aria-selected",b.dataset.mode==m)});$$("#pmBody [data-pane]").forEach(p=>p.hidden=p.dataset.pane!=m)};set(mode);
  $$("#pmBody [data-mode]").forEach(b=>b.onclick=()=>set(b.dataset.mode));
- const calc=()=>{const q=Math.max(1,Math.floor(+$("#pmQ").value||1)),w=cl($("#pmW").value),hg=cl($("#pmH").value),m=$("#pmM").value,u=unit(m,Math.max(w,hg),q);$("#pmT").textContent=money(u*q);$("#pmU").textContent=`${money(u)} c/u · ${w} × ${hg} cm`;$("#pmTip").innerHTML=tip(m,Math.max(w,hg),q)};
+ const calc=()=>{const q=Math.max(1,Math.floor(+$("#pmQ").value||1)),w=cl($("#pmW").value),hg=cl($("#pmH").value),m=$("#pmM").value,u=unit(m,Math.max(w,hg),q);$("#pmT").textContent=money(u*q);$("#pmU").textContent=q>1?`${money(u)} c/u`:"";$("#pmTip").innerHTML=tip(m,Math.max(w,hg),q)};
  // ancho y largo mantienen la forma del sticker
  $("#pmW").oninput=()=>{const w=+$("#pmW").value;if(w>=2)$("#pmH").value=Math.min(14,rd(w*r));calc()};$("#pmH").oninput=()=>{const hg=+$("#pmH").value;if(hg>=2)$("#pmW").value=Math.min(14,rd(hg/r));calc()};
- $("#pmM").onchange=calc;$("#pmQ").oninput=calc;calc();
+ $("#pmM").onchange=calc;$("#pmQ").oninput=calc;
+ const step=dq=>{$("#pmQ").value=Math.max(1,Math.floor(+$("#pmQ").value||1)+dq);calc()};$("#pmMinus").onclick=()=>step(-1);$("#pmPlus").onclick=()=>step(1);calc();
  $("#pmAdd").onclick=()=>{addLine({name:it[1],k:i,m:$("#pmM").value,s:cl($("#pmW").value),h:cl($("#pmH").value),q:Math.max(1,Math.floor(+$("#pmQ").value||1))});d.close();toast("Agregado a tu pedido",["Ver pedido",()=>go("car")])};
  $("#pmSheet").onclick=()=>{d.close();addToSheet(i)};
  d.showModal()}
