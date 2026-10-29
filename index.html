@@ -311,6 +311,7 @@ td:first-child{font-weight:700}
 .xgw{position:relative}
 .xgal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;aspect-ratio:4/3;background:var(--tile);scrollbar-width:none}
 .xgal::-webkit-scrollbar{display:none}
+.xgal.mg{aspect-ratio:1;border-radius:12px}
 .xgal img{flex:0 0 100%;width:100%;height:100%;max-width:none;object-fit:cover;scroll-snap-align:start}
 .xn{position:absolute;right:10px;bottom:10px;background:rgba(14,8,22,.7);color:#fff;font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px;pointer-events:none}
 .xbody{padding:16px;flex:1;display:flex;flex-direction:column;gap:6px}
@@ -718,7 +719,7 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 
 <section class="sec" id="s-moto">
 <h2 class="title">Kit para tu moto</h2><p class="lead">Emplasticamos los plásticos de tu moto con el diseño que quieras. Sube una foto de tu moto, cuéntanos qué deseas y te enviamos la cotización.</p>
-<div class="mwrap"><div class="mstage2"><div class="mgal" id="mview"><img class="wide" src="img/fotos/moto-negro.webp" alt="Kit de stickers negro, gris y naranja para moto de cross" loading="lazy"><img src="img/fotos/moto-kit.webp" alt="Kit de plásticos de moto con stickers" loading="lazy"><img src="img/fotos/moto-holo.webp" alt="Kit de stickers holográficos para moto" loading="lazy"></div><p class="mnote">Ejemplos de kits. Cada diseño se hace a la medida de tu moto.</p></div>
+<div class="mwrap"><div class="mstage2"><div class="xgw"><div class="xgal mg" id="mview"><img src="img/fotos/moto-negro.webp" alt="Kit de stickers negro, gris y naranja para moto de cross"><img src="img/fotos/moto-kit.webp" alt="Kit de plásticos de moto con stickers" loading="lazy"><img src="img/fotos/moto-holo.webp" alt="Kit de stickers holográficos para moto" loading="lazy"></div><span class="xn">Desliza · 3 fotos</span></div><p class="mnote">Ejemplos de kits. Cada diseño se hace a la medida de tu moto.</p></div>
 <div class="mpanel">
 <h3><i>1</i>Foto de tu moto</h3><p class="mnote" style="margin:0 0 8px">De preferencia de lado, donde se vean bien los plásticos.</p>
 <label class="xdrop" for="mphoto" id="mphotol"><span class="mic"></span><span>Sube la foto de tu moto</span></label><input id="mphoto" type="file" accept="image/*" hidden>
@@ -1308,6 +1309,14 @@ function renderMoto(){const v=$("#mview");if(!v)return;$$("#s-moto .mic").forEac
   PHOTOS._next={o:MOTO_PHOTO.data,s:null,n:MOTO_PHOTO.name};
   addLine({name:"Kit de stickers para moto",x:"moto",q:1,e:await thumbOf(MOTO_PHOTO.data),img:MOTO_PHOTO.name,note,ex:"Material: "+MOTO_MAT});
   MOTO_PHOTO=null;$("#mnotes").value="";inp.value="";lab.innerHTML=`${svg(ICON.photo,28)}<span>Sube la foto de tu moto</span>`;toast("Agregado a tu pedido");go("car")}}
+// las galerías de fotos pasan solas; se detienen un rato si la persona las desliza
+(function(){const busy=new WeakMap();
+ document.addEventListener("pointerdown",e=>{const g=e.target.closest&&e.target.closest(".xgal");if(g)busy.set(g,Date.now())},{passive:true});
+ document.addEventListener("touchstart",e=>{const g=e.target.closest&&e.target.closest(".xgal");if(g)busy.set(g,Date.now())},{passive:true});
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ setInterval(()=>{if(document.hidden)return;$$(".sec.on .xgal").forEach(g=>{const n=g.children.length;if(n<2||Date.now()-(busy.get(g)||0)<7000)return;
+  const r=g.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight||!r.width)return;
+  const i=Math.round(g.scrollLeft/g.clientWidth),nx=(i+1)%n;g.scrollTo({left:nx*g.clientWidth,behavior:nx?"smooth":"auto"})})},3500)})();
 function renderExtras(){const logo=$(".head img").src;heroShow();
  $("#xgrid").innerHTML=EXTRAS.map(p=>{const art=p.imgs.length?`<div class="xgw"><div class="xgal">${p.imgs.map((k,i)=>`<img src="${XPH[k]}" alt="${esc(p.name)}, ejemplo ${i+1}" loading="lazy">`).join("")}</div>${p.imgs.length>1?`<span class="xn">Desliza · ${p.imgs.length} fotos</span>`:""}</div>`
   :p.id=="moto"?`<div class="xart moto" role="img" aria-label="Moto con kit de stickers">${motoSVG({...MOTO_DEF,parts:null},true)}</div>`:p.id=="flyer"?`<div class="xart fly" role="img" aria-label="Ejemplo de flyers"><div class="fl f1"></div><div class="fl f2"></div><div class="fl f3"><span class="st"><img src="${logo}" alt=""></span><small>Gran</small><b>Apertura</b><i></i><i></i><i></i><em>A5 · A4 · A3</em></div></div>`
