@@ -277,6 +277,11 @@ td:first-child{font-weight:700}
 .sw:after{content:"";position:absolute;right:0;bottom:0;width:36%;height:36%;background:linear-gradient(315deg,#e9e7ee 0 48%,#fff 52%,#d6d1de 100%);border-top-left-radius:70% 70%;box-shadow:-2px -2px 5px rgba(26,20,35,.18)}
 .sw img{position:absolute;inset:8%;width:84%;height:84%;object-fit:contain}
 .sw.mate{background:#f3f2f5}
+.sw.holo{background:linear-gradient(125deg,#ffd1f0 0%,#c8b6ff 18%,#a6e3ff 34%,#b8ffd9 50%,#fff3a6 66%,#ffc4d6 82%,#d1c4ff 100%)}
+.sw.holo:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.85) 45%,transparent 60%);animation:holo 3.2s ease-in-out infinite}
+.sw.holo:after{z-index:2}
+@keyframes holo{0%,100%{transform:translateX(-60%)}50%{transform:translateX(60%)}}
+@media(prefers-reduced-motion:reduce){.sw.holo:before{animation:none}}
 .sw.gloss{background:linear-gradient(130deg,#fff 0%,#eeedf2 30%,#fff 42%,#fff 48%,#e4e1ea 62%,#fafafa 100%)}
 .sw.glit{background-color:rgba(255,255,255,.55);background-image:linear-gradient(45deg,#cfcad8 25%,transparent 25%,transparent 75%,#cfcad8 75%),linear-gradient(45deg,#cfcad8 25%,transparent 25%,transparent 75%,#cfcad8 75%);background-size:12px 12px;background-position:0 0,6px 6px;border:2px solid rgba(255,255,255,.95)}
 .sw.glit:before{content:"";position:absolute;inset:0;z-index:1;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.2' numOctaves='1' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .52 0 0 0 0 .6 0 0 0 3 -1.45'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 2.2 -1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),radial-gradient(#fff 0 .8px,transparent 1.4px) 2px 3px/11px 13px,radial-gradient(#fff 0 .7px,transparent 1.3px) 7px 1px/17px 9px,linear-gradient(135deg,rgba(255,255,255,.28),rgba(255,255,255,.05) 50%,rgba(255,255,255,.3))}
@@ -748,11 +753,12 @@ const MATS=[
  ["Vinilo brillante",[[5,[[1,.25],[5,.20]]],[7,[[1,.25]]],[10,[[1,.50]]],[14,[[1,1.00]]]]],
  ["Vinilo mate",[[5,[[1,.25],[5,.20]]],[7,[[1,.25]]],[10,[[1,.50]]],[14,[[1,1.00]]]]],
  ["Escarchado transparente",[[5,[[1,.40],[5,.32]]],[7,[[1,.40]]],[10,[[1,.82]]],[14,[[1,1.60]]]]],
+ ["Vinilo holográfico",[[5,[[1,.45],[5,.36]]],[7,[[1,.45]]],[10,[[1,.90]]],[14,[[1,1.80]]]]],
  ["Transparente",[[5,[[1,.25],[5,.20]]],[7,[[1,.25]]],[10,[[1,.50]]],[14,[[1,1.00]]]]],
  ["Epoxi 3D",[[5,[[1,.50],[5,.30]]],[7,[[1,.55]]],[10,[[1,1.10]]],[14,[[1,2.20]]]]]];
 // Planchas: [medida cuadrada en cm, stickers por plancha] y precio de la plancha por material
 const PACKS=[[3,490],[4,285],[5,185],[6,130],[7,95],[8,75],[9,60],[10,45]];
-const PACK_PRICE={"Vinilo brillante":12,"Vinilo mate":12,"Escarchado transparente":12,"Transparente":12,"Epoxi 3D":20};
+const PACK_PRICE={"Vinilo brillante":12,"Vinilo mate":12,"Escarchado transparente":12,"Transparente":12,"Vinilo holográfico":15,"Epoxi 3D":20};
 // Columnas de la tabla de precios: [cm, desde unidades, texto]
 const COLS=[[5,1,"5 cm · 1–4 uds"],[5,5,"5 cm · 5+ uds"],[7,1,"7 cm"],[10,1,"10 cm"],[14,1,"14 cm"]].map(([s,min,label])=>({s,min,label}));
 const CATS=["Todos","Aesthetic","Caricaturas","Anime y Pokémon","Superhéroes","Videojuegos","Rock y Metal","Rap y Urbano","Música","Graffiti","Fútbol","Básquet","Deporte","Surf y playa","Marcas y Street","Humor","Frases","Autos y motor","Otros"];
@@ -1048,7 +1054,7 @@ function renderPrices(){$("#ptab").innerHTML=`<tr><th>Material</th>${COLS.map(c=
   $("#cp").innerHTML=`<div class="bigp">${money(u*qy)}</div><p class="hint">Medida ${w} × ${h} cm · ${money(u)} c/u · ${qy} uds</p>`+tip(m,s,qy)+packTip(m,w,h,qy)};
  ["cm","cs","ch","cq"].forEach(i=>{$("#"+i).oninput=calc;$("#"+i).onchange=calc});calc();
  // referencias visuales de cada material: [clase de la muestra, descripción]
- const logo=`<img src="${$(".head img").src}" alt="">`,MAT_INFO={"Vinilo brillante":["gloss","Colores vivos con brillo"],"Vinilo mate":["mate","Sin brillo, acabado suave"],"Escarchado transparente":["glit","Transparente con textura arenosa que brilla"],"Transparente":["clear","Sin fondo, se ve la superficie"],"Epoxi 3D":["epx","Relieve con gota de resina"]};
+ const logo=`<img src="${$(".head img").src}" alt="">`,MAT_INFO={"Vinilo brillante":["gloss","Colores vivos con brillo"],"Vinilo mate":["mate","Sin brillo, acabado suave"],"Escarchado transparente":["glit","Transparente con textura arenosa que brilla"],"Vinilo holográfico":["holo","Brillo arcoíris que cambia con la luz"],"Transparente":["clear","Sin fondo, se ve la superficie"],"Epoxi 3D":["epx","Relieve con gota de resina"]};
  const mark=()=>$$("[data-mat]").forEach(b=>{const on=b.dataset.mat==$("#cm").value;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
  $("#mats").innerHTML=MATS.map(([m])=>{const [k,d]=MAT_INFO[m]||["mate",""];return `<button class="mat" data-mat="${m}"><div class="msw"><div class="sw ${k}">${k=="clear"||k=="epx"?logo:""}</div></div><b>${m}</b><span>${d}</span></button>`}).join("");
  $$("[data-mat]").forEach(b=>b.onclick=()=>{$("#cm").value=b.dataset.mat;calc();mark();$("#calc").scrollIntoView({behavior:"smooth",block:"start"})});
@@ -1261,9 +1267,9 @@ const BOT={entrega:"2 días",ciudad:"Portoviejo",pagos:"transferencia, efectivo 
  // cada tema: palabras que lo reconocen, respuesta y botones [texto, acción]
  const T=[
   {k:"hola buenas buenos saludos hey holi",a:"¡Hola! 👋 Soy Xto. Pregúntame por precios, materiales, cómo pedir, entregas o pagos.",b:[]},
-  {k:"precio precios cuesta cuestan cuanto~ vale valen costo valor barato tarifa",a:`Los stickers de vinilo brillante, mate o transparente cuestan:\n• 5 cm: ${money(p5[0][1])} c/u (desde ${p5[1][0]}: ${money(p5[1][1])} c/u)\n• 7 cm: ${money(p7)}\n• 10 cm: ${money(p10)}\n• 14 cm: ${money(p14)}\nEl escarchado y el epoxi 3D cuestan un poco más. Por cantidad conviene la plancha.`,b:[["Ver tabla de precios","vin"],["Planchas por mayor","pk"]]},
-  {k:"plancha planchas mayor mayoreo cantidad muchos cientos negocio revender",a:`Por cantidad te conviene la plancha: $${PACK_PRICE["Vinilo brillante"]} en vinilo (epoxi 3D $${PACK_PRICE["Epoxi 3D"]}). Por ejemplo, ${PACKS.find(p=>p[0]==5)[1]} stickers de 5 × 5 cm o ${PACKS.find(p=>p[0]==7)[1]} de 7 × 7 cm en una sola plancha.`,b:[["Ver planchas","pk"]]},
-  {k:"material materiales vinil vinilo mate brillante escarchado glitter brillo transparente epoxi 3d relieve calidad papel",a:"Trabajamos en:\n• Vinilo brillante\n• Vinilo mate\n• Escarchado transparente (con brillo arenoso)\n• Transparente\n• Epoxi 3D (con relieve)\nEn Precios puedes ver una muestra de cada uno.",b:[["Ver materiales","vin"]]},
+  {k:"precio precios cuesta cuestan cuanto~ vale valen costo valor barato tarifa",a:`Los stickers de vinilo brillante, mate o transparente cuestan:\n• 5 cm: ${money(p5[0][1])} c/u (desde ${p5[1][0]}: ${money(p5[1][1])} c/u)\n• 7 cm: ${money(p7)}\n• 10 cm: ${money(p10)}\n• 14 cm: ${money(p14)}\nEl escarchado, el holográfico y el epoxi 3D cuestan un poco más. Por cantidad conviene la plancha.`,b:[["Ver tabla de precios","vin"],["Planchas por mayor","pk"]]},
+  {k:"plancha planchas mayor mayoreo cantidad muchos cientos negocio revender",a:`Por cantidad te conviene la plancha: $${PACK_PRICE["Vinilo brillante"]} en vinilo (holográfico $${PACK_PRICE["Vinilo holográfico"]}, epoxi 3D $${PACK_PRICE["Epoxi 3D"]}). Por ejemplo, ${PACKS.find(p=>p[0]==5)[1]} stickers de 5 × 5 cm o ${PACKS.find(p=>p[0]==7)[1]} de 7 × 7 cm en una sola plancha.`,b:[["Ver planchas","pk"]]},
+  {k:"material materiales vinil vinilo mate brillante escarchado glitter brillo holografico holograma tornasol arcoiris transparente epoxi 3d relieve calidad papel",a:"Trabajamos en:\n• Vinilo brillante\n• Vinilo mate\n• Escarchado transparente (con brillo arenoso)\n• Vinilo holográfico (brillo arcoíris)\n• Transparente\n• Epoxi 3D (con relieve)\nEn Precios puedes ver una muestra de cada uno.",b:[["Ver materiales","vin"]]},
   {k:"pedir pido pide piden pedido pedidos comprar compro compra ordenar orden encargar encargo hago~ quiero~",a:"Así de fácil:\n1. Elige stickers en el Catálogo o arma tu hoja A4 en Mi hoja.\n2. Abre Pedido, escribe tus datos y toca Enviar pedido.\n3. Te llega un correo y te escribimos para confirmar el precio final y la entrega.",b:[["Ir al catálogo","cat"],["Armar mi hoja","hoja"]]},
   {k:"hoja a4 varios diseños armar acomodar",a:"En Mi hoja armas una hoja A4 con los stickers que quieras: tócalos para agregarlos, arrástralos, gíralos y cambia su tamaño. Luego tocas Pedir esta hoja.",b:[["Armar mi hoja","hoja"]]},
   {k:"foto fotos diseño propio personalizado personalizada logo imagen fondo mascota cara",a:"¡Claro! En Mi foto subes tu imagen o logo, le quitamos el fondo y la convertimos en sticker del tamaño que quieras.",b:[["Subir mi foto","sub"]]},
