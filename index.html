@@ -306,10 +306,12 @@ td:first-child{font-weight:700}
 .xhero p{margin:8px 0 0;color:#eee8f5;max-width:48ch}
 .xgrid{display:grid;gap:16px}
 @media(min-width:760px){.xgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.xart.moto{background:linear-gradient(180deg,#f6f5fa,#e4e1ee);display:grid;place-items:center;padding:8px}.xart.moto svg{width:100%;height:auto}
 .xcard{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
 .xgw{position:relative}
 .xgal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;aspect-ratio:4/3;background:var(--tile);scrollbar-width:none}
 .xgal::-webkit-scrollbar{display:none}
+.xgal.mg{aspect-ratio:1;border-radius:12px}
 .xgal img{flex:0 0 100%;width:100%;height:100%;max-width:none;object-fit:cover;scroll-snap-align:start}
 .xn{position:absolute;right:10px;bottom:10px;background:rgba(14,8,22,.7);color:#fff;font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px;pointer-events:none}
 .xbody{padding:16px;flex:1;display:flex;flex-direction:column;gap:6px}
@@ -597,6 +599,34 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 .cform{display:flex;gap:8px;padding:8px 12px 12px}
 .cform input{flex:1;min-width:0;font:16px system-ui,sans-serif;padding:11px 14px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
 .cform button{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:var(--chip-bg);color:var(--chip-fg);cursor:pointer;display:grid;place-items:center}
+
+/* ===== Kit para tu moto ===== */
+.mwrap{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:900px){.mwrap{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:start}.mstage2{position:sticky;top:calc(var(--head) + 16px)}}
+.mstage2{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow)}
+.mgal{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mgal img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;display:block}.mgal img.wide{grid-column:1/-1;aspect-ratio:1}
+.mview{border-radius:12px;background:radial-gradient(ellipse at 50% 92%,rgba(26,20,35,.16),transparent 55%),linear-gradient(180deg,#f6f5fa,#e9e7f1);overflow:hidden}
+.mview svg{display:block;width:100%;height:auto}
+.mview [data-part]{cursor:pointer;transition:opacity .15s}
+.mview [data-part].off{opacity:.92}
+.mview [data-part]:hover{filter:brightness(1.08)}
+.mparts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.mparts button{border:1.5px solid var(--line);background:var(--card);color:var(--mu);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:700}
+.mparts button.on{border-color:var(--fill);background:var(--fill);color:#fff}
+.mpanel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.mpanel h3{margin:18px 0 8px;font-size:15px;display:flex;align-items:center;gap:8px}.mpanel h3:first-child{margin-top:0}
+.mpanel h3 i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--fill);color:#fff;display:grid;place-items:center;font-size:12px}
+.mtypes,.mstyles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mtypes button,.mstyles button{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:8px 6px;font-size:12.5px;font-weight:700;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:5px}
+.mtypes button.on,.mstyles button.on{border-color:var(--fill);box-shadow:0 0 0 2px var(--fill) inset}
+.mtypes svg{width:100%;height:42px}
+.mstyles span{width:100%;height:30px;border-radius:7px;border:1px solid rgba(0,0,0,.12)}
+.mcols{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mcols label{display:flex;flex-direction:column;align-items:center;font-size:11.5px;color:var(--mu);gap:3px;margin:0}
+.mcols input[type=color]{width:46px;height:38px;padding:2px;border-radius:10px;border:1.5px solid var(--line);background:var(--card)}
+.mpal{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mpal button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);padding:0}
+.mnote{font-size:13px;color:var(--mu);margin:6px 0 0}
 </style>
 
 </head>
@@ -687,6 +717,16 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 <button class="btn big" id="uadd" style="margin-top:12px">Agregar al pedido</button></div>
 </section>
 
+<section class="sec" id="s-moto">
+<h2 class="title">Kit para tu moto</h2><p class="lead">Emplasticamos los plásticos de tu moto con el diseño que quieras. Sube una foto de tu moto, cuéntanos qué deseas y te enviamos la cotización.</p>
+<div class="mwrap"><div class="mstage2"><div class="xgw"><div class="xgal mg" id="mview"><img src="img/fotos/moto-negro.webp" alt="Kit de stickers negro, gris y naranja para moto de cross"><img src="img/fotos/moto-kit.webp" alt="Kit de plásticos de moto con stickers" loading="lazy"><img src="img/fotos/moto-placa.webp" alt="Placa frontal de número para moto de cross" loading="lazy"><img src="img/fotos/moto-holo.webp" alt="Kit de stickers holográficos para moto" loading="lazy"></div><span class="xn">Desliza · 4 fotos</span></div><p class="mnote">Ejemplos de kits. Cada diseño se hace a la medida de tu moto.</p></div>
+<div class="mpanel">
+<h3><i>1</i>Foto de tu moto</h3><p class="mnote" style="margin:0 0 8px">De preferencia de lado, donde se vean bien los plásticos.</p>
+<label class="xdrop" for="mphoto" id="mphotol"><span class="mic"></span><span>Sube la foto de tu moto</span></label><input id="mphoto" type="file" accept="image/*" hidden>
+<h3><i>2</i>Material</h3><div class="mstyles" id="mmats"></div>
+<h3><i>3</i>¿Qué deseas?</h3><label for="mnotes">Cuéntanos las partes, colores, estilo, número o nombre que quieres</label><textarea id="mnotes" rows="4" placeholder="Ej: tanque y laterales en azul y naranja, estilo racing, con el número 23"></textarea>
+<p class="dkprice" id="mprice">Se cotiza según tu moto y lo que elijas. Te contactamos para confirmar el diseño, las medidas y el precio.</p>
+<button class="btn big" id="morder">Pedir cotización</button></div></div></section>
 <section class="sec" id="s-mas">
 <div class="xhero" id="xhero"><div class="xtxt"><h2>Más que stickers</h2><p>Con el mismo arte de nuestros stickers creamos patinetas decorativas, cuadros con resina, pósters, discos de vinil, invitaciones, letreros y publicidad impresa.</p></div></div>
 <p class="lead" style="margin-top:0">Elige un producto, toca <b>Personalizar</b>, cuéntanos tu idea y agrégalo a tu pedido. Te contactamos para confirmar el precio.</p>
@@ -768,6 +808,7 @@ const ITEMS=[["img/stickers/001.webp","Cerveza mareada","Humor",1.246],["img/sti
 // fotos (claves de XPH), opciones [[nombre, [valores]]] y ejemplo de idea. "price": precio fijo por unidad; sin price, se cotiza.
 const EXTRAS=[
  {id:"skate",name:"Patineta decorativa",price:18,priceFull:20,tag:"Arte para tu pared",desc:"Tablas de skate de tamaño real con tu diseño, logo o foto. Son para decorar tu cuarto o negocio, o para regalar (no para patinar).",uses:["Decoración","Regalos","Negocios"],imgs:["wall","tony","utm","skate"],opts:[["Diseño",["Toda la tabla · $20","Solo una parte de la tabla · $18"]],["Medida",["Estándar · 80 × 20 cm","Mini · 60 × 16 cm","Otra medida"]],["Acabado",["Brillante","Mate"]]],ph:"Ej: el logo de mi tienda con fondo verde, o una foto mía"},
+ {id:"moto",name:"Kit de stickers para moto",tag:"Emplasticado de motos",desc:"Dale un nuevo look a tu moto: stickers para el tanque, laterales, guardabarros, colín y más. Sube una foto de tu moto, cuéntanos qué deseas y lo hacemos a la medida.",uses:["Calle","Pistera","Deportiva","Cross"],imgs:["motokit","motonegro","motoplaca","motoholo"],opts:[["Material",["Vinilo brillante","Vinilo mate","Vinilo holográfico"]]],upload:true,ph:"Ej: tanque y laterales en azul y naranja, con el número 23"},
  {id:"resin",name:"Cuadro con resina epóxica",tag:"Brillo y relieve que dura",desc:"Cuadros con tu imagen favorita cubiertos con resina epóxica: acabado tipo vidrio, colores intensos y protección para siempre. Perfectos para tu cuarto, sala o negocio.",uses:["Decoración","Regalos","Fans"],imgs:["resin"],opts:[["Medida",["20 × 30 cm","30 × 45 cm","40 × 60 cm","Otra medida"]],["Diseño",["Mi propia imagen","Un sticker del catálogo","Diseño a pedido"]]],ph:"Ej: Spider-Man estilo cómic, para regalar a mi hijo"},
  {id:"poster",name:"Pósters decorativos",upload:true,tag:"Arma tu pared",desc:"Pósters de tus artistas, bandas, películas o diseños favoritos para decorar tu cuarto. Pídelos sueltos o en pack para armar un collage en la pared.",uses:["Cuarto","Collage","Regalos","Música"],imgs:["posters"],opts:[["Tamaño",["A4 · 21 × 29,7 cm · $2.50","A3 · 29,7 × 42 cm · $5","Otra medida (a cotizar)"]],["Papel",["Couché brillante","Couché mate","Fotográfico · +$1"]]],from:2.5,priceNote:"Pack: 10 A4 por $20 · 5 A3 por $22",
   calc:(v,q)=>{if(!/^A[34]/.test(v[0]))return 0;const a4=v[0].startsWith("A4"),n=a4?10:5;return Math.floor(q/n)*(a4?20:22)+q%n*(a4?2.5:5)+(/Fotográfico/.test(v[1])?q:0)},ph:"Ej: pack de 10 pósters A4 de Drake, Arctic Monkeys y Tyler, en blanco y negro"},
@@ -775,7 +816,7 @@ const EXTRAS=[
  {id:"inv",name:"Invitaciones para fiestas",tag:"Cumpleaños, baby showers, bodas",desc:"Invitaciones con estilo sticker, con los nombres, la fecha y el lugar de tu evento. También como sticker de recuerdo para los invitados.",uses:["Cumpleaños","Baby shower","Bodas","Graduaciones"],imgs:[],opts:[["Evento",["Cumpleaños","Baby shower","Boda","Graduación","Otro"]],["Formato",["Tarjeta impresa","Sticker","Tarjeta + sticker de recuerdo","Digital para WhatsApp"]]],ph:"Ej: cumple de Sofi, 5 años, sábado 12 de diciembre, tema Stitch"},
  {id:"sign",name:"Señalética divertida",tag:"Para restaurantes, bares y negocios",desc:"Letreros con humor y estilo: baños, Wi-Fi, horarios, avisos y más. En vinil resistente, listos para pegar.",uses:["Restaurantes","Bares","Oficinas"],imgs:["signs","sign"],opts:[["Tipo",["Baño","Wi-Fi","Abierto / Cerrado","Avisos y prohibiciones","Otro"]],["Medida",["15 × 30 cm","20 × 45 cm","Otra medida"]]],ph:"Ej: letrero de baño para mi bar, en negro y blanco"},
  {id:"flyer",name:"Flyers y publicidad impresa",tag:"Para promocionar tu negocio o evento",desc:"Flyers, volantes y afiches con diseño llamativo, impresos en A5, A4 o A3. Ideales para promociones, aperturas, eventos y menús.",uses:["Promociones","Eventos","Menús","Aperturas"],imgs:[],q:50,opts:[["Tipo",["Flyers / volantes","Afiches / pósters","Menús","Otro"]],["Tamaño",["A5 · 14,8 × 21 cm","A4 · 21 × 29,7 cm","A3 · 29,7 × 42 cm","Otra medida"]],["Papel",["Couché brillante","Couché mate","Adhesivo"]]],ph:"Ej: flyer para la apertura de mi cafetería, con logo, dirección y promo 2×1"}];
-const XPH={paquetes:"img/fotos/paquetes.webp",tablas:"img/fotos/tablas.webp",posters:"img/fotos/posters.webp",albums:"img/fotos/albums.webp",resin:"img/fotos/resin.webp",signs:"img/fotos/signs.webp",wall:"img/fotos/wall.webp",skate:"img/fotos/skate.webp",tony:"img/fotos/tony.webp",sign:"img/fotos/sign.webp",utm:"img/fotos/utm.webp",vinyl:"img/fotos/vinyl.webp"};   // fotos de proyectos reales
+const XPH={motoplaca:"img/fotos/moto-placa.webp",motonegro:"img/fotos/moto-negro.webp",motokit:"img/fotos/moto-kit.webp",motoholo:"img/fotos/moto-holo.webp",paquetes:"img/fotos/paquetes.webp",tablas:"img/fotos/tablas.webp",posters:"img/fotos/posters.webp",albums:"img/fotos/albums.webp",resin:"img/fotos/resin.webp",signs:"img/fotos/signs.webp",wall:"img/fotos/wall.webp",skate:"img/fotos/skate.webp",tony:"img/fotos/tony.webp",sign:"img/fotos/sign.webp",utm:"img/fotos/utm.webp",vinyl:"img/fotos/vinyl.webp"};   // fotos de proyectos reales
 // ============================================
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 let sheets=[[]],si=0,cat="Todos",cart=[],sheet=[],upload=null,upDims=null,uid=1,q="",rawq="";
@@ -815,7 +856,7 @@ $("#theme").onclick=()=>setTheme(root.getAttribute("data-theme")=="dark"?"light"
 // navegación
 const TABS=[["cat","Catálogo",'<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>'],["hoja","Mi hoja",ICON.sheet],["vin","Precios",'<path d="M3 12l9-9h8v8l-9 9z"/><circle cx="16" cy="8" r="1.2"/>'],["sub","Mi foto",ICON.photo],["mas","Proyectos",'<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>'],["car","Pedido",ICON.bag]];
 let cur="cat";
-function go(id){cur=id;$$(".sec").forEach(s=>s.classList.toggle("on",s.id=="s-"+id));renderNav();scrollTo(0,0);if(id=="hoja")renderSheet();if(id=="car")renderCart()}
+function go(id){cur=id;$$(".sec").forEach(s=>s.classList.toggle("on",s.id=="s-"+id));renderNav();scrollTo(0,0);if(id=="hoja")renderSheet();if(id=="car")renderCart();if(id=="moto")renderMoto()}
 const cartTotal=()=>cart.reduce((a,l)=>a+lineTotal(l),0);
 function renderNav(){$("#nav").innerHTML=TABS.map(([id,n,ic])=>`<button class="${id==cur?"on":""}" data-g="${id}" ${id==cur?'aria-current="page"':""}>${svg(ic)}<span>${n}</span>${id=="car"&&cart.length?`<span class="cnt">${cart.length}</span>`:""}</button>`).join("");
  $$("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.g));
@@ -823,7 +864,7 @@ function renderNav(){$("#nav").innerHTML=TABS.map(([id,n,ic])=>`<button class="$
 $("#topcart").onclick=()=>go("car");
 $$("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
 // pasos del inicio: Elige → catálogo, Personaliza → Mi foto, Envía → pedido
-const step=id=>{if(id=="cat")$(".search").scrollIntoView({behavior:"smooth",block:"start"});else if(id=="hoja")startSheet();else if(id=="sub"||id=="mas"||id=="car")go(id);else if(id=="pk"){go("vin");$("#planchas").scrollIntoView({block:"start"})}else open(`https://wa.me/${WHATSAPP=="593000000000"?"":WHATSAPP}?text=${encodeURIComponent("Hola xto.sticker, quiero cotizar.")}`,"_blank","noopener")};
+const step=id=>{if(id=="cat")$(".search").scrollIntoView({behavior:"smooth",block:"start"});else if(id=="hoja")startSheet();else if(id=="sub"||id=="mas"||id=="car"||id=="moto")go(id);else if(id=="pk"){go("vin");$("#planchas").scrollIntoView({block:"start"})}else open(`https://wa.me/${WHATSAPP=="593000000000"?"":WHATSAPP}?text=${encodeURIComponent("Hola xto.sticker, quiero cotizar.")}`,"_blank","noopener")};
 $$("[data-step]").forEach(li=>{li.onclick=()=>step(li.dataset.step);li.onkeydown=e=>{if(e.key=="Enter"||e.key==" "){e.preventDefault();step(li.dataset.step)}}});
 // catálogo
 // favoritos: el corazón guarda stickers en este navegador
@@ -1204,18 +1245,91 @@ function heroShow(){const h=$("#xhero");if(h._ok)return;h._ok=1;
  const show=n=>{i=(n+HERO.length)%HERO.length;im.forEach((e,k)=>e.classList.toggle("on",k==i));db.forEach((e,k)=>e.classList.toggle("on",k==i))};
  const next=()=>{clearTimeout(t);t=setTimeout(()=>{if($("#s-mas").classList.contains("on")&&!document.hidden)show(i+1);next()},4000)};
  db.forEach((b,k)=>b.onclick=()=>{show(k);next()});show(0);next()}
+// ===== Kit para tu moto: diseñador sobre una moto de ejemplo (calle, deportiva o cross) =====
+const MOTO_PARTS={calle:[["tanque","Tanque"],["lateral","Laterales"],["colin","Colín"],["farola","Farola"],["guardad","Guardabarros delantero"],["guardat","Guardabarros trasero"],["barras","Barras"]],
+ deportiva:[["tanque","Tanque"],["carenado","Carenado"],["quilla","Quilla"],["colin","Colín"],["guardad","Guardabarros delantero"],["guardat","Guardabarros trasero"]],
+ cross:[["tanque","Tanque"],["aletas","Aletas del radiador"],["lateral","Laterales"],["placa","Placa frontal"],["guardad","Guardabarros delantero"],["guardat","Guardabarros trasero"],["barras","Cubre barras"]]};
+const MOTO_TYPES=[["calle","Calle / pistera"],["deportiva","Deportiva"],["cross","Cross / enduro"]];
+const MOTO_STYLES=[["racing","Racing"],["rayos","Rayos"],["degradado","Degradado"],["camuflaje","Camuflaje"],["carbono","Carbono"],["llamas","Llamas"]];
+const MOTO_PAL=[["#1f5bd6","#ff6a13","#111111"],["#d7182a","#111111","#ffffff"],["#111111","#7ae000","#ffffff"],["#ffffff","#7c4dff","#ff3b8a"],["#f5c400","#111111","#d7182a"],["#0b0b0f","#2bd1ff","#ffffff"],["#ff3b8a","#ffd23f","#3a1078"]];
+const MOTO_BRANDS=["Honda","Yamaha","Suzuki","AKT","Bajaj","KTM","Kawasaki","Shineray","Daytona","Ranger","Otra"];
+const MOTO_DEF={type:"cross",parts:null,style:"rayos",c1:"#1f5bd6",c2:"#ff6a13",c3:"#111111",num:"23",name:"",fin:"Brillante",brand:"Honda",model:"",logo:null};
+let MOTO={...MOTO_DEF,...store.get("xto_moto",{})};MOTO.logo=null;let MOTO_PHOTO=null;
+const motoParts=t=>MOTO_PARTS[t]||MOTO_PARTS.calle;
+// formas de cada parte por tipo de moto (vista lateral, la moto mira a la derecha)
+const MOTO_SHAPE={
+ calle:{tanque:"M262 148Q300 116 372 126L396 160Q352 182 300 190L266 184Z",lateral:"M204 186L294 184L306 246L232 252Z",colin:"M66 170L198 160L256 178L232 200L122 196Z",
+  farola:"M392 112L432 102L452 148L424 184L398 162Z",guardad:"M424 246Q470 214 522 238L514 250Q470 228 432 256Z",guardat:"M96 252Q140 206 200 238L190 250Q140 222 106 260Z",barras:"M426 150L441 147L476 268L461 273Z"},
+ deportiva:{tanque:"M262 146Q300 118 360 124L382 152Q340 172 300 180L266 178Z",carenado:"M366 120L438 92L470 140L456 214L400 236L360 196L388 154Z",quilla:"M276 240L392 236L372 284L300 288Z",
+  colin:"M60 156L196 158L262 176L236 198L120 190Z",guardad:"M424 246Q470 214 522 238L514 250Q470 228 432 256Z",guardat:"M96 252Q140 206 200 238L190 250Q140 222 106 260Z"},
+ cross:{tanque:"M300 122Q346 104 402 112L414 128L308 138Z",aletas:"M306 134L410 124L416 142L394 202L352 212L318 186Z",lateral:"M166 134L262 134L250 202L180 198Z",placa:"M428 92L462 84L476 150L444 160Z",
+  guardad:"M412 180L470 168L544 190L548 202L470 194L420 194Z",guardat:"M36 102L204 124L200 140L48 120Z",barras:"M448 196L462 192L486 258L472 263Z"}};
+const MOTO_BASE={
+ calle:`<g stroke="#1a1423" stroke-width="3" stroke-linejoin="round"><path d="M300 262L140 292" stroke="#3a3542" stroke-width="16"/><path d="M180 244L262 238L264 262L186 270Z" fill="#c9c6cf"/>
+  <path d="M276 194L388 188L404 252L282 258Z" fill="#4a4552"/><path d="M158 166Q220 148 266 158L262 176L164 182Z" fill="#26222b"/><path d="M424 140L470 280" stroke="#b9b5c0" stroke-width="10"/>
+  <path d="M410 116L448 92M396 112L418 80" stroke="#26222b" stroke-width="6" fill="none"/></g>`,
+ deportiva:`<g stroke="#1a1423" stroke-width="3" stroke-linejoin="round"><path d="M300 262L140 292" stroke="#3a3542" stroke-width="16"/><path d="M170 236L250 230L254 252L176 262Z" fill="#c9c6cf"/>
+  <path d="M272 190L380 186L392 246L280 250Z" fill="#4a4552"/><path d="M152 158Q216 140 262 150L258 168L158 174Z" fill="#26222b"/><path d="M430 150L470 280" stroke="#b9b5c0" stroke-width="10"/></g>`,
+ cross:`<g stroke="#1a1423" stroke-width="3" stroke-linejoin="round"><path d="M300 232L130 280" stroke="#3a3542" stroke-width="14"/><path d="M262 140L292 226" stroke="#c9a227" stroke-width="9"/>
+  <path d="M424 118L374 196L312 232M424 118L300 140" stroke="#3a3542" stroke-width="8" fill="none"/><path d="M302 176L384 170L396 244L312 250Z" fill="#4a4552"/>
+  <path d="M334 208Q282 152 206 152" stroke="#c9c6cf" stroke-width="10" fill="none"/><path d="M146 142L214 148L210 168L144 160Z" fill="#c9c6cf"/><path d="M182 120Q262 108 334 116L330 130L192 138Z" fill="#26222b"/>
+  <path d="M432 118L482 280" stroke="#b9b5c0" stroke-width="10"/><path d="M398 98L456 84" stroke="#26222b" stroke-width="7"/></g>`};
+const wheel=(x,y,r,knob)=>`<g><circle cx="${x}" cy="${y}" r="${r}" fill="#1b1820"/>${knob?`<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="#2c2833" stroke-width="7" stroke-dasharray="6 6"/>`:""}<circle cx="${x}" cy="${y}" r="${r*.62}" fill="#5c5866"/><circle cx="${x}" cy="${y}" r="${r*.5}" fill="#8d8996"/><circle cx="${x}" cy="${y}" r="${r*.12}" fill="#26222b"/></g>`;
+function motoPattern(m,id){const {c1,c2,c3}=m;
+ const P={racing:`<rect width="600" height="380" fill="${c1}"/><path d="M60 380L300 0H350L110 380Z M140 380L380 0H400L160 380Z" fill="${c2}"/><path d="M120 380L360 0H366L126 380Z" fill="${c3}"/>`,
+  rayos:`<rect width="600" height="380" fill="${c1}"/><path d="M0 230L120 170L90 215L240 140L205 195L380 110L330 175L560 70L600 90L370 205L410 160L240 245L275 195L110 270L140 230L0 290Z" fill="${c2}" stroke="${c3}" stroke-width="5"/>`,
+  degradado:`<rect width="600" height="380" fill="url(#${id}g)"/>`,
+  camuflaje:`<rect width="600" height="380" fill="${c1}"/><g fill="${c2}"><path d="M40 60q60-40 110 0t60 50q-40 40-110 20t-60-70z"/><path d="M300 30q80-20 120 30t-30 70q-70 10-100-30t10-70z"/><path d="M180 220q60-30 110 10t-20 60q-60 20-100-10t10-60z"/><path d="M430 200q70-20 110 30t-40 60q-60 0-80-40t10-50z"/></g><g fill="${c3}"><path d="M150 140q40-20 70 10t-20 40q-40 10-60-20t10-30z"/><path d="M380 140q40-10 60 20t-30 30q-40 0-40-30z"/><path d="M60 280q40-20 70 10t-30 40q-40 0-50-30z"/></g>`,
+  carbono:`<rect width="600" height="380" fill="url(#${id}c)"/><path d="M0 250L600 120V150L0 280Z" fill="${c1}"/><path d="M0 286L600 156V162L0 292Z" fill="${c2}"/>`,
+  llamas:`<rect width="600" height="380" fill="${c1}"/><path d="M600 120C520 120 470 150 420 140C460 160 400 175 350 165C390 185 320 200 270 190C310 210 240 220 200 214C230 232 180 240 150 236C200 260 300 255 380 240C460 228 540 230 600 250Z" fill="${c2}" stroke="${c3}" stroke-width="5"/>`};
+ return `<pattern id="${id}" patternUnits="userSpaceOnUse" width="600" height="380">${P[m.style]||P.racing}</pattern><linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset=".55" stop-color="${c2}"/><stop offset="1" stop-color="${c3}"/></linearGradient>
+  <pattern id="${id}c" patternUnits="userSpaceOnUse" width="10" height="10"><rect width="10" height="10" fill="#1d1d22"/><path d="M0 0h5v5H0zM5 5h5v5H5z" fill="#2c2c33"/></pattern>`}
+let motoUid=0;
+function motoSVG(m,mini){const id="mp"+(++motoUid),t=MOTO_SHAPE[m.type]?m.type:"cross",S=MOTO_SHAPE[t],sel=new Set(m.parts||motoParts(t).map(p=>p[0]));
+ const r=t=="cross"?68:62,wy=t=="cross"?280:290,wx=t=="cross"?[130,480]:[140,470];
+ const fin=m.fin=="Brillante"?`<linearGradient id="${id}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>`:m.fin=="Holográfico"?`<linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9de2" stop-opacity=".45"/><stop offset=".35" stop-color="#9de8ff" stop-opacity=".4"/><stop offset=".7" stop-color="#c8ff9d" stop-opacity=".4"/><stop offset="1" stop-color="#ffe29d" stop-opacity=".45"/></linearGradient>`:"";
+ const parts=Object.entries(S).map(([k,d])=>{const on=sel.has(k);return `<path d="${d}" data-part="${k}" class="${on?"":"off"}" fill="${on?`url(#${id})`:"#6f6a78"}" stroke="#1a1423" stroke-width="3" stroke-linejoin="round"/>${on&&fin?`<path d="${d}" fill="url(#${id}s)" pointer-events="none"/>`:""}`}).join("");
+ const numPart=t=="cross"?(sel.has("lateral")?"lateral":sel.has("placa")?"placa":null):sel.has("lateral")?"lateral":sel.has("colin")?"colin":null;
+ const NUMXY={lateral:t=="cross"?[214,184,40]:[255,232,36],placa:[452,136,26],colin:[170,192,22]};
+ const num=m.num&&numPart?`<text x="${NUMXY[numPart][0]}" y="${NUMXY[numPart][1]}" text-anchor="middle" font-family="Manrope,Arial Black,sans-serif" font-weight="900" font-size="${NUMXY[numPart][2]}" fill="${m.c3=="#111111"||m.c3=="#0b0b0f"?"#fff":m.c3}" stroke="#111" stroke-width="2" paint-order="stroke" pointer-events="none" font-style="italic">${esc(m.num)}</text>`:"";
+ const tk=sel.has("tanque")?(t=="cross"?[360,166]:[320,162]):null;
+ const name=m.name&&(sel.has("colin")||sel.has("guardat"))?`<text x="${t=="cross"?120:150}" y="${t=="cross"?122:186}" text-anchor="middle" font-family="Manrope,Arial,sans-serif" font-weight="800" font-size="14" fill="#fff" stroke="#111" stroke-width="2" paint-order="stroke" pointer-events="none" transform="rotate(${t=="cross"?7:-3} ${t=="cross"?120:150} ${t=="cross"?122:186})">${esc(m.name)}</text>`:"";
+ const logo=m.logo&&tk?`<image href="${m.logo}" x="${tk[0]-22}" y="${tk[1]-18}" width="44" height="36" preserveAspectRatio="xMidYMid meet" pointer-events="none"/>`:"";
+ return `<svg viewBox="20 60 560 300" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ${mini?'aria-hidden="true"':'role="img" aria-label="Vista previa de tu moto"'}><defs>${motoPattern(m,id)}${fin}</defs>
+  ${wheel(wx[0],wy,r,t=="cross")}${MOTO_BASE[t]}${wheel(wx[1],wy,r,t=="cross")}${parts}${num}${name}${logo}</svg>`}
+function motoSave(){const {logo,...o}=MOTO;store.set("xto_moto",o)}
+const MOTO_MATS=[["Vinilo brillante","gloss"],["Vinilo mate","mate"],["Vinilo holográfico","holo"]];
+let MOTO_MAT="Vinilo brillante";
+function renderMoto(){const v=$("#mview");if(!v)return;$$("#s-moto .mic").forEach(e=>{e.outerHTML=svg(ICON.photo,28)});
+ $("#mmats").innerHTML=MOTO_MATS.map(([m,k])=>`<button type="button" data-mm="${m}" class="${m==MOTO_MAT?"on":""}" aria-pressed="${m==MOTO_MAT}"><span class="sw ${k}" style="width:34px;height:34px;border-radius:50%"></span>${m.replace("Vinilo ","")}</button>`).join("");
+ $$("[data-mm]").forEach(b=>b.onclick=()=>{MOTO_MAT=b.dataset.mm;renderMoto()});
+ const inp=$("#mphoto"),lab=$("#mphotol");inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{MOTO_PHOTO={data:r.result,name:f.name};lab.innerHTML=`<img src="${r.result}" alt="" style="width:46px;height:46px;object-fit:cover;border-radius:8px"><span>${esc(f.name)} · <u>cambiar</u></span>`};r.readAsDataURL(f)};
+ $("#morder").onclick=async()=>{const note=$("#mnotes").value.trim();
+  if(!MOTO_PHOTO)return toast("Sube una foto de tu moto");if(!note)return toast("Cuéntanos qué deseas");
+  PHOTOS._next={o:MOTO_PHOTO.data,s:null,n:MOTO_PHOTO.name};
+  addLine({name:"Kit de stickers para moto",x:"moto",q:1,e:await thumbOf(MOTO_PHOTO.data),img:MOTO_PHOTO.name,note,ex:"Material: "+MOTO_MAT});
+  MOTO_PHOTO=null;$("#mnotes").value="";inp.value="";lab.innerHTML=`${svg(ICON.photo,28)}<span>Sube la foto de tu moto</span>`;toast("Agregado a tu pedido");go("car")}}
+// las galerías de fotos pasan solas; se detienen un rato si la persona las desliza
+(function(){const busy=new WeakMap();
+ document.addEventListener("pointerdown",e=>{const g=e.target.closest&&e.target.closest(".xgal");if(g)busy.set(g,Date.now())},{passive:true});
+ document.addEventListener("touchstart",e=>{const g=e.target.closest&&e.target.closest(".xgal");if(g)busy.set(g,Date.now())},{passive:true});
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ setInterval(()=>{if(document.hidden)return;$$(".sec.on .xgal").forEach(g=>{const n=g.children.length;if(n<2||Date.now()-(busy.get(g)||0)<7000)return;
+  const r=g.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight||!r.width)return;
+  const i=Math.round(g.scrollLeft/g.clientWidth),nx=(i+1)%n;g.scrollTo({left:nx*g.clientWidth,behavior:nx?"smooth":"auto"})})},3500)})();
 function renderExtras(){const logo=$(".head img").src;heroShow();
  $("#xgrid").innerHTML=EXTRAS.map(p=>{const art=p.imgs.length?`<div class="xgw"><div class="xgal">${p.imgs.map((k,i)=>`<img src="${XPH[k]}" alt="${esc(p.name)}, ejemplo ${i+1}" loading="lazy">`).join("")}</div>${p.imgs.length>1?`<span class="xn">Desliza · ${p.imgs.length} fotos</span>`:""}</div>`
-  :p.id=="flyer"?`<div class="xart fly" role="img" aria-label="Ejemplo de flyers"><div class="fl f1"></div><div class="fl f2"></div><div class="fl f3"><span class="st"><img src="${logo}" alt=""></span><small>Gran</small><b>Apertura</b><i></i><i></i><i></i><em>A5 · A4 · A3</em></div></div>`
+  :p.id=="moto"?`<div class="xart moto" role="img" aria-label="Moto con kit de stickers">${motoSVG({...MOTO_DEF,parts:null},true)}</div>`:p.id=="flyer"?`<div class="xart fly" role="img" aria-label="Ejemplo de flyers"><div class="fl f1"></div><div class="fl f2"></div><div class="fl f3"><span class="st"><img src="${logo}" alt=""></span><small>Gran</small><b>Apertura</b><i></i><i></i><i></i><em>A5 · A4 · A3</em></div></div>`
   :`<div class="xart" role="img" aria-label="Ejemplo de invitación"><div class="inv"><span class="st"><img src="${logo}" alt=""></span><small>¡Estás invitado!</small><b>Mi fiesta</b><em>Sábado · 8 PM</em></div></div>`;
   return `<article class="xcard" data-x="${p.id}">${art}<div class="xbody"><span class="xtag">${esc(p.tag)}</span><h3>${esc(p.name)}</h3>${p.from?`<p class="xprice"><small>Desde</small> ${money(p.from)} <small>· ${esc(p.priceNote||"")}</small></p>`:""}${p.price?`<p class="xprice">${money(p.price)}${p.priceFull?` – ${money(p.priceFull)}`:""} <small>${p.priceFull?"según el tamaño del diseño":"c/u"}</small></p>`:""}<p>${esc(p.desc)}</p><div class="xuse">${p.uses.map(u=>`<span>${esc(u)}</span>`).join("")}</div>
-  ${p.id=="skate"?`<button class="btn" data-xd style="margin-top:auto">Diseñar mi patineta</button>`:""}<button class="btn${p.id=="skate"?" alt":""}" data-xo aria-expanded="false"${p.id=="skate"?' style="margin-top:0"':""}>Personalizar</button>
+  ${p.id=="skate"?`<button class="btn" data-xd style="margin-top:auto">Diseñar mi patineta</button>`:""}${p.id=="moto"?`<button class="btn" data-xm style="margin-top:auto">Cotizar mi kit</button>`:""}<button class="btn${p.id=="skate"||p.id=="moto"?" alt":""}" data-xo aria-expanded="false"${p.id=="skate"||p.id=="moto"?' style="margin-top:0"':""}>Personalizar</button>
   <div class="xform" hidden><div class="row">${p.opts.map(([n,v],i)=>`<div><label for="xo-${p.id}-${i}">${n}</label><select id="xo-${p.id}-${i}" data-n="${esc(n)}">${opts(v)}</select></div>`).join("")}<div><label for="xq-${p.id}">Cantidad</label><input id="xq-${p.id}" type="number" min="1" value="${p.q||1}"></div></div>${p.calc?`<p class="dkprice" data-xc></p>`:""}
   ${p.upload?`<label class="xdrop" for="xf-${p.id}" data-xl>${svg(ICON.photo,28)}<span>Sube tu foto o imagen <small>(opcional)</small></span></label><input id="xf-${p.id}" type="file" accept="image/*" hidden data-xf>`:""}
   <label for="xi-${p.id}">${p.upload?"O describe lo que deseas":"Cuéntanos tu idea"}</label><textarea id="xi-${p.id}" rows="3" placeholder="${esc(p.ph)}"></textarea>
   <p class="hint pad">${p.upload?"Sube una foto, escribe lo que quieres, o las dos cosas. La foto se envía junto con el pedido.":"Si tienes fotos o referencias, mándalas por WhatsApp con tu número de pedido."}</p>
   <button class="btn big" data-xa style="margin-top:12px">Agregar al pedido</button></div></div></article>`}).join("");
   $$("[data-xd]").forEach(b=>b.onclick=()=>{surf="skate";go("hoja")});
+  $$("[data-xm]").forEach(b=>b.onclick=()=>go("moto"));
  $$("[data-xo]").forEach(b=>b.onclick=()=>{const f=b.nextElementSibling,open=f.hidden;f.hidden=!open;b.setAttribute("aria-expanded",open);b.textContent=open?"Cerrar":"Personalizar";b.classList.toggle("alt",open);if(open)f.querySelector("select").focus()});
  // foto del cliente en los proyectos que la aceptan (por ejemplo, pósters)
  $$("[data-xf]").forEach(inp=>inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const c=inp.closest("[data-x]");XUP[c.dataset.x]={data:r.result,name:f.name};
@@ -1253,9 +1367,9 @@ async function renderOrder(){let d;try{d=await readOrder(location.hash)}catch(e)
 function showOrder(){if(!/^#([pjz]=|XTO-)/.test(location.hash))return;go("ver");$("#ver").innerHTML='<div class="panel emptycart"><p>Cargando el pedido…</p></div>';renderOrder()}
 addEventListener("hashchange",showOrder);
 // opciones del inicio: [título, descripción, destino, miniatura]
-const OPTS=[["Stickers sueltos","Elige del catálogo, cualquier medida","cat","one"],["Hoja de stickers","Varios diseños en una hoja A4","hoja","sheet"],["Planchas","Muchos stickers de un mismo diseño","pk","pack"],["Con tu foto","Tu propio diseño hecho sticker","sub","photo"],["Patinetas y más","Skates, cuadros, pósters, vinilos, flyers y más","mas","skate"]];
+const OPTS=[["Stickers sueltos","Elige del catálogo, cualquier medida","cat","one"],["Hoja de stickers","Varios diseños en una hoja A4","hoja","sheet"],["Planchas","Muchos stickers de un mismo diseño","pk","pack"],["Con tu foto","Tu propio diseño hecho sticker","sub","photo"],["Kit para tu moto","Emplasticado de motos a tu medida","moto","moto"],["Patinetas y más","Skates, cuadros, pósters, vinilos, flyers y más","mas","skate"]];
 function renderOpts(){const logo=`<img src="${$(".head img").src}" alt="">`;
- const th={one:`<span class="oth one">${logo}</span>`,sheet:`<span class="oth"><span class="mini">${logo.repeat(4)}</span></span>`,pack:`<span class="oth"><span class="pk">${logo.repeat(9)}</span></span>`,skate:`<span class="oth cov"><img src="${XPH.tony}" alt=""></span>`,photo:`<span class="oth ph"><span class="pol">${logo}</span><span class="cam">${svg(ICON.photo,18)}</span></span>`};
+ const th={one:`<span class="oth one">${logo}</span>`,sheet:`<span class="oth"><span class="mini">${logo.repeat(4)}</span></span>`,pack:`<span class="oth"><span class="pk">${logo.repeat(9)}</span></span>`,skate:`<span class="oth cov"><img src="${XPH.tony}" alt=""></span>`,moto:`<span class="oth cov"><img src="${XPH.motokit}" alt=""></span>`,photo:`<span class="oth ph"><span class="pol">${logo}</span><span class="cam">${svg(ICON.photo,18)}</span></span>`};
  $("#opts").innerHTML=OPTS.map(([t,d,to,k])=>`<button class="opt" data-opt="${to}">${th[k]}<span><b>${t}</b><span class="d">${d}</span></span></button>`).join("");
  $$("[data-opt]").forEach(b=>b.onclick=()=>step(b.dataset.opt))}
 // chat con Xto: responde preguntas frecuentes con los datos de la tienda; lo que no sabe lo pasa a WhatsApp
@@ -1277,6 +1391,7 @@ const BOT={entrega:"2 días",ciudad:"Portoviejo",pagos:"transferencia, efectivo 
   {k:"envio envios envian enviar servientrega ciudad ciudades quito guayaquil manta cuenca provincia domicilio entrega entregan portoviejo llevan",a:`Entregamos dentro de ${BOT.ciudad}. A otras ciudades enviamos por Servientrega; te confirmamos el costo del envío al confirmar tu pedido.`,b:[["Hacer mi pedido","cat"]]},
   {k:"pago pagos pagar transferencia efectivo deuna tarjeta banco deposito",a:`Puedes pagar por ${BOT.pagos}. Te pasamos los datos al confirmar tu pedido.`,b:[]},
   {k:"horario hora horas abren abierto atienden atencion lunes sabado domingo",a:`Atendemos de ${BOT.horario}. Igual puedes dejar tu pedido en la página a cualquier hora y te respondemos en cuanto abramos.`,b:[]},
+  {k:"moto motos motocicleta emplasticar emplasticado plastico plasticos kit kits calcas tanque guardabarros enduro cross pistera",a:"¡Sí! Hacemos kits de stickers para motos: tanque, laterales, guardabarros, colín y más. Solo sube una foto de tu moto, elige el material (brillante, mate u holográfico) y cuéntanos qué deseas. Te enviamos la cotización.",b:[["Cotizar mi kit","moto"]]},
   {k:"patineta patinetas skate tabla tablas",a:`Las patinetas decorativas cuestan $${sk.price} con el diseño en una parte de la tabla y $${sk.priceFull} con la tabla completa. Son para decorar o regalar, no para patinar.`,b:[["Ver patinetas","x:skate"]]},
   {k:"poster posters afiche afiches a3 cuadro collage pared",a:"Pósters: A4 a $2.50 y A3 a $5 (papel fotográfico +$1). En pack: 10 A4 por $20 o 5 A3 por $22. Puedes subir tu foto o describir lo que quieres.",b:[["Pedir pósters","x:poster"]]},
   {k:"resina epoxica disco discos album albumes invitacion invitaciones señaletica letrero letreros flyer flyers volante volantes publicidad",a:"También hacemos cuadros con resina, discos y cuadros de álbum, invitaciones, señalética y flyers. En Proyectos ves cada uno y pides tu cotización.",b:[["Ver proyectos","mas"]]},
@@ -1296,7 +1411,7 @@ const BOT={entrega:"2 días",ciudad:"Portoviejo",pagos:"transferencia, efectivo 
   if(terms.length>1){const h=ITEMS.map((it,i)=>i).filter(i=>norm(ITEMS[i][1]).includes(phrase));if(h.length)return{term:phrase,hits:h}}
   let best=null;terms.forEach(v=>{const h=hit(v);if(h.length&&(!best||h.length<best.hits.length))best={term:v,hits:h}});return best};
  // lugares de la página a los que Xto puede llevar a la persona
- const PLACES=[["catalogo tienda todos","cat","el catálogo"],["precio precios tabla","vin","Precios"],["hoja a4","hoja","Mi hoja"],["foto fondo logo","sub","Mi foto"],["proyecto proyectos","mas","Proyectos"],
+ const PLACES=[["catalogo tienda todos","cat","el catálogo"],["precio precios tabla","vin","Precios"],["hoja a4","hoja","Mi hoja"],["foto fondo logo","sub","Mi foto"],["proyecto proyectos","mas","Proyectos"],["moto motos kit","moto","el kit para tu moto"],
   ["carrito bolsa pedido compra canasta","car","tu pedido"],["favorito favoritos corazon guardados","fav","tus favoritos"],["plancha planchas mayor","pk","las planchas"],
   ["patineta patinetas skate tabla","x:skate","las patinetas"],["resina cuadro cuadros","x:resin","los cuadros con resina"],["poster posters afiche afiches","x:poster","los pósters"],
   ["disco discos vinil album albumes","x:vinyl","los discos y álbumes"],["invitacion invitaciones","x:inv","las invitaciones"],["señaletica letrero letreros señal","x:sign","la señalética"],["flyer flyers volante volantes publicidad","x:flyer","los flyers"]].map(([k,to,n])=>({w:words(k),to,n}));
@@ -1317,6 +1432,7 @@ const BOT={entrega:"2 días",ciudad:"Portoviejo",pagos:"transferencia, efectivo 
   if(k.startsWith("x:")){go("mas");const c=$(`[data-x="${k.slice(2)}"]`);if(c){c.scrollIntoView({behavior:"smooth",block:"center"});c.animate([{boxShadow:"0 0 0 0 rgba(124,77,255,.0)"},{boxShadow:"0 0 0 6px rgba(124,77,255,.55)"},{boxShadow:"0 0 0 0 rgba(124,77,255,0)"}],{duration:1400})}return}
   if(k=="fav"){go("cat");cat="Favoritos";renderChips();renderGrid();$(".search").scrollIntoView({block:"start"});return}
   if(k=="car")return go("car");
+  if(k=="moto")return go("moto");
   ({cat:()=>{go("cat");$(".search").scrollIntoView({block:"start"})},hoja:()=>startSheet(),vin:()=>go("vin"),sub:()=>go("sub"),mas:()=>go("mas"),pk:()=>{go("vin");$("#planchas").scrollIntoView({block:"start"})}})[k]?.()};
  const add=(who,txt,btns,items)=>{const d=document.createElement("div");d.className="cm "+who;d.textContent=txt;
   if(items&&items.length){const g=document.createElement("div");g.className="cits";
