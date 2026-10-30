@@ -1370,8 +1370,6 @@ async function prPiece(src,w,h){const im=await loadImg(src),b=PR_BORDE*PR_PX,pad
 async function prPhotoBox(w,h,txt){const W=Math.round(w*PR_PX),H=Math.round(h*PR_PX),c=document.createElement("canvas");c.width=W+20;c.height=H+20;const g=c.getContext("2d");
  g.setLineDash([24,16]);g.lineWidth=6;g.strokeStyle="#7c4dff";g.strokeRect(10,10,W,H);g.fillStyle="#7c4dff";g.font=`700 ${Math.max(28,Math.min(W,H)/10)}px sans-serif`;g.textAlign="center";
  txt.split("\n").forEach((t,i,a)=>g.fillText(t,10+W/2,10+H/2+(i-(a.length-1)/2)*Math.max(34,Math.min(W,H)/8)));return c}
-function prHeader(g,d,n,tot){g.fillStyle="#555";g.font="600 38px sans-serif";g.textAlign="left";g.fillText(`${d.no||"Pedido"} · ${d.n||""}`,PR_M*PR_PX*.6,PR_M*PR_PX*.62);
- g.textAlign="right";g.fillText(`Hoja ${n} de ${tot}`,PR_W-PR_M*PR_PX*.6,PR_M*PR_PX*.62)}
 async function buildPrint(d){const pages=[],free=[],skip=[];
  const it=k=>ITEMS[k]||null,mat=new Set();
  // 1) las hojas que armó el cliente se respetan tal cual
@@ -1398,7 +1396,6 @@ async function buildPrint(d){const pages=[],free=[],skip=[];
    for(const Q of mine){pos=spot(Q,f.w,f.h);if(pos){P=Q;break}}
    if(!pos){const c=document.createElement("canvas");c.width=PR_W;c.height=PR_H;const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,PR_W,PR_H);P={c,g,R:[],m,t:"Stickers sueltos"};mine.push(P);pages.push(P);pos=[PR_M,PR_M]}
    const [x,y]=pos;P.R.push([x,y,f.w,f.h]);P.g.drawImage(f.pc,(x+f.w/2)*PR_PX-f.pc.width/2,(y+f.h/2)*PR_PX-f.pc.height/2)}}
- pages.forEach((p,i)=>{const g=p.c.getContext("2d");prHeader(g,d,i+1,pages.length);g.fillStyle="#555";g.font="600 34px sans-serif";g.textAlign="left";g.fillText(`${p.m||""} · ${p.t}`,PR_M*PR_PX*.6,PR_H-PR_M*PR_PX*.4)});
  return {pages,skip}}
 async function showPrint(d){const box=$("#prbox"),bt=$("#vsheets");bt.disabled=true;const bl=bt.textContent;bt.textContent="Preparando hojas…";
  try{const {pages,skip}=await buildPrint(d);
