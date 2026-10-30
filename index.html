@@ -1366,7 +1366,7 @@ const PR_DPI=300,PR_PX=PR_DPI/2.54,PR_W=Math.round(21*PR_PX),PR_H=Math.round(29.
 async function prPiece(src,w,h){const im=await loadImg(src),b=PR_BORDE*PR_PX,pad=Math.ceil(b+6),W=Math.round(w*PR_PX),H=Math.round(h*PR_PX);
  const k=Math.min(W/im.naturalWidth,H/im.naturalHeight),iw=im.naturalWidth*k,ih=im.naturalHeight*k,ox=pad+(W-iw)/2,oy=pad+(H-ih)/2;
  const c=document.createElement("canvas");c.width=W+2*pad;c.height=H+2*pad;const g=c.getContext("2d");
- g.drawImage(im,ox,oy,iw,ih);return c}
+ g.drawImage(im,ox,oy,iw,ih);c.cw=iw/PR_PX;c.ch=ih/PR_PX;return c}
 async function prPhotoBox(w,h,txt){const W=Math.round(w*PR_PX),H=Math.round(h*PR_PX),c=document.createElement("canvas");c.width=W+20;c.height=H+20;const g=c.getContext("2d");
  g.setLineDash([24,16]);g.lineWidth=6;g.strokeStyle="#7c4dff";g.strokeRect(10,10,W,H);g.fillStyle="#7c4dff";g.font=`700 ${Math.max(28,Math.min(W,H)/10)}px sans-serif`;g.textAlign="center";
  txt.split("\n").forEach((t,i,a)=>g.fillText(t,10+W/2,10+H/2+(i-(a.length-1)/2)*Math.max(34,Math.min(W,H)/8)));return c}
@@ -1375,13 +1375,13 @@ async function buildPrint(d){const pages=[],free=[],skip=[];
  // 1) los stickers de las hojas que armó el cliente entran al acomodo con su medida (así ninguno queda pegado o encimado)
  for(const l of d.L){if(!l.lay)continue;mat.add(l.m);
   for(const [k,w,h,,,r] of l.lay){if(!it(k))continue;const rot=Math.abs(((r||0)%180+180)%180-90)<20,W=rot?h:w,H=rot?w:h;
-   free.push({pc:await prPiece(it(k)[0],W,H),w:W+2*PR_BORDE,h:H+2*PR_BORDE,m:l.m})}}
+   {const pc=await prPiece(it(k)[0],W,H);free.push({pc,w:pc.cw,h:pc.ch,m:l.m})}}}
  // 2) stickers sueltos (y sus cantidades) se acomodan solos
  for(const l of d.L){if(l.lay||l.x)continue;
   if(l.sheet){skip.push(l.name+" (hoja sin acomodo guardado)");continue}
   const w=+l.s||5,h=+(l.h||l.s)||5,q=Math.max(1,+l.q||1);mat.add(l.m);
   const pc=l.k!=null&&it(l.k)?await prPiece(it(l.k)[0],w,h):await prPhotoBox(w,h,`Foto del cliente\n${l.img||""}\n${w} × ${h} cm`);
-  for(let i=0;i<q;i++)free.push({pc,w:w+2*PR_BORDE,h:h+2*PR_BORDE,m:l.m})}
+  for(let i=0;i<q;i++)free.push({pc,w:pc.cw||w,h:pc.ch||h,m:l.m})}
  for(const l of d.L)if(l.x)skip.push(l.name);
  // acomodo: de más grande a más chico, cada uno en el primer hueco libre (rellena los espacios); cada material en sus propias hojas
  const byMat={};free.forEach(f=>(byMat[f.m]=byMat[f.m]||[]).push(f));
