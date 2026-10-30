@@ -372,7 +372,7 @@ td:first-child{font-weight:700}
 .vimg{width:110px;height:110px;flex:none;background:var(--tile);border-radius:10px;display:grid;place-items:center;padding:8px;color:var(--brand-d);overflow:hidden}
 .vimg img{max-width:100%;max-height:100%;object-fit:contain}
 .vimg.cov{padding:0}.vimg.cov img{width:100%;height:100%;object-fit:cover}
-@media print{header,nav,footer,.toast,.vbtns,#s-ver .lead{display:none!important}.shell{display:block}main{padding:0}body,.vline,.panel{background:#fff!important;color:#000!important}}
+@media print{header,nav,footer,.toast,.vbtns,.prbox,#s-ver .lead{display:none!important}.shell{display:block}main{padding:0}body,.vline,.panel{background:#fff!important;color:#000!important}}
 .bigp{font-size:34px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
 .sub{font-size:18px;font-weight:800;margin:24px 0 4px}
 .faq{display:grid;gap:8px;margin-top:16px}
@@ -627,6 +627,17 @@ select:focus,input:focus,textarea:focus{border-color:transparent;box-shadow:inse
 .mpal{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .mpal button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);padding:0}
 .mnote{font-size:13px;color:var(--mu);margin:6px 0 0}
+
+/* ===== Hojas listas para imprimir ===== */
+.prbox{margin-top:14px}
+.prgrid{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px}
+.prgrid figure{margin:0;flex:0 0 auto;text-align:center}
+.prgrid img{height:300px;width:auto;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:4px;display:block}
+.prgrid figcaption{font-size:12px;color:var(--mu);margin-top:6px}
+.prgrid a{font-weight:700}
+#prpages{display:none}
+@media print{body.prmode>*:not(#prpages){display:none!important}body.prmode #prpages{display:block}#prpages img{width:210mm;height:297mm;display:block;page-break-after:always;break-after:page}}
+@page{size:A4;margin:0}
 </style>
 
 </head>
@@ -1347,6 +1358,59 @@ function renderExtras(){const logo=$(".head img").src;heroShow();
 const XUP={};   // fotos elegidas en los formularios de Proyectos, por producto
 // visor: abre el pedido por su link
 const waNum=t=>{const d=String(t).replace(/\D/g,"");return d.length==10&&d[0]=="0"?"593"+d.slice(1):d};
+// ===== Hojas A4 listas para imprimir: acomoda los stickers del pedido a tamaño real, separados 2 mm =====
+const PR_DPI=300,PR_PX=PR_DPI/2.54,PR_W=Math.round(21*PR_PX),PR_H=Math.round(29.7*PR_PX),PR_M=1,PR_GAP=.2,PR_BORDE=0;
+// sticker a la medida w×h (cm), sin línea de corte
+async function prPiece(src,w,h){const im=await loadImg(src),b=PR_BORDE*PR_PX,pad=Math.ceil(b+6),W=Math.round(w*PR_PX),H=Math.round(h*PR_PX);
+ const k=Math.min(W/im.naturalWidth,H/im.naturalHeight),iw=im.naturalWidth*k,ih=im.naturalHeight*k,ox=pad+(W-iw)/2,oy=pad+(H-ih)/2;
+ const c=document.createElement("canvas");c.width=W+2*pad;c.height=H+2*pad;const g=c.getContext("2d");
+ g.drawImage(im,ox,oy,iw,ih);return c}
+async function prPhotoBox(w,h,txt){const W=Math.round(w*PR_PX),H=Math.round(h*PR_PX),c=document.createElement("canvas");c.width=W+20;c.height=H+20;const g=c.getContext("2d");
+ g.setLineDash([24,16]);g.lineWidth=6;g.strokeStyle="#7c4dff";g.strokeRect(10,10,W,H);g.fillStyle="#7c4dff";g.font=`700 ${Math.max(28,Math.min(W,H)/10)}px sans-serif`;g.textAlign="center";
+ txt.split("\n").forEach((t,i,a)=>g.fillText(t,10+W/2,10+H/2+(i-(a.length-1)/2)*Math.max(34,Math.min(W,H)/8)));return c}
+function prHeader(g,d,n,tot){g.fillStyle="#555";g.font="600 38px sans-serif";g.textAlign="left";g.fillText(`${d.no||"Pedido"} · ${d.n||""}`,PR_M*PR_PX*.6,PR_M*PR_PX*.62);
+ g.textAlign="right";g.fillText(`Hoja ${n} de ${tot}`,PR_W-PR_M*PR_PX*.6,PR_M*PR_PX*.62)}
+async function buildPrint(d){const pages=[],free=[],skip=[];
+ const it=k=>ITEMS[k]||null,mat=new Set();
+ // 1) las hojas que armó el cliente se respetan tal cual
+ for(const l of d.L){if(!l.lay)continue;mat.add(l.m);const c=document.createElement("canvas");c.width=PR_W;c.height=PR_H;const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,PR_W,PR_H);
+  for(const [k,w,h,x,y,r] of l.lay){if(!it(k))continue;const pc=await prPiece(it(k)[0],w,h),cx=(x/100*21+w/2)*PR_PX,cy=(y/100*29.7+h/2)*PR_PX;
+   g.save();g.translate(cx,cy);g.rotate((r||0)*Math.PI/180);g.drawImage(pc,-pc.width/2,-pc.height/2);g.restore()}
+  pages.push({c,m:l.m,t:l.name})}
+ // 2) stickers sueltos (y sus cantidades) se acomodan solos
+ for(const l of d.L){if(l.lay||l.x)continue;
+  if(l.sheet){skip.push(l.name+" (hoja sin acomodo guardado)");continue}
+  const w=+l.s||5,h=+(l.h||l.s)||5,q=Math.max(1,+l.q||1);mat.add(l.m);
+  const pc=l.k!=null&&it(l.k)?await prPiece(it(l.k)[0],w,h):await prPhotoBox(w,h,`Foto del cliente\n${l.img||""}\n${w} × ${h} cm`);
+  for(let i=0;i<q;i++)free.push({pc,w:w+2*PR_BORDE,h:h+2*PR_BORDE,m:l.m})}
+ for(const l of d.L)if(l.x)skip.push(l.name);
+ // acomodo: de más grande a más chico, cada uno en el primer hueco libre (rellena los espacios); cada material en sus propias hojas
+ const byMat={};free.forEach(f=>(byMat[f.m]=byMat[f.m]||[]).push(f));
+ for(const [m,arr] of Object.entries(byMat)){arr.sort((a,b)=>b.w*b.h-a.w*a.h||b.h-a.h);const mine=[];
+  const fits=(P,x,y,w,h)=>P.R.every(([a,b,c,d])=>x+w+PR_GAP<=a||a+c+PR_GAP<=x||y+h+PR_GAP<=b||b+d+PR_GAP<=y);
+  const spot=(P,w,h)=>{   // prueba solo las posiciones pegadas a los bordes de lo ya puesto (más arriba y más a la izquierda primero)
+   const xs=[PR_M,...P.R.map(([a,,c])=>a+c+PR_GAP)],ys=[PR_M,...P.R.map(([,b,,d])=>b+d+PR_GAP)];
+   const C=[];ys.forEach(y=>xs.forEach(x=>{if(x+w<=21-PR_M+1e-6&&y+h<=29.7-PR_M+1e-6)C.push([x,y])}));C.sort((a,b)=>a[1]-b[1]||a[0]-b[0]);
+   return C.find(([x,y])=>fits(P,x,y,w,h))||null};
+  for(const f of arr){let pos=null,P=null;
+   for(const Q of mine){pos=spot(Q,f.w,f.h);if(pos){P=Q;break}}
+   if(!pos){const c=document.createElement("canvas");c.width=PR_W;c.height=PR_H;const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,PR_W,PR_H);P={c,g,R:[],m,t:"Stickers sueltos"};mine.push(P);pages.push(P);pos=[PR_M,PR_M]}
+   const [x,y]=pos;P.R.push([x,y,f.w,f.h]);P.g.drawImage(f.pc,(x+f.w/2)*PR_PX-f.pc.width/2,(y+f.h/2)*PR_PX-f.pc.height/2)}}
+ pages.forEach((p,i)=>{const g=p.c.getContext("2d");prHeader(g,d,i+1,pages.length);g.fillStyle="#555";g.font="600 34px sans-serif";g.textAlign="left";g.fillText(`${p.m||""} · ${p.t}`,PR_M*PR_PX*.6,PR_H-PR_M*PR_PX*.4)});
+ return {pages,skip}}
+async function showPrint(d){const box=$("#prbox"),bt=$("#vsheets");bt.disabled=true;const bl=bt.textContent;bt.textContent="Preparando hojas…";
+ try{const {pages,skip}=await buildPrint(d);
+  if(!pages.length){box.innerHTML=`<div class="panel"><p>Este pedido no tiene stickers para imprimir${skip.length?` (solo: ${esc(skip.join(", "))})`:""}.</p></div>`;return}
+  const urls=pages.map(p=>p.c.toDataURL("image/png"));
+  box.innerHTML=`<div class="panel"><h3 style="margin-top:0">Hojas listas para imprimir · ${pages.length} hoja${pages.length>1?"s":""} A4</h3>
+   <p class="hint">A tamaño real. Al imprimir elige <b>tamaño A4</b>, <b>escala 100 % (tamaño real)</b> y sin márgenes. Los stickers van separados 2 mm.${skip.length?`<br>No incluidos (se trabajan aparte): ${esc(skip.join(", "))}.`:""}</p>
+   <div class="prgrid">${urls.map((u,i)=>`<figure><img src="${u}" alt="Hoja ${i+1}"><figcaption>Hoja ${i+1} · ${esc(pages[i].m||"")}<br><a href="${u}" download="${esc((d.no||"pedido")+"-hoja-"+(i+1))}.png">Descargar</a></figcaption></figure>`).join("")}</div>
+   <button class="btn big" id="prgo">Imprimir hojas</button></div>`;
+  let pp=$("#prpages");if(!pp){pp=document.createElement("div");pp.id="prpages";document.body.appendChild(pp)}pp.innerHTML=urls.map(u=>`<img src="${u}" alt="">`).join("");
+  $("#prgo").onclick=()=>{document.body.classList.add("prmode");setTimeout(()=>{print();setTimeout(()=>document.body.classList.remove("prmode"),500)},100)};
+  box.scrollIntoView({behavior:"smooth",block:"start"})}
+ catch(e){console.warn(e);box.innerHTML='<div class="panel"><p>No pudimos preparar las hojas. Intenta otra vez.</p></div>'}
+ finally{bt.disabled=false;bt.textContent=bl}}
 async function renderOrder(){let d;try{d=await readOrder(location.hash)}catch(e){d=null}
  const v=$("#ver");if(!d||!Array.isArray(d.L)){v.innerHTML='<div class="panel emptycart"><p>No pudimos leer este pedido. Pide al cliente que lo vuelva a enviar.</p></div>';return}
  const it=k=>ITEMS[k]||["","Sticker #"+(k+1),""],tot=d.L.reduce((a,l)=>a+lineTotal(l),0),cot=d.L.some(cotiza);
@@ -1362,8 +1426,8 @@ async function renderOrder(){let d;try{d=await readOrder(location.hash)}catch(e)
  v.innerHTML=`<div class="panel vtop"><div><span class="xtag">Pedido</span><h2 class="vno">${esc(d.no||"")}</h2>
   <p class="vcli"><b>${esc(d.n||"Sin nombre")}</b>${d.t?` · ${esc(d.t)}`:""}${d.e?` · ${esc(d.e)}`:""}</p>${d.o?`<p class="vnote">Notas: ${esc(d.o)}</p>`:""}</div>
   <div class="vtot"><span>Total estimado</span><b>${d.L.every(cotiza)?"A cotizar":money(tot)}</b>${cot&&!d.L.every(cotiza)?`<small>+ productos a cotizar</small>`:""}</div>
-  <div class="vbtns"><button class="btn" id="vprint">Imprimir o guardar PDF</button>${ph?`<a class="btn alt" href="https://wa.me/${ph}" target="_blank" rel="noopener">Escribir al cliente</a>`:""}</div></div>${d.L.map(row).join("")}`;
- $("#vprint").onclick=()=>print()}
+  <div class="vbtns"><button class="btn" id="vsheets">Preparar para imprimir</button><button class="btn alt" id="vprint">Imprimir resumen</button>${ph?`<a class="btn alt" href="https://wa.me/${ph}" target="_blank" rel="noopener">Escribir al cliente</a>`:""}</div></div><div class="prbox" id="prbox"></div>${d.L.map(row).join("")}`;
+ $("#vprint").onclick=()=>print();$("#vsheets").onclick=()=>showPrint(d)}
 function showOrder(){if(!/^#([pjz]=|XTO-)/.test(location.hash))return;go("ver");$("#ver").innerHTML='<div class="panel emptycart"><p>Cargando el pedido…</p></div>';renderOrder()}
 addEventListener("hashchange",showOrder);
 // opciones del inicio: [título, descripción, destino, miniatura]
