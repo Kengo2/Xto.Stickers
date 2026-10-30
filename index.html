@@ -1372,11 +1372,10 @@ async function prPhotoBox(w,h,txt){const W=Math.round(w*PR_PX),H=Math.round(h*PR
  txt.split("\n").forEach((t,i,a)=>g.fillText(t,10+W/2,10+H/2+(i-(a.length-1)/2)*Math.max(34,Math.min(W,H)/8)));return c}
 async function buildPrint(d){const pages=[],free=[],skip=[];
  const it=k=>ITEMS[k]||null,mat=new Set();
- // 1) las hojas que armó el cliente se respetan tal cual
- for(const l of d.L){if(!l.lay)continue;mat.add(l.m);const c=document.createElement("canvas");c.width=PR_W;c.height=PR_H;const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,PR_W,PR_H);
-  for(const [k,w,h,x,y,r] of l.lay){if(!it(k))continue;const pc=await prPiece(it(k)[0],w,h),cx=(x/100*21+w/2)*PR_PX,cy=(y/100*29.7+h/2)*PR_PX;
-   g.save();g.translate(cx,cy);g.rotate((r||0)*Math.PI/180);g.drawImage(pc,-pc.width/2,-pc.height/2);g.restore()}
-  pages.push({c,m:l.m,t:l.name})}
+ // 1) los stickers de las hojas que armó el cliente entran al acomodo con su medida (así ninguno queda pegado o encimado)
+ for(const l of d.L){if(!l.lay)continue;mat.add(l.m);
+  for(const [k,w,h,,,r] of l.lay){if(!it(k))continue;const rot=Math.abs(((r||0)%180+180)%180-90)<20,W=rot?h:w,H=rot?w:h;
+   free.push({pc:await prPiece(it(k)[0],W,H),w:W+2*PR_BORDE,h:H+2*PR_BORDE,m:l.m})}}
  // 2) stickers sueltos (y sus cantidades) se acomodan solos
  for(const l of d.L){if(l.lay||l.x)continue;
   if(l.sheet){skip.push(l.name+" (hoja sin acomodo guardado)");continue}
