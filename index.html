@@ -1423,12 +1423,14 @@ async function showPrint(d){const box=$("#prbox"),bt=$("#vsheets");bt.disabled=t
   box.innerHTML=`<div class="panel"><h3 style="margin-top:0">Hojas listas para imprimir · ${pages.length} hoja${pages.length>1?"s":""} A4</h3>
    <p class="hint">A tamaño real. Al imprimir elige <b>tamaño A4</b>, <b>escala 100 % (tamaño real)</b> y sin márgenes. Los stickers van separados 2 mm.${skip.length?`<br>No incluidos (se trabajan aparte): ${esc(skip.join(", "))}.`:""}</p>
    <div class="prgrid">${urls.map((u,i)=>`<figure><img src="${u}" alt="Hoja ${i+1}"><figcaption>Hoja ${i+1} · ${esc(pages[i].m||"")}<br><a href="#" data-prpng="${i}">Descargar PNG</a></figcaption></figure>`).join("")}</div>
-   <div class="row" style="margin:6px 0 0"><button class="btn big" id="prgo">Imprimir hojas</button><button class="btn big alt" id="prpdf">Descargar PDF (imprenta / Illustrator)</button></div>
+   <div class="row" style="margin:6px 0 0"><button class="btn big" id="prgo">Imprimir hojas</button><button class="btn big alt" id="prpdf">Descargar PDF (imprenta / Illustrator)</button><button class="btn big alt" id="prcanva">Enviar a Canva</button></div>
    <p class="hint">El PDF va en A4 a tamaño real y sin compresión que dañe la imagen. Los PNG van a 300 DPI.</p></div>`;
   let pp=$("#prpages");if(!pp){pp=document.createElement("div");pp.id="prpages";document.body.appendChild(pp)}pp.innerHTML=urls.map(u=>`<img src="${u}" alt="">`).join("");
   const base=(d.no||"pedido");
   $$("[data-prpng]").forEach(a=>a.onclick=async e=>{e.preventDefault();saveBlob(await pngDPI(pages[+a.dataset.prpng].c),`${base}-hoja-${+a.dataset.prpng+1}.png`)});
   $("#prpdf").onclick=async()=>{const b=$("#prpdf"),t=b.textContent;b.disabled=true;b.textContent="Creando PDF…";try{saveBlob(await sheetsPDF(pages.map(p=>p.c)),`${base}-hojas.pdf`)}catch(e){console.warn(e);toast("No se pudo crear el PDF")}b.disabled=false;b.textContent=t};
+  $("#prcanva").onclick=async()=>{const b=$("#prcanva"),t=b.textContent,w=open("https://www.canva.com/","_blank","noopener");b.disabled=true;b.textContent="Preparando PDF…";   // la pestaña se abre al tocar para que el navegador no la bloquee
+   try{saveBlob(await sheetsPDF(pages.map(p=>p.c)),`${base}-hojas.pdf`);toast("PDF descargado: en Canva toca «Subir» y elígelo, o arrástralo a la página")}catch(e){console.warn(e);toast("No se pudo crear el PDF")}b.disabled=false;b.textContent=t};
   $("#prgo").onclick=()=>{document.body.classList.add("prmode");setTimeout(()=>{print();setTimeout(()=>document.body.classList.remove("prmode"),500)},100)};
   box.scrollIntoView({behavior:"smooth",block:"start"})}
  catch(e){console.warn(e);box.innerHTML='<div class="panel"><p>No pudimos preparar las hojas. Intenta otra vez.</p></div>'}
